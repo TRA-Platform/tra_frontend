@@ -1,0 +1,71 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version: '16.x'
+
+      - name: Run YARN install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build the Application
+        run: npm run build
+        env:
+          VITE_API_URL: ${{vars.API_URL}}
+          VITE_AUTHORIZATION_HEADER: ${{vars.AUTHORIZATION_HEADER}}
+          VITE_ASSETS_URL: ${{vars.ASSETS_URL}}
+          VITE_APP_URL: ${{vars.APP_URL}}
+      - name: Deploy to Pre-release Branch
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: pre-release
+          folder: dist
+      - name: Upload to S3
+        uses: shallwefootball/s3-upload-action@master
+        id: S3
+        with:
+          aws_key_id: ${{ vars.S3_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ vars.S3_BUCKET }}
+          source_dir: 'dist/'
+          destination_dir: ''
+          endpoint: ${{ vars.S3_ENDPOINT }}
+      - name: Copy Dockerfile and .dockerignore and nginx.conf to dist directory
+        run: |
+          mv dist tmp_dist
+          mkdir -p dist/dist
+          mv tmp_dist/* dist/dist/
+          cp Dockerfile dist/
+          cp .dockerignore dist/
+          cp nginx.conf dist/
+        working-directory: .
+
+      - name: Deploy to Release Branch
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: release
+          folder: dist
+

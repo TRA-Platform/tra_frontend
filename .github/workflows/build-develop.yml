@@ -1,0 +1,55 @@
+name: Build and Deploy Develop
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version: '16.x'
+
+      - name: Run YARN install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build the Application
+        run: npm run build
+        env:
+          VITE_API_URL: https://pashok.pagekite.me/api/v1/
+          VITE_AUTHORIZATION_HEADER: Bearer
+          VITE_SENTRY_API_URL: https://pashok.pagekite.me/api/v1/sentry/
+          VITE_ASSETS_URL: https://pashok.pagekite.me/
+          VITE_APP_URL: https://pashok.pagekite.me/
+
+      - name: Copy Dockerfile and .dockerignore and nginx.conf to dist directory
+        run: |
+          mv dist tmp_dist
+          mkdir -p dist/dist
+          mv tmp_dist/* dist/dist/
+          cp Dockerfile dist/
+          cp .dockerignore dist/
+        working-directory: .
+
+      - name: Deploy to Release Dev Branch
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: release-dev
+          folder: dist
+

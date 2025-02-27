@@ -1,0 +1,52 @@
+{
+  "auth": {
+    "login": {
+      "2fa": "2FA",
+      "login_btn": "Login",
+      "password": "Password",
+      "remember_me": "Remember me",
+      "slogan": "Please login to start working",
+      "username": "Username",
+      "welcome": "Welcome!"
+    }
+  },
+  "change_password": "Change Password",
+  "data": {
+    "empty": "No data",
+    "error": "Error loading data",
+    "exported": "Data exported successfully!",
+    "loading": "Loading data...",
+    "user": {
+      "loading_error": "Error loading user data"
+    }
+  },
+  "error_pages": {
+    "all": {
+      "back": "Back to home",
+      "description": "Unfortunately, we can't find the page you're looking for.",
+      "title": "Page not found :("
+    },
+    "maintenance": {
+      "back": "Back to home",
+      "description": "Sorry for the inconvenience but we're performing some maintenance at the moment",
+      "title": "Under Maintenance! 🚧"
+    }
+  },
+  "index": {
+    "under_construction": "Under Construction"
+  },
+  "navigation": {
+    "home": "Home",
+    "user_info": {
+      "title": "Profile",
+      "logout": "Logout"
+    }
+  },
+  "user_info": {
+    "tabs": {
+      "main_info": "Main Info",
+      "tab1": "Tab 1"
+    },
+    "title": "User Info"
+  }
+}
