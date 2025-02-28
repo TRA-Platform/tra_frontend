@@ -37,7 +37,7 @@ const updatePassword = () => {
         message: "Successfully changed password!",
       }
     },
-  ).catch(
+  ).catch (
     error => {
       snackbar.value = {
         enabled: true,
@@ -52,7 +52,7 @@ const updateUserInfo = async () => {
   baseStore.updateSupportMemberById ({
     telegram: userData.value.telegram,
     phone: userData.value.phone,
-  }, userData.value.object_id).then(
+  }, userData.value.object_id).then (
     response => {
       if (response.error) {
         throw response.error
@@ -63,7 +63,7 @@ const updateUserInfo = async () => {
         message: "Successfully updated!",
       }
     },
-  ).catch(
+  ).catch (
     error => {
       snackbar.value = {
         enabled: true,
@@ -97,11 +97,11 @@ const updateUserInfo = async () => {
               color="primary"
               icon="tabler-info-circle"
             />
-            $t('base_info')
+            {{ $t ('user_info.tabs.main_info') }}
           </VCardTitle>
           <VCol cols="12">
             <!-- 👉 Change password -->
-            <VCard :title="$t('base_info')">
+            <VCard :title="$t('user_info.main_info.base_info.title')">
               <VCardText>
                 <VForm @submit.prevent="() => {}">
                   <VRow class="pt-1">
@@ -112,7 +112,7 @@ const updateUserInfo = async () => {
                     >
                       <VTextField
                         v-model="userData.first_name"
-                        :label="$t('name')"
+                        :label="$t('user_info.main_info.base_info.fields.name')"
                         outlined
                         dense
                         readonly
@@ -125,7 +125,7 @@ const updateUserInfo = async () => {
                     >
                       <VTextField
                         v-model="userData.email"
-                        :label="$t('email')"
+                        :label="$t('user_info.main_info.base_info.fields.email')"
                         outlined
                         dense
                         readonly
@@ -138,7 +138,7 @@ const updateUserInfo = async () => {
           </VCol>
           <VCol cols="12">
             <!-- 👉 Change password -->
-            <VCard :title="$t('change_password')">
+            <VCard :title="$t('user_info.main_info.change_password.title')">
               <VCardText>
                 <VAlert
                   variant="tonal"
@@ -146,9 +146,9 @@ const updateUserInfo = async () => {
                   class="mb-4"
                 >
                   <VAlertTitle class="mb-1">
-                    {{ $t('alerts.requirements') }}
+                    {{ $t ('user_info.main_info.alerts.password.title') }}
                   </VAlertTitle>
-                  <span>{{ $t('alerts.password.requirements') }}</span>
+                  <span>{{ $t ('user_info.main_info.alerts.password.description') }}</span>
                 </VAlert>
 
                 <VForm @submit.prevent="() => {}">
@@ -159,7 +159,7 @@ const updateUserInfo = async () => {
                     >
                       <VTextField
                         v-model="oldPassword"
-                        :label="$t('old_password')"
+                        :label="$t('user_info.main_info.change_password.fields.old_password')"
                         :type="isOldPasswordVisible ? 'text' : 'password'"
                         :append-inner-icon="isOldPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                         @click:append-inner="isOldPasswordVisible = !isOldPasswordVisible"
@@ -171,7 +171,7 @@ const updateUserInfo = async () => {
                     >
                       <VTextField
                         v-model="newPassword"
-                        :label="$t('new_password')"
+                        :label="$t('user_info.main_info.change_password.fields.new_password')"
                         :type="isNewPasswordVisible ? 'text' : 'password'"
                         :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                         @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
@@ -183,7 +183,7 @@ const updateUserInfo = async () => {
                     >
                       <VTextField
                         v-model="confirmPassword"
-                        :label="$t('confirm_password')"
+                        :label="$t('user_info.main_info.change_password.fields.confirm_password')"
                         :type="isConfirmPasswordVisible ? 'text' : 'password'"
                         :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                         @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
@@ -198,7 +198,7 @@ const updateUserInfo = async () => {
                         type="submit"
                         @click="updatePassword"
                       >
-                        {{ $t('change_password') }}
+                        {{ $t ('user_info.main_info.change_password.update_button') }}
                       </VBtn>
                     </VCol>
                   </VRow>

@@ -7,6 +7,8 @@ export const useAuthStore = defineStore ({
   id: 'AuthStore',
   state: () => ({
     userData: useStorage ('userData', {
+      object_id: "",
+      user_id: "",
       username: "",
       first_name: "",
       email: "",

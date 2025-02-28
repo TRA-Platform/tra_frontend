@@ -43,7 +43,7 @@ onMounted(
               color="primary"
               icon="tabler-coin"
             />
-            {{ $t('tabs.tab1') }}
+            {{ $t ('user_info.tabs.tab1') }}
             <VBtn
               class="float-end"
               icon="tabler-refresh"
@@ -54,7 +54,7 @@ onMounted(
           <VCol cols="12">
             <VCard>
               <VCardText>
-                Under construction ...
+                {{ $t('error_pages.maintenance.description') }}
               </VCardText>
             </VCard>
           </VCol>
