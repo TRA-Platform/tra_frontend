@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, capitalize } from 'vue'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 
 const props = defineProps({
@@ -300,7 +300,7 @@ watch(() => props.requirement, (newVal) => {
                   size="small"
                   label
                 >
-                  {{ requirement.status }}
+                  {{ capitalize(requirement.status) }}
                 </VChip>
 
                 <VChip

@@ -55,7 +55,7 @@ const currentVersion = computed(() => {
 const formatDate = (dateString) => {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'

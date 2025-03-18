@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { capitalize, computed } from 'vue'
 
 const props = defineProps({
   project: {
@@ -79,7 +79,7 @@ const formatLanguage = (code) => {
                   :color="statusColor"
                   label
                 >
-                  {{ project.status }}
+                  {{ capitalize(project.status) }}
                 </VChip>
               </template>
             </VCardItem>

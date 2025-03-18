@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, capitalize } from 'vue'
 import { useMockupStore } from '@/stores/useMockupStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import MockupPreviewDialog from '@/views/projects/MockupPreviewDialog.vue'
+import { getStatusChipColor } from "@core/utils/formatters";
 
 const props = defineProps({
   projectId: {
@@ -153,11 +154,11 @@ const truncateHtml = (html, length = 150) => {
 
             <template #append>
               <VChip
-                color="info"
+                :color="getStatusChipColor(mockup.status)"
                 size="small"
                 label
               >
-                {{ mockup.status }}
+                {{ capitalize(mockup.status) }}
               </VChip>
             </template>
           </VCardItem>

@@ -326,7 +326,7 @@ onMounted(() => {
                 <VChip
                   v-if="project.mockups?.length"
                   size="x-small"
-                  color="secondary"
+                  color="white"
                   class="ms-2"
                 >
                   {{ project.mockups.length }}

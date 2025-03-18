@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, capitalize } from 'vue'
 import { useMockupStore } from '@/stores/useMockupStore'
+import { getStatusChipColor } from "@core/utils/formatters";
 
 const props = defineProps({
   modelValue: {
@@ -114,12 +115,11 @@ watch(() => props.mockup, (newVal) => {
         <template v-else>
           <h5 class="text-h5">{{ mockup.name }}</h5>
           <VChip
-            color="info"
+            :color="getStatusChipColor(mockup.status)"
             size="small"
             label
-            class="ms-2"
           >
-            {{ mockup.status }}
+            {{ capitalize(mockup.status) }}
           </VChip>
         </template>
 

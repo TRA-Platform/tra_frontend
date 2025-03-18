@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, capitalize } from 'vue'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import RequirementDetailsDialog from '@/views/projects/RequirementDetailsDialog.vue'
 import RequirementCreateDialog from '@/views/projects/RequirementCreateDialog.vue'
 import { da } from "vuetify/locale";
+import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters";
 
 const props = defineProps({
   projectId: {
@@ -76,25 +77,6 @@ const filteredRequirements = computed(() => {
   })
 })
 
-const getCategoryChipColor = (category) => {
-  switch (category) {
-    case 'functional': return 'primary'
-    case 'nonfunctional': return 'secondary'
-    case 'uiux': return 'success'
-    case 'other': return 'info'
-    default: return 'primary'
-  }
-}
-
-const getStatusChipColor = (status) => {
-  switch (status) {
-    case 'draft': return 'warning'
-    case 'active': return 'success'
-    case 'archived': return 'secondary'
-    case 'completed': return 'info'
-    default: return 'primary'
-  }
-}
 
 const openRequirementDetails = (req) => {
   selectedRequirement.value = req
@@ -322,7 +304,7 @@ onMounted(() => {
                 size="small"
                 label
               >
-                {{ req.status }}
+                {{ capitalize(req.status) }}
               </VChip>
             </template>
           </VCardItem>

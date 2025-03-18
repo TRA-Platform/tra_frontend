@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, capitalize } from 'vue'
 import { useDevelopmentPlanStore } from '@/stores/useDevelopmentPlanStore'
+import { getStatusChipColor } from "@core/utils/formatters";
 
 const props = defineProps({
   modelValue: {
@@ -49,7 +50,7 @@ const snackbar = ref({
 const formatDate = (dateString) => {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -245,14 +246,14 @@ watch(() => props.version, (newVal) => {
               <div class="d-flex flex-wrap justify-space-between mb-4">
                 <div class="d-flex align-center">
                   <VChip
-                    :color="version.status === 'active' ? 'success' : 'warning'"
+                    :color="getStatusChipColor(version.status)"
                     size="small"
                     label
-                    class="me-2"
                   >
-                    {{ version.status }}
+                    {{ capitalize(version.status) }}
                   </VChip>
-
+                </div>
+                <div class="d-flex align-center">
                   <span class="text-caption">
                     Created: {{ formatDate(version.created_at) }}
                   </span>

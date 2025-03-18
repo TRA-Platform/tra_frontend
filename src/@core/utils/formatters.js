@@ -155,3 +155,24 @@ export const formatTimeDeltaSeconds = (startTime, endTime) => {
 
   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
 }
+
+
+export const getCategoryChipColor = (category) => {
+  switch (category) {
+    case 'functional': return 'primary'
+    case 'nonfunctional': return 'secondary'
+    case 'uiux': return 'success'
+    case 'other': return 'info'
+    default: return 'primary'
+  }
+}
+
+export const getStatusChipColor = (status) => {
+  switch (status) {
+    case 'draft': return 'warning'
+    case 'active': return 'success'
+    case 'archived': return 'secondary'
+    case 'completed': return 'info'
+    default: return 'primary'
+  }
+}

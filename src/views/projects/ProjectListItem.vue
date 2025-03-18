@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { capitalize, computed } from 'vue'
+import { getStatusChipColor } from "@core/utils/formatters";
 
 const props = defineProps({
   project: {
@@ -75,12 +76,11 @@ const truncateDescription = (text, length = 100) => {
       <VCardTitle>
         {{ project.name }}
         <VChip
+          :color="getStatusChipColor(project.status)"
           size="small"
-          :color="statusColor"
-          class="ms-2"
           label
         >
-          {{ project.status }}
+          {{ capitalize(project.status) }}
         </VChip>
       </VCardTitle>
 
