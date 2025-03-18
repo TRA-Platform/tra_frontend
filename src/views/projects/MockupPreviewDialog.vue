@@ -42,7 +42,7 @@ const snackbar = ref({
 const formatDate = (dateString) => {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -199,7 +199,7 @@ watch(() => props.mockup, (newVal) => {
 
             <div v-if="mockup.requirement" class="d-flex align-center ms-4">
               <VIcon icon="tabler-file-check" class="me-2" size="18" />
-              <span class="text-caption">Requirement: {{ mockup.requirement.title }}</span>
+              <span class="text-caption">Requirement: {{ mockup.requirement }}</span>
             </div>
           </div>
 
@@ -214,7 +214,7 @@ watch(() => props.mockup, (newVal) => {
               :style="{
                 height: isFullscreen ? 'calc(100vh - 180px)' : 'calc(70vh - 110px)'
               }"
-              sandbox="allow-same-origin"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               title="Mockup Preview"
             ></iframe>
 

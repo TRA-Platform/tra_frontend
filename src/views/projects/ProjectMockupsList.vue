@@ -50,7 +50,7 @@ const filteredMockups = computed(() => {
 const formatDate = (dateString) => {
   if (!dateString) return ''
 
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -189,7 +189,7 @@ const truncateHtml = (html, length = 150) => {
             <div v-if="mockup.requirement" class="mb-2">
               <span class="text-caption font-weight-medium">Requirement: </span>
               <VChip size="x-small" color="primary" class="ms-1">
-                {{ mockup.requirement.title }}
+                {{ mockup.requirement }}
               </VChip>
             </div>
 
