@@ -102,7 +102,7 @@ export const toMonths = timestamp => {
 export const formatTimestamp = timestamp => {
   const options = { month: 'short', day: 'numeric', year: 'numeric' }
 
-  return new Date (timestamp * 1000).toLocaleDateString ('en-US', options)
+  return new Date (timestamp).toLocaleDateString ('en-US', options)
 }
 export const roundToNDigits = (number, n) => {
   const factor = 10 ** n

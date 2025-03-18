@@ -7,4 +7,12 @@ export default [
       name: 'index',
     },
   },
+  {
+    title: 'navigation.projects',
+    icon: { icon: 'tabler-layout-kanban' },
+    role: 0,
+    to: {
+      name: 'projects',
+    },
+  },
 ]
