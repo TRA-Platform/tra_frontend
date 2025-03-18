@@ -188,7 +188,11 @@ onMounted(() => {
   fetchSrsTemplates()
 
   if (props.editMode && props.projectData) {
-    Object.assign(project.value, props.projectData)
+    console.log('Project Data:', props.projectData.deadline)
+    const newDeadline = props.projectData.deadline ? (new Date(parseInt(props.projectData.deadline))).toISOString() : null
+    console.log(`New Deadline: ${newDeadline}`)
+    Object.assign(project.value, props.projectData, { deadline: newDeadline })
+    // Object.assign(project.value, props.projectData)
   }
 })
 

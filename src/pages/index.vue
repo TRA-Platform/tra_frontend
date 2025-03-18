@@ -4,6 +4,9 @@ const router = useRouter ()
 onMounted (
   () => {
     console.log ('mounted')
+    router.push ({
+      name: 'projects',
+    })
   },
 )
 </script>

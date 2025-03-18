@@ -63,7 +63,9 @@ const handleEditProject = () => {
   isEditDialogOpen.value = true
 }
 
-const handleDeleteProject = async () => {
+const handleDeleteProject = async (deleting = false) => {
+  console.log(`Deleting project: ${deleting}`)
+  if(!deleting) return
   confirmDeleteDialog.value = false
   processingAction.value = true
 
@@ -243,6 +245,16 @@ onMounted(() => {
             </div>
 
             <div class="d-flex align-center mt-3 mt-sm-0">
+              <VBtn
+                color="info"
+                variant="tonal"
+                prepend-icon="tabler-refresh"
+                class="me-2"
+                @click="fetchProjectDetails"
+                :loading="processingAction"
+              >
+                Refresh
+              </VBtn>
               <VBtn
                 v-if="hasModeratorPermission"
                 color="secondary"

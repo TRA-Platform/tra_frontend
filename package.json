@@ -1,6 +1,6 @@
 {
   "name": "tra-frontend",
-  "version": "0.0.1b",
+  "version": "0.0.1c",
   "private": true,
   "scripts": {
     "dev": "vite",

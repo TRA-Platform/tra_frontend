@@ -378,7 +378,7 @@ watch(() => props.requirement, (newVal) => {
                         </VChip>
 
                         <span class="text-caption">
-                          Changed by: {{ item.changed_by ? item.changed_by.username : 'Unknown' }}
+                          Changed by: {{ item.changed_by ? item.changed_by : 'Unknown' }}
                         </span>
                       </div>
 

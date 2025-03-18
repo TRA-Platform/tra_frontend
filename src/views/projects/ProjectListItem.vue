@@ -36,7 +36,10 @@ const truncateDescription = (text, length = 100) => {
 </script>
 
 <template>
-  <VCard class="project-card h-100">
+  <VCard
+    class="project-card h-100"
+         @click="emit('view', project.id)"
+  >
     <VCardItem>
       <template #prepend>
         <VAvatar
@@ -84,8 +87,6 @@ const truncateDescription = (text, length = 100) => {
       <template #append>
         <MoreBtn :menu-list="[
           { title: 'View Details', value: 'view', props: { prependIcon: 'tabler-eye' } },
-          { title: 'Edit', value: 'edit', props: { prependIcon: 'tabler-edit' } },
-          { title: 'Delete', value: 'delete', props: { prependIcon: 'tabler-trash', color: 'error' } },
         ]" @click="name => emit(name, project.id)" />
       </template>
     </VCardItem>
@@ -115,7 +116,6 @@ const truncateDescription = (text, length = 100) => {
       <VBtn
         variant="tonal"
         color="primary"
-        @click="emit('view', project.id)"
       >
         View Details
       </VBtn>
