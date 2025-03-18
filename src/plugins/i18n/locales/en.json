@@ -3,6 +3,10 @@
     "login": {
       "2fa": "2FA",
       "login_btn": "Login",
+      "messages": {
+        "error": "Login failed. Please check your credentials and try again.",
+        "success": "Login successful!"
+      },
       "password": "Password",
       "remember_me": "Remember me",
       "slogan": "Please login to start working",
@@ -38,11 +42,38 @@
   "navigation": {
     "home": "Home",
     "user_info": {
-      "title": "Profile",
-      "logout": "Logout"
+      "logout": "Logout",
+      "title": "Profile"
     }
   },
+  "roles": {
+    "admin": "Admin"
+  },
   "user_info": {
+    "main_info": {
+      "base_info": {
+        "fields": {
+          "email": "Email",
+          "name": "Name"
+        },
+        "title": "Base Info"
+      },
+      "change_password": {
+        "fields": {
+          "confirm_password": "Confirm Password",
+          "new_password": "New Password",
+          "old_password": "Old Password"
+        },
+        "title": "Change Password",
+        "update_button": "Change Password"
+      },
+      "alerts": {
+        "password": {
+          "title": "At least 8 characters, capital letters and symbol",
+          "description": "Make sure the password requirements are fulfilled"
+        }
+      }
+    },
     "tabs": {
       "main_info": "Main Info",
       "tab1": "Tab 1"
