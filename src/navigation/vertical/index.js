@@ -1,10 +1,18 @@
 export default [
+  // {
+  //   title: 'navigation.home',
+  //   icon: { icon: 'tabler-home' },
+  //   role: 0,
+  //   to: {
+  //     name: 'index',
+  //   },
+  // },
   {
-    title: 'navigation.home',
-    icon: { icon: 'tabler-home' },
+    title: 'navigation.projects',
+    icon: { icon: 'tabler-layout-kanban' },
     role: 0,
     to: {
-      name: 'index',
+      name: 'projects',
     },
   },
 ]

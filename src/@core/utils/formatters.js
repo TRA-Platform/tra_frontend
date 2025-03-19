@@ -102,7 +102,7 @@ export const toMonths = timestamp => {
 export const formatTimestamp = timestamp => {
   const options = { month: 'short', day: 'numeric', year: 'numeric' }
 
-  return new Date (timestamp * 1000).toLocaleDateString ('en-US', options)
+  return new Date (timestamp).toLocaleDateString ('en-US', options)
 }
 export const roundToNDigits = (number, n) => {
   const factor = 10 ** n
@@ -154,4 +154,25 @@ export const formatTimeDeltaSeconds = (startTime, endTime) => {
   if (hours === 0) return `${formattedMinutes}:${formattedSeconds}`
 
   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+}
+
+
+export const getCategoryChipColor = (category) => {
+  switch (category) {
+    case 'functional': return 'primary'
+    case 'nonfunctional': return 'secondary'
+    case 'uiux': return 'success'
+    case 'other': return 'info'
+    default: return 'primary'
+  }
+}
+
+export const getStatusChipColor = (status) => {
+  switch (status) {
+    case 'draft': return 'warning'
+    case 'active': return 'success'
+    case 'archived': return 'secondary'
+    case 'completed': return 'info'
+    default: return 'primary'
+  }
 }

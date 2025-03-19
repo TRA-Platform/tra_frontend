@@ -41,16 +41,137 @@
   },
   "navigation": {
     "home": "Home",
+    "projects": "Projects",
     "user_info": {
       "logout": "Logout",
       "title": "Profile"
     }
   },
+  "projects": {
+    "actions": {
+      "create": "Create Project",
+      "delete": "Delete Project",
+      "edit": "Edit Project",
+      "export_srs": "Export SRS",
+      "generate_mockups": "Generate Mockups",
+      "generate_plan": "Generate Development Plan",
+      "generate_requirements": "Generate Requirements",
+      "view": "View Details"
+    },
+    "categories": {
+      "all": "All Categories",
+      "functional": "Functional",
+      "nonfunctional": "Non-functional",
+      "other": "Other",
+      "uiux": "UI/UX"
+    },
+    "details": {
+      "additional_requirements": "Additional Requirements",
+      "application_description": "Application Description",
+      "basic_info": "Basic Information",
+      "budget": "Budget",
+      "color_scheme": "Color Scheme",
+      "created_at": "Created At",
+      "deadline": "Deadline",
+      "language": "Language",
+      "non_functional_requirements": "Non-Functional Requirements",
+      "operating_system": "Operating System",
+      "priority_modules": "Priority Modules",
+      "project_overview": "Project Overview",
+      "short_description": "Short Description",
+      "status": "Status",
+      "target_users": "Target Users",
+      "technical_details": "Technical Details",
+      "technology_stack": "Technology Stack",
+      "type": "Type",
+      "updated_at": "Updated At"
+    },
+    "development_plan": {
+      "actions": {
+        "create_plan": "Create Development Plan",
+        "new_version": "New Version",
+        "set_current": "Set as Current"
+      },
+      "current_plan": "Current Development Plan",
+      "empty": "No Development Plan",
+      "estimated_cost": "Estimated Cost",
+      "notes": "Notes",
+      "roles_hours": "Roles & Hours Breakdown",
+      "version_history": "Version History"
+    },
+    "empty": "No projects found",
+    "filters": {
+      "search": "Search projects...",
+      "sort_by": "Sort By",
+      "status": "Status"
+    },
+    "mockups": {
+      "actions": {
+        "generate": "Generate Mockups",
+        "view_html": "View HTML"
+      },
+      "empty": "No mockups found",
+      "preview": "Preview"
+    },
+    "notifications": {
+      "created": "Project created successfully",
+      "deleted": "Project deleted successfully",
+      "error": "An error occurred",
+      "requirements_generated": "Requirements generation started",
+      "updated": "Project updated successfully"
+    },
+    "requirements": {
+      "actions": {
+        "add": "Add Requirement",
+        "comment": "Add Comment",
+        "delete": "Delete Requirement",
+        "edit": "Edit Requirement",
+        "generate": "Generate Requirements"
+      },
+      "comments": "Comments",
+      "description": "Description",
+      "empty": "No requirements found",
+      "history": "History",
+      "status": "Status",
+      "title": "Title"
+    },
+    "status": {
+      "active": "Active",
+      "all": "All Statuses",
+      "archived": "Archived",
+      "completed": "Completed",
+      "draft": "Draft"
+    },
+    "tabs": {
+      "development_plan": "Development Plan",
+      "mockups": "Mockups",
+      "overview": "Overview",
+      "requirements": "Requirements"
+    },
+    "title": "Projects",
+    "types": {
+      "api": "API Service",
+      "desktop": "Desktop App",
+      "mobile": "Mobile App",
+      "other": "Other",
+      "website": "Website"
+    }
+  },
   "roles": {
-    "admin": "Admin"
+    "admin": "Admin",
+    "anonymous": "Anonymous",
+    "manager": "Manager",
+    "moderator": "Moderator",
+    "user": "User"
   },
   "user_info": {
     "main_info": {
+      "alerts": {
+        "password": {
+          "description": "Make sure the password requirements are fulfilled",
+          "title": "At least 8 characters, capital letters and symbol"
+        }
+      },
       "base_info": {
         "fields": {
           "email": "Email",
@@ -66,12 +187,6 @@
         },
         "title": "Change Password",
         "update_button": "Change Password"
-      },
-      "alerts": {
-        "password": {
-          "title": "At least 8 characters, capital letters and symbol",
-          "description": "Make sure the password requirements are fulfilled"
-        }
       }
     },
     "tabs": {
@@ -79,5 +194,17 @@
       "tab1": "Tab 1"
     },
     "title": "User Info"
+  },
+  "validation": {
+    "confirmed": "Passwords do not match",
+    "different": "{field} must be different from {other}",
+    "email": "Please enter a valid email address",
+    "password": "Password must contain at least 8 characters, including uppercase, lowercase, and special characters",
+    "regex": {
+      "default": "Please match the requested format",
+      "pattern": "pattern"
+    },
+    "required": "This field is required",
+    "unique": "{name} must be unique"
   }
 }
