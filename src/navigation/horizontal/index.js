@@ -10,7 +10,7 @@ export default [
   {
     title: 'navigation.projects',
     icon: { icon: 'tabler-layout-kanban' },
-    role: 0,
+    role: 1,
     to: {
       name: 'projects',
     },
