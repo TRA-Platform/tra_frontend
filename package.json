@@ -1,6 +1,6 @@
 {
   "name": "tra-frontend",
-  "version": "0.0.1d",
+  "version": "0.0.1e",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -23,12 +23,14 @@
     "apexcharts-clevision": "3.28.5",
     "axios": "1.4.0",
     "axios-mock-adapter": "1.21.4",
+    "buffer": "^6.0.3",
     "chart.js": "4.3.0",
     "dayjs": "^1.11.10",
     "dompurify": "^3.0.6",
     "eslint-import-resolver-alias": "^1.1.2",
     "javascript-obfuscator": "^4.1.0",
     "jwt-decode": "3.1.2",
+    "pako": "^2.1.0",
     "pinia": "2.0.35",
     "prismjs": "1.29.0",
     "roboto-fontface": "0.10.0",

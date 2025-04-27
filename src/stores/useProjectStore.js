@@ -172,6 +172,24 @@ export const useProjectStore = defineStore({
       } finally {
         this.loading = false
       }
-    }
+    },
+    async generateUserStories(projectId, requirementId = null) {
+      this.loading = true
+      try {
+        const response = await instance.post(`/service/projects/${projectId}/generate_user_stories/`, {
+          requirement_id: requirementId,
+        })
+
+        if (response.status === 202) {
+          return { data: response.data, error: null }
+        }
+        return { data: null, error: response.data }
+      } catch (error) {
+        this.error = error.message || 'Failed to generate User stories'
+        return { data: null, error: this.error }
+      } finally {
+        this.loading = false
+      }
+    },
   }
 })
