@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useSrsTemplateStore } from '@/stores/useSrsTemplateStore'
+import AppDateTimePicker from "@core/components/app-form-elements/AppDateTimePicker.vue";
 
 const props = defineProps({
   modelValue: {
@@ -30,20 +31,23 @@ const project = ref({
   name: '',
   short_description: '',
   type_of_application: 'website',
-  color_scheme: '',
+  color_scheme: [],
   language: 'en',
   application_description: '',
-  target_users: '',
-  additional_requirements: '',
-  non_functional_requirements: '',
-  technology_stack: '',
-  operating_system: '',
-  priority_modules: '',
-  deadline: null,
+  target_users: [],
+  additional_requirements: [],
+  non_functional_requirements: [],
+  technology_stack: [],
+  operating_systems: [],
+  priority_modules: [],
+  deadline_start: null,
+  deadline_end: null,
   preliminary_budget: null,
   srs_template: null,
   status: 'draft'
 })
+
+const newColor = ref('#000000')
 
 const nameRules = [
   v => !!v || 'Name is required',
@@ -129,16 +133,17 @@ const resetForm = () => {
     name: '',
     short_description: '',
     type_of_application: 'website',
-    color_scheme: '',
+    color_scheme: [],
     language: 'en',
     application_description: '',
-    target_users: '',
-    additional_requirements: '',
-    non_functional_requirements: '',
-    technology_stack: '',
-    operating_system: '',
-    priority_modules: '',
-    deadline: null,
+    target_users: [],
+    additional_requirements: [],
+    non_functional_requirements: [],
+    technology_stack: [],
+    operating_systems: [],
+    priority_modules: [],
+    deadline_start: null,
+    deadline_end: null,
     preliminary_budget: null,
     srs_template: null,
     status: 'draft'
@@ -170,9 +175,36 @@ const prevStep = () => {
   currentStep.value--
 }
 
+const addColor = () => {
+  if (!project.value.color_scheme.includes(newColor.value)) {
+    project.value.color_scheme.push(newColor.value)
+  }
+  newColor.value = '#000000'
+}
+
+const removeColor = (color) => {
+  project.value.color_scheme = project.value.color_scheme.filter(c => c !== color)
+}
+
 const submitForm = async () => {
   if (await validateCurrentStep()) {
     const formData = { ...project.value }
+
+    // Convert arrays to comma-separated strings
+    const arrayFields = [
+      'color_scheme',
+      'target_users',
+      'additional_requirements',
+      'non_functional_requirements',
+      'technology_stack',
+      'priority_modules'
+    ]
+
+    arrayFields.forEach(field => {
+      if (Array.isArray(formData[field])) {
+        formData[field] = formData[field].join(', ')
+      }
+    })
 
     if (formData.preliminary_budget) {
       formData.preliminary_budget = parseFloat(formData.preliminary_budget)
@@ -184,17 +216,156 @@ const submitForm = async () => {
   }
 }
 
+const colorSchemeOptions = [
+  'Light',
+  'Dark',
+  'Blue',
+  'Green',
+  'Red',
+  'Yellow',
+  'Purple',
+  'Orange',
+  'Custom'
+]
+
+const targetUserOptions = [
+  'General Users',
+  'Business Users',
+  'Developers',
+  'Administrators',
+  'Students',
+  'Teachers',
+  'Healthcare Professionals',
+  'Financial Professionals',
+  'Other'
+]
+
+const additionalRequirementOptions = [
+  'User Authentication',
+  'Payment Integration',
+  'Social Media Integration',
+  'Analytics',
+  'Reporting',
+  'Export/Import',
+  'Multi-language Support',
+  'Accessibility',
+  'Mobile Responsive',
+  'API Integration',
+  'Cloud Storage',
+  'Real-time Updates'
+]
+
+const nonFunctionalRequirementOptions = [
+  'Performance',
+  'Security',
+  'Scalability',
+  'Reliability',
+  'Maintainability',
+  'Usability',
+  'Compatibility',
+  'Portability',
+  'Availability',
+  'Recoverability',
+  'Testability',
+  'Interoperability'
+]
+
+const technologyStackOptions = [
+  'React',
+  'Vue.js',
+  'Angular',
+  'Node.js',
+  'Python',
+  'Java',
+  'C#',
+  'PHP',
+  'Ruby',
+  'Go',
+  'Swift',
+  'Kotlin',
+  'Flutter',
+  'React Native',
+  'Django',
+  'Laravel',
+  'Spring Boot',
+  'Express.js',
+  'MongoDB',
+  'PostgreSQL',
+  'MySQL',
+  'Redis',
+  'Docker',
+  'Kubernetes',
+  'AWS',
+  'Azure',
+  'Google Cloud'
+]
+
+const operatingSystemOptions = [
+  'Windows',
+  'macOS',
+  'Linux',
+  'iOS',
+  'Android',
+  'Cross-platform',
+  'Web-based'
+]
+
+const priorityModuleOptions = [
+  'User Management',
+  'Content Management',
+  'Dashboard',
+  'Reporting',
+  'Analytics',
+  'Settings',
+  'Notifications',
+  'Search',
+  'File Management',
+  'Communication',
+  'Payment Processing',
+  'Security'
+]
+
+const convertStringToArray = (value) => {
+  if (!value) return []
+  return value.split(',').map(item => item.trim()).filter(item => item)
+}
+
 onMounted(() => {
   fetchSrsTemplates()
 
-  if (props.editMode && props.projectData) {
-    console.log('Project Data:', props.projectData.deadline)
-    const newDeadline = props.projectData.deadline ? (new Date(parseInt(props.projectData.deadline))).toISOString() : null
-    console.log(`New Deadline: ${newDeadline}`)
-    Object.assign(project.value, props.projectData, { deadline: newDeadline })
-    // Object.assign(project.value, props.projectData)
-  }
+
 })
+watchEffect(
+  () => {
+    if (props.editMode && props.projectData) {
+      console.log('Project Data:', props.projectData.deadline_start)
+      const newDeadlineStart = props.projectData.deadline_start ? (new Date(parseInt(props.projectData.deadline_start))).toISOString() : null
+      console.log(`New Deadline Start: ${newDeadlineStart}`)
+      console.log('Project Data:', props.projectData.deadline_end)
+      const newDeadlineEnd = props.projectData.deadline_end ? (new Date(parseInt(props.projectData.deadline_end))).toISOString() : null
+      console.log(`New Deadline End: ${newDeadlineEnd}`)
+
+      // Convert string fields to arrays
+      const arrayFields = [
+        'color_scheme',
+        'target_users',
+        'additional_requirements',
+        'non_functional_requirements',
+        'technology_stack',
+        'priority_modules'
+      ]
+
+      const processedData = { ...props.projectData }
+      arrayFields.forEach(field => {
+        if (typeof processedData[field] === 'string') {
+          processedData[field] = convertStringToArray(processedData[field])
+        }
+      })
+
+      Object.assign(project.value, processedData, { deadline_start: newDeadlineStart, deadline_end: newDeadlineEnd })
+    }
+  }
+)
 
 watch(dialog, (val) => {
   if (!val) resetForm()
@@ -229,8 +400,7 @@ watch(dialog, (val) => {
           ref="formRef" @submit.prevent>
           <VWindow v-model="currentStep">
             <VWindowItem :value="0">
-              <VRow
-                class="mt-3">
+              <VRow class="mt-3">
                 <VCol cols="12" md="6">
                   <VTextField
                     v-model="project.name"
@@ -262,114 +432,168 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <VSelect
                     v-model="project.language"
-                    label="Primary Language"
+                    label="Language"
                     :items="languageOptions"
+                    required
                   />
                 </VCol>
 
                 <VCol cols="12" md="6">
-                  <VTextField
-                    v-model="project.color_scheme"
-                    label="Color Scheme (e.g. #336699,#FFFFFF)"
-                    hint="Comma-separated hex colors or style names"
-                    persistent-hint
+                  <VColorPicker
+                    v-model="newColor"
+                    label="Add Color"
+                    mode="hex"
+                    hide-inputs
+                    class="mb-2"
                   />
+                  <VTextField
+                    v-model="newColor"
+                    label="Color Code"
+                    readonly
+                    prepend-inner-icon="tabler-color-picker"
+                    class="mb-2"
+                  />
+                  <VBtn
+                    color="primary"
+                    variant="tonal"
+                    @click="addColor"
+                    class="mb-4"
+                  >
+                    Add Color
+                  </VBtn>
+                  
+                  <div class="d-flex flex-wrap gap-2">
+                    <VChip
+                      v-for="color in project.color_scheme"
+                      :key="color"
+                      :color="color"
+                      closable
+                      @click:close="removeColor(color)"
+                      class="ma-1"
+                    >
+                      {{ color }}
+                    </VChip>
+                  </div>
                 </VCol>
               </VRow>
             </VWindowItem>
 
             <VWindowItem :value="1">
-              <VRow
-                class="mt-3">
+              <VRow class="mt-3">
                 <VCol cols="12">
                   <VTextarea
                     v-model="project.application_description"
-                    label="Detailed Application Description"
-                    rows="4"
+                    label="Application Description"
+                    required
+                    rows="6"
                   />
                 </VCol>
 
                 <VCol cols="12">
-                  <VTextarea
+                  <VCombobox
                     v-model="project.target_users"
                     label="Target Users"
-                    rows="3"
-                    hint="Describe your target audience or user demographics"
-                    persistent-hint
+                    :items="targetUserOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
                   />
                 </VCol>
 
                 <VCol cols="12">
-                  <VTextarea
+                  <VCombobox
                     v-model="project.additional_requirements"
                     label="Additional Requirements"
-                    rows="3"
+                    :items="additionalRequirementOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
+                  />
+                </VCol>
+
+                <VCol cols="12">
+                  <VCombobox
+                    v-model="project.non_functional_requirements"
+                    label="Non-Functional Requirements"
+                    :items="nonFunctionalRequirementOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
                   />
                 </VCol>
               </VRow>
             </VWindowItem>
 
             <VWindowItem :value="2">
-              <VRow
-                class="mt-3">
+              <VRow class="mt-3">
                 <VCol cols="12">
-                  <VTextarea
-                    v-model="project.non_functional_requirements"
-                    label="Non-Functional Requirements"
-                    hint="Performance, security, scalability, etc."
-                    persistent-hint
-                    rows="3"
-                  />
-                </VCol>
-
-                <VCol cols="12">
-                  <VTextarea
+                  <VCombobox
                     v-model="project.technology_stack"
                     label="Technology Stack"
-                    hint="Preferred technologies, frameworks, libraries"
-                    persistent-hint
-                    rows="3"
+                    :items="technologyStackOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
                   />
                 </VCol>
 
-                <VCol cols="12" md="6">
-                  <VTextField
-                    v-model="project.operating_system"
+                <VCol cols="12">
+                  <VCombobox
+                    v-model="project.operating_systems"
                     label="Operating System"
-                    hint="Target OS or platform requirements"
-                    persistent-hint
+                    :items="operatingSystemOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
                   />
                 </VCol>
 
-                <VCol cols="12" md="6">
+                <VCol cols="12">
+                  <VCombobox
+                    v-model="project.priority_modules"
+                    label="Priority Modules"
+                    :items="priorityModuleOptions"
+                    multiple
+                    chips
+                    closable-chips
+                    clearable
+                  />
+                </VCol>
+
+                <VCol cols="12">
                   <VSelect
                     v-model="project.srs_template"
                     label="SRS Template"
-                    :items="templates.map(t => ({ title: t.name, value: t.id }))"
+                    :items="templates"
+                    item-title="name"
+                    item-value="id"
                     :loading="loadingTemplates"
                     clearable
-                    hint="Select an optional SRS template"
-                    persistent-hint
-                  />
-                </VCol>
-
-                <VCol cols="12">
-                  <VTextarea
-                    v-model="project.priority_modules"
-                    label="Priority Modules/Features"
-                    rows="3"
                   />
                 </VCol>
               </VRow>
             </VWindowItem>
 
             <VWindowItem :value="3">
-              <VRow
-                class="mt-3">
+              <VRow class="mt-3">
                 <VCol cols="12" md="6">
                   <AppDateTimePicker
-                    v-model="project.deadline"
-                    placeholder="Project Deadline"
+                    v-model="project.deadline_start"
+                    label="Deadline Start"
+                    type="date"
+                    :rules="deadlineRules"
+                  />
+                </VCol>
+                <VCol cols="12" md="6">
+                  <AppDateTimePicker
+                    v-model="project.deadline_end"
+                    label="Deadline End"
+                    type="date"
                     :rules="deadlineRules"
                   />
                 </VCol>
@@ -378,16 +602,16 @@ watch(dialog, (val) => {
                   <VTextField
                     v-model="project.preliminary_budget"
                     label="Preliminary Budget"
+                    type="number"
                     :rules="budgetRules"
                     prefix="$"
-                    type="number"
                   />
                 </VCol>
 
-                <VCol cols="12" md="6">
+                <VCol cols="12">
                   <VSelect
                     v-model="project.status"
-                    label="Project Status"
+                    label="Status"
                     :items="statusOptions"
                     required
                   />
@@ -400,7 +624,15 @@ watch(dialog, (val) => {
 
       <VDivider />
 
-      <VCardActions>
+      <VCardActions class="pa-4">
+        <VBtn
+          variant="tonal"
+          color="secondary"
+          @click="handleCancel"
+        >
+          Cancel
+        </VBtn>
+
         <VSpacer />
 
         <VBtn
@@ -409,28 +641,23 @@ watch(dialog, (val) => {
           color="secondary"
           @click="prevStep"
         >
-          <VIcon start icon="tabler-arrow-left" />
           Previous
         </VBtn>
 
         <VBtn
-          v-if="currentStep < 3"
+          v-if="currentStep < steps.length - 1"
           color="primary"
-          class="ms-2"
           @click="nextStep"
         >
           Next
-          <VIcon end icon="tabler-arrow-right" />
         </VBtn>
 
         <VBtn
           v-else
-          color="success"
-          class="ms-2"
+          color="primary"
           @click="submitForm"
         >
           {{ props.editMode ? 'Update' : 'Create' }} Project
-          <VIcon end icon="tabler-check" />
         </VBtn>
       </VCardActions>
     </VCard>
