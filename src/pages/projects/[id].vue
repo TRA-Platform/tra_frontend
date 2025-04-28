@@ -223,7 +223,7 @@ const handleGenerateUserStories = async (requirementId = null) => {
   }
 }
 
-const handleGenerateUmlDiagrams = async (diagramType = 'class') => {
+const handleGenerateUmlDiagrams = async (diagramType = null) => {
   processingAction.value = true
 
   try {
@@ -527,7 +527,7 @@ onMounted(() => {
                     v-if="hasModeratorPermission"
                     color="primary"
                     prepend-icon="tabler-refresh"
-                    @click="handleGenerateUmlDiagrams('class')"
+                    @click="handleGenerateUmlDiagrams(null)"
                     :loading="processingAction"
                   >
                     Generate UML Diagrams
@@ -568,8 +568,6 @@ onMounted(() => {
         </VCol>
       </VRow>
     </template>
-
-    <!-- Edit Project Dialog -->
     <ProjectCreateDialog
       v-if="project"
       v-model="isEditDialogOpen"

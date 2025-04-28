@@ -358,8 +358,6 @@ onMounted(() => {
       :has-manager-permission="hasManagerPermission"
       :has-moderator-permission="hasModeratorPermission"
     />
-
-    <!-- Generate UML Dialog -->
     <VDialog
       v-model="generateDiagramDialog"
       max-width="600"

@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useSrsTemplateStore } from '@/stores/useSrsTemplateStore'
+import {ref, computed, onMounted} from 'vue'
+import {useSrsTemplateStore} from '@/stores/useSrsTemplateStore'
 import AppDateTimePicker from "@core/components/app-form-elements/AppDateTimePicker.vue";
 
 const props = defineProps({
@@ -93,24 +93,24 @@ const steps = [
 ]
 
 const typeOptions = [
-  { title: 'Website', value: 'website' },
-  { title: 'Mobile App', value: 'mobile' },
-  { title: 'Desktop App', value: 'desktop' },
-  { title: 'API Service', value: 'api' },
-  { title: 'Other', value: 'other' }
+  {title: 'Website', value: 'website'},
+  {title: 'Mobile App', value: 'mobile'},
+  {title: 'Desktop App', value: 'desktop'},
+  {title: 'API Service', value: 'api'},
+  {title: 'Other', value: 'other'}
 ]
 
 const languageOptions = [
-  { title: 'English', value: 'en' },
-  { title: 'Russian', value: 'ru' },
-  { title: 'German', value: 'de' }
+  {title: 'English', value: 'en'},
+  {title: 'Russian', value: 'ru'},
+  {title: 'German', value: 'de'}
 ]
 
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  {title: 'Draft', value: 'draft'},
+  {title: 'Active', value: 'active'},
+  {title: 'Archived', value: 'archived'},
+  {title: 'Completed', value: 'completed'}
 ]
 
 const templates = ref([])
@@ -119,7 +119,7 @@ const loadingTemplates = ref(false)
 const fetchSrsTemplates = async () => {
   loadingTemplates.value = true
   try {
-    const { data } = await srsTemplateStore.fetchTemplates()
+    const {data} = await srsTemplateStore.fetchTemplates()
     templates.value = data || []
   } catch (error) {
     console.error('Error fetching SRS templates:', error)
@@ -161,7 +161,7 @@ const handleCancel = () => {
 const validateCurrentStep = async () => {
   if (!formRef.value) return true
 
-  const { valid } = await formRef.value.validate()
+  const {valid} = await formRef.value.validate()
   return valid
 }
 
@@ -188,9 +188,7 @@ const removeColor = (color) => {
 
 const submitForm = async () => {
   if (await validateCurrentStep()) {
-    const formData = { ...project.value }
-
-    // Convert arrays to comma-separated strings
+    const formData = {...project.value}
     const arrayFields = [
       'color_scheme',
       'target_users',
@@ -330,10 +328,62 @@ const convertStringToArray = (value) => {
   return value.split(',').map(item => item.trim()).filter(item => item)
 }
 
+const generateRandomColor = () => {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
+}
+
+const generateColorPalette = () => {
+  const baseColor = generateRandomColor()
+  const hexToHSL = (hex) => {
+    const r = parseInt(hex.slice(1, 3), 16) / 255
+    const g = parseInt(hex.slice(3, 5), 16) / 255
+    const b = parseInt(hex.slice(5, 7), 16) / 255
+
+    const max = Math.max(r, g, b)
+    const min = Math.min(r, g, b)
+    let h, s, l = (max + min) / 2
+
+    if (max === min) {
+      h = s = 0
+    } else {
+      const d = max - min
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break
+        case g:
+          h = (b - r) / d + 2;
+          break
+        case b:
+          h = (r - g) / d + 4;
+          break
+      }
+
+      h /= 6
+    }
+
+    return [h * 360, s * 100, l * 100]
+  }
+
+  const HSLToHex = (h, s, l) => {
+    s /= 100
+    l /= 100
+    const k = n => (n + h / 30) % 12
+    const a = s * Math.min(l, 1 - l)
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+    return `#${Math.round(255 * f(0)).toString(16).padStart(2, '0')}${Math.round(255 * f(8)).toString(16).padStart(2, '0')}${Math.round(255 * f(4)).toString(16).padStart(2, '0')}`
+  }
+
+  const [h, s, l] = hexToHSL(baseColor)
+  const complementaryColor = HSLToHex((h + 180) % 360, s, l)
+  const analogousColor = HSLToHex((h + 30) % 360, s, l)
+  project.value.color_scheme = [baseColor, complementaryColor, analogousColor]
+}
+
 onMounted(() => {
   fetchSrsTemplates()
-
-
 })
 watchEffect(
   () => {
@@ -344,8 +394,6 @@ watchEffect(
       console.log('Project Data:', props.projectData.deadline_end)
       const newDeadlineEnd = props.projectData.deadline_end ? (new Date(parseInt(props.projectData.deadline_end))).toISOString() : null
       console.log(`New Deadline End: ${newDeadlineEnd}`)
-
-      // Convert string fields to arrays
       const arrayFields = [
         'color_scheme',
         'target_users',
@@ -355,14 +403,14 @@ watchEffect(
         'priority_modules'
       ]
 
-      const processedData = { ...props.projectData }
+      const processedData = {...props.projectData}
       arrayFields.forEach(field => {
         if (typeof processedData[field] === 'string') {
           processedData[field] = convertStringToArray(processedData[field])
         }
       })
 
-      Object.assign(project.value, processedData, { deadline_start: newDeadlineStart, deadline_end: newDeadlineEnd })
+      Object.assign(project.value, processedData, {deadline_start: newDeadlineStart, deadline_end: newDeadlineEnd})
     }
   }
 )
@@ -381,9 +429,9 @@ watch(dialog, (val) => {
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
         <h5 class="text-h5">{{ props.editMode ? 'Edit Project' : 'Create New Project' }}</h5>
-        <VSpacer />
+        <VSpacer/>
         <IconBtn @click="handleCancel">
-          <VIcon icon="tabler-x" />
+          <VIcon icon="tabler-x"/>
         </IconBtn>
       </VCardTitle>
 
@@ -394,7 +442,7 @@ watch(dialog, (val) => {
           :is-active-step-valid="true"
         />
 
-        <VDivider class="my-5" />
+        <VDivider class="my-5"/>
 
         <VForm
           ref="formRef" @submit.prevent>
@@ -438,30 +486,58 @@ watch(dialog, (val) => {
                   />
                 </VCol>
 
-                <VCol cols="12" md="6">
+                <VCol cols="12">
                   <VColorPicker
                     v-model="newColor"
                     label="Add Color"
                     mode="hex"
+                    prepend-icon="tabler-plus"
                     hide-inputs
                     class="mb-2"
                   />
-                  <VTextField
-                    v-model="newColor"
-                    label="Color Code"
-                    readonly
-                    prepend-inner-icon="tabler-color-picker"
-                    class="mb-2"
-                  />
-                  <VBtn
-                    color="primary"
-                    variant="tonal"
-                    @click="addColor"
-                    class="mb-4"
-                  >
-                    Add Color
-                  </VBtn>
-                  
+                  <VRow>
+                    <VCol
+                      cols="12"
+                      md="6"
+                    >
+                      <VTextField
+                        v-model="newColor"
+                        label="Color Code"
+                        readonly
+                        prepend-inner-icon="tabler-color-picker"
+                        class="w-100 mb-2"
+                      />
+                    </VCol>
+                    <VCol
+                      cols="6"
+                      md="3"
+                    >
+                      <VBtn
+                        class="w-100"
+                        color="primary"
+                        variant="tonal"
+                        prepend-icon="tabler-plus"
+                        @click="addColor"
+                      >
+                        Add Color
+                      </VBtn>
+                    </VCol>
+                    <VCol
+                      cols="6"
+                      md="3"
+                    >
+                      <VBtn
+                        class="w-100"
+                        color="secondary"
+                        variant="tonal"
+                        prepend-icon="tabler-palette"
+                        @click="generateColorPalette"
+                      >
+                        Generate Palette
+                      </VBtn>
+                    </VCol>
+                  </VRow>
+
                   <div class="d-flex flex-wrap gap-2">
                     <VChip
                       v-for="color in project.color_scheme"
@@ -622,7 +698,7 @@ watch(dialog, (val) => {
         </VForm>
       </VCardText>
 
-      <VDivider />
+      <VDivider/>
 
       <VCardActions class="pa-4">
         <VBtn
@@ -633,7 +709,7 @@ watch(dialog, (val) => {
           Cancel
         </VBtn>
 
-        <VSpacer />
+        <VSpacer/>
 
         <VBtn
           v-if="currentStep > 0"

@@ -649,8 +649,6 @@ watch(() => props.userStory, (newVal) => {
         </template>
       </VCardActions>
     </VCard>
-
-    <!-- Regenerate Dialog -->
     <VDialog
       v-model="regenerateDialogVisible"
       max-width="600"

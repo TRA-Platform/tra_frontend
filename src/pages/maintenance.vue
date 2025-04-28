@@ -10,14 +10,12 @@ const authThemeMask = useGenerateImageVariant(miscMaskLight, miscMaskDark)
 <template>
   <div class="misc-wrapper">
     <div class="text-center mb-12">
-      <!-- 👉 Title and subtitle -->
       <h4 class="text-h4 font-weight-medium mb-3">
         {{ $t('error_pages.maintenance.title') }}
       </h4>
       <p>{{ $t('error_pages.maintenance.description') }}</p>
     </div>
 
-    <!-- 👉 Image -->
     <div class="misc-avatar w-100 text-center">
       <iframe
         class="mx-auto"

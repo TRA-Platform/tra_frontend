@@ -175,7 +175,9 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
@@ -266,7 +268,6 @@ const capitalize = (str) => {
         v-for="req in filteredRequirements"
         :key="req.id"
         cols="12"
-        md="6"
       >
         <VCard
           class="requirement-card"
@@ -332,8 +333,6 @@ const capitalize = (str) => {
                 <span class="text-caption">v{{ req.version_number }}</span>
               </div>
             </div>
-
-            <!-- User Stories Badge -->
             <div v-if="req.user_stories && req.user_stories.length > 0" class="mt-3">
               <VBtn
                 size="small"
