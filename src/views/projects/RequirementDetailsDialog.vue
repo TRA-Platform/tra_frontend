@@ -178,7 +178,6 @@ const showSnackbar = (text, color = 'success') => {
   }
 }
 
-// Update editedRequirement when requirement prop changes
 watch (() => props.requirement, (newVal) => {
   editedRequirement.value = { ...newVal }
 }, { deep: true })

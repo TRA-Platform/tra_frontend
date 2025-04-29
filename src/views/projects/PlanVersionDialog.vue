@@ -70,7 +70,6 @@ const formatCurrency = (value) => {
 
 const toggleEditMode = () => {
   if (isEditMode.value) {
-    // Cancel edit
     editedVersion.value = { ...props.version }
   }
   isEditMode.value = !isEditMode.value
@@ -84,7 +83,6 @@ const saveVersion = async () => {
 
     if (data && !error) {
       showSnackbar('Plan version updated successfully')
-      // Update the version in parent component
       Object.assign(props.version, data)
       isEditMode.value = false
       emit('refresh')
@@ -149,7 +147,6 @@ const showSnackbar = (text, color = 'success') => {
   }
 }
 
-// Reset edited version when version changes
 watch(() => props.version, (newVal) => {
   editedVersion.value = { ...newVal }
 }, { deep: true })

@@ -27,8 +27,8 @@ const requirementStore = useRequirementStore()
 const authStore = useAuthStore()
 
 const searchQuery = ref('')
-const filteredCategory = ref('all')
-const filteredStatus = ref('all')
+const filteredCategory = ref([])
+const filteredStatus = ref(['draft', 'active', 'completed'])
 const selectedRequirement = ref(null)
 const detailsDialogVisible = ref(false)
 const createDialogVisible = ref(false)
@@ -45,7 +45,6 @@ const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
 const categoryOptions = [
-  { title: 'All Categories', value: 'all' },
   { title: 'Functional', value: 'functional' },
   { title: 'Non-Functional', value: 'nonfunctional' },
   { title: 'UI/UX', value: 'uiux' },
@@ -53,7 +52,6 @@ const categoryOptions = [
 ]
 
 const statusOptions = [
-  { title: 'All Statuses', value: 'all' },
   { title: 'Draft', value: 'draft' },
   { title: 'Active', value: 'active' },
   { title: 'Archived', value: 'archived' },
@@ -66,11 +64,10 @@ const filteredRequirements = computed(() => {
       req.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       req.description.toLowerCase().includes(searchQuery.value.toLowerCase())
 
-    const matchesCategory = filteredCategory.value === 'all' ||
-      req.category === filteredCategory.value
+    const matchesCategory = filteredCategory.value.length === 0 ||
+      filteredCategory.value.includes(req.category)
 
-    const matchesStatus = filteredStatus.value === 'all' ||
-      req.status === filteredStatus.value
+    const matchesStatus = filteredStatus.value.includes(req.status)
 
     return matchesSearch && matchesCategory && matchesStatus
   })
@@ -210,6 +207,8 @@ const capitalize = (str) => {
           hide-details
           label="Category"
           variant="outlined"
+          multiple
+          chips
         />
       </VCol>
 
@@ -221,6 +220,8 @@ const capitalize = (str) => {
           hide-details
           label="Status"
           variant="outlined"
+          multiple
+          chips
         />
       </VCol>
 
@@ -248,13 +249,13 @@ const capitalize = (str) => {
       <VIcon icon="tabler-file-search" size="64" color="secondary" class="mb-4" />
       <h4 class="text-h6 mb-2">No Requirements Found</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
-        {{ searchQuery || filteredCategory !== 'all' || filteredStatus !== 'all'
+        {{ searchQuery || filteredCategory.length > 0 || filteredStatus.length > 0
         ? 'Try adjusting your filters to see more results.'
         : 'This project does not have any requirements yet.' }}
       </p>
 
       <VBtn
-        v-if="hasModeratorPermission && !searchQuery && filteredCategory === 'all' && filteredStatus === 'all'"
+        v-if="hasModeratorPermission && !searchQuery && filteredCategory.length === 0 && filteredStatus.length === 0"
         color="primary"
         @click="openCreateRequirement"
         prepend-icon="tabler-plus"
@@ -301,7 +302,7 @@ const capitalize = (str) => {
               </VAvatar>
             </template>
 
-            <VCardTitle>{{ req.title }}</VCardTitle>
+            <VCardTitle>{{req.handle}} {{ req.title }}</VCardTitle>
 
             <template #append>
               <VChip
