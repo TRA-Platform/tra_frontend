@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, capitalize } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import RequirementDetailsDialog from '@/views/projects/RequirementDetailsDialog.vue'
 import RequirementCreateDialog from '@/views/projects/RequirementCreateDialog.vue'
-import { da } from "vuetify/locale";
-import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters";
+import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters"
 
 const props = defineProps({
   projectId: {
@@ -22,15 +21,15 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'view-user-stories'])
 
 const requirementStore = useRequirementStore()
 const authStore = useAuthStore()
 
-const selectedRequirement = ref(null)
+const searchQuery = ref('')
 const filteredCategory = ref('all')
 const filteredStatus = ref('all')
-const searchQuery = ref('')
+const selectedRequirement = ref(null)
 const detailsDialogVisible = ref(false)
 const createDialogVisible = ref(false)
 const confirmDeleteDialog = ref(false)
@@ -76,7 +75,6 @@ const filteredRequirements = computed(() => {
     return matchesSearch && matchesCategory && matchesStatus
   })
 })
-
 
 const openRequirementDetails = (req) => {
   selectedRequirement.value = req
@@ -154,6 +152,10 @@ const handleDeleteRequirement = async () => {
   }
 }
 
+const viewUserStories = (requirement) => {
+  emit('view-user-stories', requirement)
+}
+
 const showSnackbar = (text, color = 'success') => {
   snackbar.value = {
     show: true,
@@ -173,12 +175,16 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
-onMounted(() => {
-})
+const capitalize = (str) => {
+  if (!str) return ''
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 </script>
 
 <template>
@@ -262,7 +268,6 @@ onMounted(() => {
         v-for="req in filteredRequirements"
         :key="req.id"
         cols="12"
-        md="6"
       >
         <VCard
           class="requirement-card"
@@ -312,7 +317,7 @@ onMounted(() => {
           <VCardText>
             <p class="text-body-2 mb-3">{{ truncateDescription(req.description) }}</p>
 
-            <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center justify-space-between mb-2">
               <div class="d-flex align-center">
                 <VIcon size="16" icon="tabler-tag" class="me-1" />
                 <span class="text-caption text-capitalize">{{ req.category }}</span>
@@ -328,6 +333,17 @@ onMounted(() => {
                 <span class="text-caption">v{{ req.version_number }}</span>
               </div>
             </div>
+            <div v-if="req.user_stories && req.user_stories.length > 0" class="mt-3">
+              <VBtn
+                size="small"
+                variant="tonal"
+                color="primary"
+                prepend-icon="tabler-user-check"
+                @click.stop="viewUserStories(req)"
+              >
+                {{ req.user_stories.length }} User {{ req.user_stories.length === 1 ? 'Story' : 'Stories' }}
+              </VBtn>
+            </div>
           </VCardText>
         </VCard>
       </VCol>
@@ -339,6 +355,7 @@ onMounted(() => {
       :requirement="selectedRequirement"
       @delete="confirmDeleteDialog = true"
       @update="handleUpdateRequirement"
+      @view-user-stories="viewUserStories"
       :is-admin="isAdmin"
       :has-manager-permission="hasManagerPermission"
       :has-moderator-permission="hasModeratorPermission"

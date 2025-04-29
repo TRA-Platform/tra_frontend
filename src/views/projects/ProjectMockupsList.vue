@@ -54,7 +54,9 @@ const formatDate = (dateString) => {
   return new Date(parseInt(dateString)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 

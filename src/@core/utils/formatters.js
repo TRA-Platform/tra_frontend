@@ -7,6 +7,8 @@ import i18n from '@/plugins/i18n/index'
 import {
   ROLE_MAPPING,
 } from "@core/enums"
+import { Buffer } from "buffer";
+import pako from "pako";
 
 const { t } = i18n.global
 
@@ -175,4 +177,16 @@ export const getStatusChipColor = (status) => {
     case 'completed': return 'info'
     default: return 'primary'
   }
+}
+
+export const renderUML = (content) => {
+  if (content) {
+    const data = Buffer.from(content, 'utf8')
+    const compressed = pako.deflate(data, { level: 9 })
+    const result = Buffer.from(compressed)
+      .toString('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_')
+    return `https://kroki.io/plantuml/svg/${result}`
+  }
+  return ''
 }
