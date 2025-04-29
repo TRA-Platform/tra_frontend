@@ -132,7 +132,7 @@ const handleGenerateRequirements = async () => {
   }
 }
 
-const handleExportSrs = async (format = 'pdf') => {
+const handleExportSrs = async (format = 'md') => {
   processingAction.value = true
 
   try {
@@ -327,7 +327,7 @@ onMounted(() => {
                 variant="outlined"
                 prepend-icon="tabler-file-export"
                 class="me-2"
-                @click="handleExportSrs"
+                @click="handleExportSrs('md')"
                 :loading="processingAction"
               >
                 Export SRS
