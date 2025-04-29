@@ -32,7 +32,7 @@ const userStoryStore = useUserStoryStore()
 const authStore = useAuthStore()
 
 const searchQuery = ref('')
-const filteredStatus = ref('all')
+const filteredStatus = ref(['draft', 'active', 'completed'])
 const selectedUserStory = ref(null)
 const detailsDialogVisible = ref(false)
 const createDialogVisible = ref(false)
@@ -49,7 +49,6 @@ const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
 const statusOptions = [
-  {title: 'All Statuses', value: 'all'},
   {title: 'Draft', value: 'draft'},
   {title: 'Active', value: 'active'},
   {title: 'Archived', value: 'archived'},
@@ -63,8 +62,7 @@ const filteredUserStories = computed(() => {
       userStory.action.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       userStory.benefit.toLowerCase().includes(searchQuery.value.toLowerCase())
 
-    const matchesStatus = filteredStatus.value === 'all' ||
-      userStory.status === filteredStatus.value
+    const matchesStatus = filteredStatus.value.includes(userStory.status)
 
     return matchesSearch && matchesStatus
   })
@@ -225,6 +223,8 @@ onMounted(() => {
           hide-details
           label="Status"
           variant="outlined"
+          multiple
+          chips
         />
       </VCol>
 
@@ -253,14 +253,14 @@ onMounted(() => {
       <h4 class="text-h6 mb-2">No User Stories Found</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
         {{
-          searchQuery || filteredStatus !== 'all'
+          searchQuery || filteredStatus.length > 0
             ? 'Try adjusting your filters to see more results.'
             : 'This requirement does not have any user stories yet.'
         }}
       </p>
 
       <VBtn
-        v-if="hasModeratorPermission && requirementId && !searchQuery && filteredStatus === 'all'"
+        v-if="hasModeratorPermission && requirementId && !searchQuery && filteredStatus.length === 0"
         color="primary"
         @click="openCreateUserStory"
         prepend-icon="tabler-plus"
