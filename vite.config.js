@@ -61,14 +61,14 @@ export default ({ mode }) => {
         ],
       }),
       DefineOptions (),
-      obfuscator({
-        global: true,
-        options: {
-          debugProtection: true,
-          deadCodeInjectionThreshold: 10,
-          stringArray: true,
-        },
-      }),
+      // obfuscator({
+      //   global: true,
+      //   options: {
+      //     debugProtection: true,
+      //     deadCodeInjectionThreshold: 10,
+      //     stringArray: true,
+      //   },
+      // }),
     ],
     server: {
       proxy: {
