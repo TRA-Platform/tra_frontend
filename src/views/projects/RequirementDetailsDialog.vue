@@ -107,6 +107,7 @@ const toggleEditMode = () => {
     editedRequirement.value = { ...props.requirement }
   }
   isEditMode.value = !isEditMode.value
+  activeTab.value = "0"
 }
 
 const saveRequirement = () => {

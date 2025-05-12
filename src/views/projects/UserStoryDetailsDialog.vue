@@ -52,10 +52,10 @@ const snackbar = ref({
 })
 
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  { title: t('projects.status.draft'), value: 'draft' },
+  { title: t('projects.status.active'), value: 'active' },
+  { title: t('projects.status.archived'), value: 'archived' },
+  { title: t('projects.status.completed'), value: 'completed' }
 ]
 
 const history = computed(() => {
@@ -84,6 +84,7 @@ const toggleEditMode = () => {
     criteriaInput.value = ''
   }
   isEditMode.value = !isEditMode.value
+  activeTab.value = "0"
 }
 
 const addCriterion = () => {
@@ -360,7 +361,7 @@ watch(() => props.userStory, (newVal) => {
                   label
                   class="me-2"
                 >
-                  {{ capitalize(userStory.status) }}
+                  {{ t(`projects.status.${userStory.status}`) }}
                 </VChip>
 
                 <VChip
@@ -474,7 +475,7 @@ watch(() => props.userStory, (newVal) => {
                           label
                           class="ms-2"
                         >
-                          {{ item.status }}
+                          {{ t(`projects.status.${item.status}`) }}
                         </VChip>
                       </template>
                     </VCardItem>
@@ -667,6 +668,7 @@ watch(() => props.userStory, (newVal) => {
           </p>
 
           <VTextarea
+            autofocus
             v-model="regenerateFeedback"
             :label="t('projects.user_stories.fields.feedback')"
             :placeholder="t('projects.user_stories.placeholders.feedback')"

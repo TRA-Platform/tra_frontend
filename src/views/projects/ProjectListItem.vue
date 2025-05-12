@@ -37,6 +37,16 @@ const truncateDescription = (text, length = 100) => {
   if (!text || text.length <= length) return text
   return text.substring(0, length) + '...'
 }
+
+const languageMap = {
+  'en': t('projects.languages.english'),
+  'ru': t('projects.languages.russian'),
+  'de': t('projects.languages.german'),
+}
+
+const formatLanguage = (code) => {
+  return languageMap[code] || code
+}
 </script>
 
 <template>
@@ -83,7 +93,7 @@ const truncateDescription = (text, length = 100) => {
           size="small"
           label
         >
-          {{ capitalize(project.status) }}
+          {{ $t(`projects.status.${project.status}`) }}
         </VChip>
       </VCardTitle>
 
@@ -105,12 +115,12 @@ const truncateDescription = (text, length = 100) => {
 
         <div class="me-2">
           <VIcon icon="tabler-code" size="16" class="me-1" />
-          <span class="text-caption">{{ t('projects.list.details.type') }}: {{ project.type_of_application }}</span>
+          <span class="text-caption">{{ t('projects.list.details.type') }}: {{ $t(`projects.types.${project.type_of_application}`) }}</span>
         </div>
 
         <div v-if="project.language">
           <VIcon icon="tabler-language" size="16" class="me-1" />
-          <span class="text-caption">{{ t('projects.list.details.language') }}: {{ project.language }}</span>
+          <span class="text-caption">{{ t('projects.list.details.language') }}: {{ formatLanguage(project.language) }}</span>
         </div>
       </div>
     </VCardText>

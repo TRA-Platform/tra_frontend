@@ -271,6 +271,12 @@ onUnmounted(() => {
                 {{ mockup.requirement_name }}
               </VChip>
             </div>
+            <div v-if="mockup.user_story" class="mb-2">
+              <span class="text-caption font-weight-medium">{{ t('projects.details.user_story') }}: </span>
+              <VChip size="x-small" color="primary" class="ms-1">
+                {{ mockup.user_story_name }}
+              </VChip>
+            </div>
 
             <div class="d-flex align-center justify-space-between">
               <div class="d-flex align-center">

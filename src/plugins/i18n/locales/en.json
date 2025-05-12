@@ -48,6 +48,11 @@
     }
   },
   "projects": {
+    "languages": {
+      "english": "English",
+      "russian": "Russian",
+      "german": "German"
+    },
     "actions": {
       "save": "Save",
       "back": "Back",
@@ -55,7 +60,7 @@
       "create": "Create Project",
       "delete": "Delete Project",
       "edit": "Edit Project",
-      "export_srs": "Export SRS",
+      "export_srs": "Export",
       "generate_mockups": "Generate Mockups",
       "generate_plan": "Generate Development Plan",
       "generate_requirements": "Generate Requirements",
@@ -73,6 +78,73 @@
       "nonfunctional": "Non-functional",
       "other": "Other",
       "uiux": "UI/UX"
+    },
+    "additional_requirements": {
+      "all": "All Additional Requirements",
+      "user_authentication": "User Authentication",
+      "payment_integration": "Payment Integration",
+      "social_media_integration": "Social Media Integration",
+      "analytics": "Analytics",
+      "api_integration": "API Integration",
+      "cloud_storage": "Cloud Storage",
+      "mobile_responsive": "Mobile Responsive",
+      "accessibility": "Accessibility",
+      "real_time_updates": "Real-time Updates",
+      "multi_language_support": "Multi-language Support",
+      "reporting": "Reporting",
+      "export_import": "Export/Import"
+    },
+    "priority_modules": {
+      "all": "All Priority Modules",
+      "dashboard": "Dashboard",
+      "user_management": "User Management",
+      "content_management": "Content Management",
+      "reporting": "Reporting",
+      "analytics": "Analytics",
+      "file_management": "File Management",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "payment_processing": "Payment Processing",
+      "security": "Security",
+      "communication": "Communication",
+      "search": "Search"
+    },
+    "operating_systems": {
+      "all": "All Operating Systems",
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "ios": "iOS",
+      "android": "Android",
+      "cross_platform": "Cross-platform",
+      "web_based": "Web-based"
+    },
+    "non_functional_requirements": {
+      "all": "All Non-Functional Requirements",
+      "performance": "Performance",
+      "security": "Security",
+      "scalability": "Scalability",
+      "reliability": "Reliability",
+      "usability": "Usability",
+      "compatibility": "Compatibility",
+      "maintainability": "Maintainability",
+      "testability": "Testability",
+      "interoperability": "Interoperability",
+      "availability": "Availability",
+      "recoverability": "Recoverability",
+      "portability": "Portability"
+    },
+    "target_users": {
+      "all": "All Target Users",
+      "general_users": "General Users",
+      "business_users": "Business Users",
+      "developers": "Developers",
+      "administrators": "Administrators",
+      "students": "Students",
+      "teachers": "Teachers",
+      "healthcare_professionals": "Healthcare Professionals",
+      "financial_professionals": "Financial Professionals",
+      "other": "Other"
     },
     "details": {
       "project_overview": "Project Overview",
@@ -529,6 +601,70 @@
         "failed": "Failed"
       },
       "empty": "No exports found"
+    },
+    "create_dialog": {
+      "title": {
+        "create": "Create New Project",
+        "edit": "Edit Project"
+      },
+      "steps": {
+        "basic_info": {
+          "title": "Basic Information",
+          "subtitle": "Basic project data"
+        },
+        "detailed_description": {
+          "title": "Detailed Description",
+          "subtitle": "Application specifics"
+        },
+        "technical_requirements": {
+          "title": "Technical Requirements",
+          "subtitle": "Implementation details"
+        },
+        "planning": {
+          "title": "Planning",
+          "subtitle": "Time and budget"
+        }
+      },
+      "fields": {
+        "name": "Project Name",
+        "type": "Application Type",
+        "short_description": "Short Description",
+        "language": "Language",
+        "color_scheme": {
+          "title": "Color Scheme",
+          "add_color": "Add Color",
+          "color_code": "Color Code",
+          "generate_palette": "Generate Palette"
+        },
+        "application_description": "Application Description",
+        "target_users": "Target Users",
+        "additional_requirements": "Additional Requirements",
+        "non_functional_requirements": "Non-Functional Requirements",
+        "technology_stack": "Technology Stack",
+        "operating_systems": "Operating Systems",
+        "priority_modules": "Priority Modules",
+        "srs_template": "SRS Template",
+        "deadline": {
+          "start": "Start Date",
+          "end": "End Date"
+        },
+        "preliminary_budget": "Preliminary Budget",
+        "status": "Status"
+      },
+      "validation": {
+        "name_required": "Name is required",
+        "name_length": "Name must be less than 200 characters",
+        "description_required": "Short description is required",
+        "budget_number": "Budget must be a number",
+        "deadline_future": "Deadline must be in the future"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "previous": "Previous",
+        "next": "Next",
+        "create": "Create Project",
+        "update": "Update Project"
+      }
     }
   },
   "roles": {

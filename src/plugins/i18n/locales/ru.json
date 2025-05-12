@@ -48,6 +48,11 @@
     }
   },
   "projects": {
+    "languages": {
+      "english": "Английский",
+      "russian": "Русский",
+      "german": "Немецкий"
+    },
     "actions": {
       "save": "Сохранить",
       "back": "Назад",
@@ -55,7 +60,7 @@
       "create": "Создать проект",
       "delete": "Удалить проект",
       "edit": "Редактировать проект",
-      "export_srs": "Экспорт SRS",
+      "export_srs": "Экспорт",
       "generate_mockups": "Сгенерировать макеты",
       "generate_plan": "Сгенерировать план разработки",
       "generate_requirements": "Сгенерировать требования",
@@ -73,6 +78,71 @@
       "nonfunctional": "Нефункциональные",
       "other": "Другие",
       "uiux": "UI/UX"
+    },
+    "target_users": {
+      "all": "Все целевые пользователи",
+      "general_users": "Общие пользователи",
+      "business_users": "Бизнес-пользователи",
+      "developers": "Разработчики",
+      "administrators": "Администраторы",
+      "students": "Студенты",
+      "teachers": "Учителя",
+      "healthcare_professionals": "Специалисты в области здравоохранения",
+      "financial_professionals": "Финансовые специалисты",
+      "other": "Другие"
+    },
+    "operating_systems": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "ios": "iOS",
+      "android": "Android",
+      "cross_platform": "Кросс-платформенный",
+      "web_based": "Веб"
+    },
+    "priority_modules": {
+      "dashboard": "Дэшборд",
+      "user_management": "Управление пользователями",
+      "content_management": "Управление контентом",
+      "reporting": "Отчеты",
+      "analytics": "Аналитика",
+      "file_management": "Управление файлами",
+      "notifications": "Уведомления",
+      "settings": "Настройки",
+      "payment_processing": "Обработка платежей",
+      "security": "Безопасность",
+      "communication": "Коммуникация",
+      "search": "Поиск"
+    },
+    "non_functional_requirements": {
+      "all": "Все нефункциональные требования",
+      "performance": "Производительность",
+      "security": "Безопасность",
+      "scalability": "Масштабируемость",
+      "reliability": "Надежность",
+      "usability": "Удобство использования",
+      "compatibility": "Совместимость",
+      "maintainability": "Поддерживаемость",
+      "testability": "Тестируемость",
+      "interoperability": "Интерoperability",
+      "availability": "Доступность",
+      "recoverability": "Восстанавливаемость",
+      "portability": "Переносимость"
+    },
+    "additional_requirements": {
+      "all": "Все дополнительные требования",
+      "user_authentication": "Аутентификация пользователей",
+      "payment_integration": "Интеграция платежей",
+      "social_media_integration": "Интеграция социальных сетей",
+      "analytics": "Аналитика",
+      "cloud_storage": "Хранение в облаке",
+      "mobile_responsive": "Мобильная адаптация",
+      "accessibility": "Доступность",
+      "real_time_updates": "Обновление в реальном времени",
+      "api_integration": "Интеграция API",
+      "multi_language_support": "Мультиязычность",
+      "reporting": "Отчеты",
+      "export_import": "Экспорт/Импорт"
     },
     "details": {
       "project_overview": "Обзор проекта",
@@ -520,9 +590,9 @@
       "and_more": "и ещё {count}...",
       "actions": {
         "create": "Создать пользовательскую историю",
-        "edit": "Редактировать пользовательскую историю",
-        "delete": "Удалить пользовательскую историю",
-        "regenerate": "Перегенерировать пользовательскую историю",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "regenerate": "Перегенерировать",
         "save": "Сохранить изменения",
         "search": "Поиск пользовательских историй...",
         "cancel": "Отмена",
