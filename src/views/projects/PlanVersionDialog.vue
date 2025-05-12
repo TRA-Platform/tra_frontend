@@ -2,6 +2,9 @@
 import { ref, computed, capitalize } from 'vue'
 import { useDevelopmentPlanStore } from '@/stores/useDevelopmentPlanStore'
 import { getStatusChipColor } from "@core/utils/formatters";
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -82,15 +85,15 @@ const saveVersion = async () => {
     const { data, error } = await planStore.updatePlanVersion(props.version.id, editedVersion.value)
 
     if (data && !error) {
-      showSnackbar('Plan version updated successfully')
+      showSnackbar(t('projects.development_plan.notifications.version_updated'))
       Object.assign(props.version, data)
       isEditMode.value = false
       emit('refresh')
     } else {
-      showSnackbar('Failed to update plan version', 'error')
+      showSnackbar(t('projects.development_plan.notifications.version_update_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to update plan version: ' + err.message, 'error')
+    showSnackbar(t('projects.development_plan.notifications.version_update_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -105,13 +108,13 @@ const setAsCurrent = async () => {
     const { data, error } = await planStore.setCurrentPlanVersion(props.planId, props.version.id)
 
     if (data && !error) {
-      showSnackbar('Set as current version successfully')
+      showSnackbar(t('projects.development_plan.notifications.set_current_success'))
       emit('refresh')
     } else {
-      showSnackbar('Failed to set as current version', 'error')
+      showSnackbar(t('projects.development_plan.notifications.set_current_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to set as current version: ' + err.message, 'error')
+    showSnackbar(t('projects.development_plan.notifications.set_current_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -161,11 +164,11 @@ watch(() => props.version, (newVal) => {
     <VCard>
       <VCardTitle class="d-flex py-3 px-5">
         <template v-if="isEditMode">
-          <h5 class="text-h5">Edit Plan Version</h5>
+          <h5 class="text-h5">{{ t('projects.development_plan.actions.edit') }}</h5>
         </template>
         <template v-else>
           <h5 class="text-h5">
-            Development Plan v{{ version.version_number }}
+            {{ t('projects.development_plan.version.version') }} {{ version.version_number }}
             <VChip
               v-if="isCurrent"
               color="primary"
@@ -173,7 +176,7 @@ watch(() => props.version, (newVal) => {
               label
               class="ms-2"
             >
-              Current
+              {{ t('projects.development_plan.version.current') }}
             </VChip>
           </h5>
         </template>
@@ -194,22 +197,22 @@ watch(() => props.version, (newVal) => {
               <VCol cols="12" md="4">
                 <VTextField
                   v-model.number="editedVersion.estimated_cost"
-                  label="Estimated Cost ($)"
+                  :label="t('projects.development_plan.estimated_cost')"
                   type="number"
                   required
-                  :rules="[v => !!v || 'Estimated cost is required']"
+                  :rules="[v => !!v || t('projects.development_plan.validation.estimated_cost_required')]"
                 />
               </VCol>
 
               <VCol cols="12" md="4">
                 <VSelect
                   v-model="editedVersion.status"
-                  label="Status"
+                  :label="t('projects.details.status')"
                   :items="[
-                    { title: 'Draft', value: 'draft' },
-                    { title: 'Active', value: 'active' },
-                    { title: 'Archived', value: 'archived' },
-                    { title: 'Completed', value: 'completed' }
+                    { title: t('projects.status.draft'), value: 'draft' },
+                    { title: t('projects.status.active'), value: 'active' },
+                    { title: t('projects.status.archived'), value: 'archived' },
+                    { title: t('projects.status.completed'), value: 'completed' }
                   ]"
                   required
                 />
@@ -218,19 +221,19 @@ watch(() => props.version, (newVal) => {
               <VCol cols="12">
                 <VTextarea
                   v-model="editedVersion.notes"
-                  label="Notes"
+                  :label="t('projects.development_plan.notes')"
                   rows="4"
                 />
               </VCol>
 
               <VCol cols="12">
-                <p class="text-subtitle-1 font-weight-bold mb-2">Roles & Hours</p>
+                <p class="text-subtitle-1 font-weight-bold mb-2">{{ t('projects.development_plan.version.roles_hours_breakdown') }}</p>
                 <VTextarea
                   v-model="editedVersion.roles_and_hours"
-                  label="Roles & Hours (JSON format)"
+                  :label="t('projects.development_plan.roles_hours')"
                   rows="8"
                   monospace
-                  hint="Format: [{ 'role': 'Developer', 'hours': 40, 'cost': 4000 }]"
+                  :hint="t('projects.development_plan.roles_hours_hint')"
                   persistent-hint
                 />
               </VCol>
@@ -252,18 +255,18 @@ watch(() => props.version, (newVal) => {
                 </div>
                 <div class="d-flex align-center">
                   <span class="text-caption">
-                    Created: {{ formatDate(version.created_at) }}
+                    {{ t('projects.development_plan.version.created') }}: {{ formatDate(version.created_at) }}
                   </span>
 
                   <span class="text-caption ms-3" v-if="version.created_by">
-                    Created by: {{ version.created_by.username }}
+                    {{ t('projects.development_plan.version.created_by') }}: {{ version.created_by.username }}
                   </span>
                 </div>
 
                 <div>
                   <h4 class="text-h4 font-weight-bold">{{ formatCurrency(version.estimated_cost) }}</h4>
                   <div class="text-caption text-medium-emphasis text-right">
-                    Estimated total cost
+                    {{ t('projects.development_plan.version.estimated_total_cost') }}
                   </div>
                 </div>
               </div>
@@ -271,14 +274,14 @@ watch(() => props.version, (newVal) => {
 
             <VCol cols="12">
               <VCard variant="outlined" class="mb-4">
-                <VCardTitle>Roles & Hours Breakdown</VCardTitle>
+                <VCardTitle>{{ t('projects.development_plan.version.roles_hours_breakdown') }}</VCardTitle>
                 <VCardText>
                   <VTable>
                     <thead>
                     <tr>
-                      <th>Role</th>
-                      <th class="text-right">Hours</th>
-                      <th class="text-right">Cost</th>
+                      <th>{{ t('projects.development_plan.version.role') }}</th>
+                      <th class="text-right">{{ t('projects.development_plan.version.hours') }}</th>
+                      <th class="text-right">{{ t('projects.development_plan.version.cost') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -288,7 +291,7 @@ watch(() => props.version, (newVal) => {
                       <td class="text-right">{{ formatCurrency(role.cost) }}</td>
                     </tr>
                     <tr v-if="parseRolesAndHours(version.roles_and_hours).length === 0">
-                      <td colspan="3" class="text-center">No roles and hours defined</td>
+                      <td colspan="3" class="text-center">{{ t('projects.development_plan.version.no_roles') }}</td>
                     </tr>
                     </tbody>
                   </VTable>
@@ -298,7 +301,7 @@ watch(() => props.version, (newVal) => {
 
             <VCol cols="12" v-if="version.notes">
               <VCard variant="outlined">
-                <VCardTitle>Notes</VCardTitle>
+                <VCardTitle>{{ t('projects.development_plan.notes') }}</VCardTitle>
                 <VCardText>
                   <div class="text-body-1 whitespace-pre-wrap">{{ version.notes }}</div>
                 </VCardText>
@@ -318,7 +321,7 @@ watch(() => props.version, (newVal) => {
             @click="toggleEditMode"
             :disabled="processingAction"
           >
-            Cancel
+            {{ t('projects.actions.cancel') }}
           </VBtn>
 
           <VSpacer />
@@ -328,7 +331,7 @@ watch(() => props.version, (newVal) => {
             @click="saveVersion"
             :loading="processingAction"
           >
-            Save Changes
+            {{ t('projects.actions.save') }}
           </VBtn>
         </template>
         <template v-else>
@@ -340,7 +343,7 @@ watch(() => props.version, (newVal) => {
             :loading="processingAction"
             prepend-icon="tabler-check"
           >
-            Set as Current
+            {{ t('projects.development_plan.actions.set_current') }}
           </VBtn>
 
           <VSpacer />
@@ -351,7 +354,7 @@ watch(() => props.version, (newVal) => {
             prepend-icon="tabler-edit"
             @click="toggleEditMode"
           >
-            Edit
+            {{ t('projects.development_plan.actions.edit') }}
           </VBtn>
         </template>
       </VCardActions>

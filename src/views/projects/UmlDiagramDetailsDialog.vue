@@ -4,6 +4,7 @@ import { useUmlDiagramStore } from '@/stores/useUmlDiagramStore'
 import { getStatusChipColor, renderUML } from "@core/utils/formatters"
 import pako from 'pako'
 import { Buffer } from "buffer/";
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps ({
   modelValue: {
@@ -47,11 +48,13 @@ const snackbar = ref ({
   color: 'success'
 })
 
+const { t } = useI18n()
+
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  { title: t('projects.status.draft'), value: 'draft' },
+  { title: t('projects.status.active'), value: 'active' },
+  { title: t('projects.status.archived'), value: 'archived' },
+  { title: t('projects.status.completed'), value: 'completed' }
 ]
 
 const formatDate = (dateString) => {
@@ -107,14 +110,14 @@ const saveDiagram = async () => {
     const { data, error } = await umlDiagramStore.updateDiagram (props.diagram.id, editedDiagram.value)
 
     if (data && !error) {
-      showSnackbar ('UML diagram updated successfully')
+      showSnackbar (t('projects.uml_diagrams.notifications.updated'))
       Object.assign (props.diagram, data)
       isEditMode.value = false
     } else {
-      showSnackbar ('Failed to update UML diagram', 'error')
+      showSnackbar (t('projects.uml_diagrams.notifications.update_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar ('Failed to update UML diagram: ' + err.message, 'error')
+    showSnackbar (t('projects.uml_diagrams.notifications.update_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -131,15 +134,15 @@ const handleRegenerateDiagram = async () => {
     const { data, error } = await umlDiagramStore.regenerateDiagram (props.diagram.id)
 
     if (data && !error) {
-      showSnackbar ('UML diagram regeneration started')
+      showSnackbar (t('projects.uml_diagrams.notifications.regeneration_started'))
       setTimeout (() => {
         emit ('regenerate')
       }, 3000)
     } else {
-      showSnackbar ('Failed to regenerate UML diagram', 'error')
+      showSnackbar (t('projects.uml_diagrams.notifications.regeneration_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar ('Failed to regenerate UML diagram: ' + err.message, 'error')
+    showSnackbar (t('projects.uml_diagrams.notifications.regeneration_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -170,7 +173,7 @@ watch (() => props.diagram, (newVal) => {
     <VCard>
       <VCardTitle class="d-flex py-3 px-5">
         <template v-if="isEditMode">
-          <h5 class="text-h5">Edit UML Diagram</h5>
+          <h5 class="text-h5">{{ t('projects.uml_diagrams.actions.edit') }}</h5>
         </template>
         <template v-else>
           <h5 class="text-h5">{{ diagram.name }}</h5>
@@ -180,7 +183,7 @@ watch (() => props.diagram, (newVal) => {
             size="small"
             label
           >
-            {{ getDiagramTypeDisplay (diagram.diagram_type) }}
+            {{ t(`projects.uml_diagrams.types.${diagram.diagram_type}`) }}
           </VChip>
         </template>
 
@@ -214,16 +217,16 @@ watch (() => props.diagram, (newVal) => {
               <VCol cols="12">
                 <VTextField
                   v-model="editedDiagram.name"
-                  label="Diagram Name"
+                  :label="t('projects.uml_diagrams.name')"
                   required
-                  :rules="[v => !!v || 'Name is required']"
+                  :rules="[v => !!v || t('projects.uml_diagrams.validation.name_required')]"
                 />
               </VCol>
 
               <VCol cols="12" md="6">
                 <VSelect
                   v-model="editedDiagram.status"
-                  label="Status"
+                  :label="t('projects.uml_diagrams.status.title')"
                   :items="statusOptions"
                   required
                 />
@@ -232,17 +235,16 @@ watch (() => props.diagram, (newVal) => {
               <VCol cols="12">
                 <VTextarea
                   v-model="editedDiagram.notes"
-                  label="Notes"
+                  :label="t('projects.uml_diagrams.notes')"
                   rows="4"
                 />
               </VCol>
 
               <VCol cols="12">
-                <div class="text-subtitle-1 font-weight-medium mb-2">Diagram Content (SVG)</div>
+                <div class="text-subtitle-1 font-weight-medium mb-2">{{ t('projects.uml_diagrams.content') }}</div>
                 <div class="bg-grey-lighten-5 rounded pa-3">
                   <div class="text-medium-emphasis text-caption mb-2">
-                    Note: Direct editing of diagram content is not recommended.
-                    Use the Regenerate button to create a new version instead.
+                    {{ t('projects.uml_diagrams.content_hint') }}
                   </div>
                   <VTextarea
                     v-model="editedDiagram.content"
@@ -262,8 +264,8 @@ watch (() => props.diagram, (newVal) => {
               variant="tonal"
               icon="tabler-refresh"
             >
-              <VAlertTitle>Generating Diagram</VAlertTitle>
-              <p>This diagram is currently being generated. Please check back shortly.</p>
+              <VAlertTitle>{{ t('projects.uml_diagrams.status.generating') }}</VAlertTitle>
+              <p>{{ t('projects.uml_diagrams.status.generating_description') }}</p>
             </VAlert>
 
             <div class="d-flex justify-center my-8">
@@ -272,10 +274,10 @@ watch (() => props.diagram, (newVal) => {
 
             <div class="d-flex align-center justify-center text-medium-emphasis">
               <VIcon size="18" icon="tabler-calendar" class="me-1"/>
-              <span class="text-caption me-4">Updated: {{ formatDate (diagram.updated_at) }}</span>
+              <span class="text-caption me-4">{{ t('projects.details.updated_at') }}: {{ formatDate(diagram.updated_at) }}</span>
 
               <VIcon size="18" icon="tabler-calendar-plus" class="me-1"/>
-              <span class="text-caption">Created: {{ formatDate (diagram.created_at) }}</span>
+              <span class="text-caption">{{ t('projects.details.created_at') }}: {{ formatDate(diagram.created_at) }}</span>
             </div>
           </div>
           <div v-else-if="diagram.content" class="diagram-content pa-0">
@@ -286,7 +288,7 @@ watch (() => props.diagram, (newVal) => {
                 label
                 class="me-2"
               >
-                {{ diagram.status }}
+                {{ t(`projects.status.${diagram.status}`) }}
               </VChip>
 
               <div v-if="diagram.notes" class="ms-2">
@@ -307,10 +309,10 @@ watch (() => props.diagram, (newVal) => {
 
               <div class="text-medium-emphasis d-flex align-center">
                 <VIcon size="18" icon="tabler-calendar" class="me-1"/>
-                <span class="text-caption me-4">Updated: {{ formatDate (diagram.updated_at) }}</span>
+                <span class="text-caption me-4">{{ t('projects.details.updated_at') }}: {{ formatDate(diagram.updated_at) }}</span>
 
                 <VIcon size="18" icon="tabler-calendar-plus" class="me-1"/>
-                <span class="text-caption">Created: {{ formatDate (diagram.created_at) }}</span>
+                <span class="text-caption">{{ t('projects.details.created_at') }}: {{ formatDate(diagram.created_at) }}</span>
               </div>
             </div>
 
@@ -333,9 +335,9 @@ watch (() => props.diagram, (newVal) => {
           </div>
           <div v-else class="d-flex flex-column justify-center align-center pa-6" style="height: 400px;">
             <VIcon icon="tabler-chart-dots-2" size="64" color="secondary" class="mb-4"/>
-            <h4 class="text-h6 mb-2">No Diagram Content</h4>
+            <h4 class="text-h6 mb-2">{{ t('projects.uml_diagrams.status.no_content.title') }}</h4>
             <p class="text-medium-emphasis text-center">
-              This diagram doesn't have any content to display. Try regenerating it.
+              {{ t('projects.uml_diagrams.status.no_content.description') }}
             </p>
           </div>
         </div>
@@ -351,7 +353,7 @@ watch (() => props.diagram, (newVal) => {
             @click="toggleEditMode"
             :disabled="processingAction"
           >
-            Cancel
+            {{ t('projects.actions.cancel') }}
           </VBtn>
 
           <VSpacer/>
@@ -361,7 +363,7 @@ watch (() => props.diagram, (newVal) => {
             @click="saveDiagram"
             :loading="processingAction"
           >
-            Save Changes
+            {{ t('projects.actions.save') }}
           </VBtn>
         </template>
         <template v-else>
@@ -372,7 +374,7 @@ watch (() => props.diagram, (newVal) => {
             prepend-icon="tabler-trash"
             @click="handleDeleteDiagram"
           >
-            Delete
+            {{ t('projects.uml_diagrams.actions.delete') }}
           </VBtn>
 
           <VBtn
@@ -384,7 +386,7 @@ watch (() => props.diagram, (newVal) => {
             @click="handleRegenerateDiagram"
             :loading="processingAction"
           >
-            Regenerate
+            {{ t('projects.uml_diagrams.actions.regenerate') }}
           </VBtn>
 
           <VSpacer/>
@@ -395,7 +397,7 @@ watch (() => props.diagram, (newVal) => {
             prepend-icon="tabler-edit"
             @click="toggleEditMode"
           >
-            Edit
+            {{ t('projects.uml_diagrams.actions.edit') }}
           </VBtn>
         </template>
       </VCardActions>

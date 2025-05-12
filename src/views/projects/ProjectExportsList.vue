@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   projectId: {
@@ -48,12 +51,12 @@ const downloadExport = (exportItem) => {
       <VTable v-if="!loading && exports.length > 0">
         <thead>
           <tr>
-            <th>Template</th>
-            <th>Format</th>
-            <th>Status</th>
-            <th>Created By</th>
-            <th>Created At</th>
-            <th>Actions</th>
+            <th>{{ t('projects.exports.table.template') }}</th>
+            <th>{{ t('projects.exports.table.format') }}</th>
+            <th>{{ t('projects.exports.table.status') }}</th>
+            <th>{{ t('projects.exports.table.created_by') }}</th>
+            <th>{{ t('projects.exports.table.created_at') }}</th>
+            <th>{{ t('projects.exports.table.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -62,7 +65,7 @@ const downloadExport = (exportItem) => {
             <td>{{ exportItem.fmt.toUpperCase() }}</td>
             <td>
               <VChip :color="getStatusColor(exportItem.status)" size="small">
-                {{ exportItem.status }}
+                {{ t(`projects.exports.status.${exportItem.status}`) }}
               </VChip>
             </td>
             <td>{{ exportItem.created_by.username }}</td>
@@ -88,7 +91,7 @@ const downloadExport = (exportItem) => {
         variant="tonal"
         class="mt-4"
       >
-        No exports found
+        {{ t('projects.exports.empty') }}
       </VAlert>
 
       <div v-else class="d-flex justify-center align-center" style="min-height: 200px">

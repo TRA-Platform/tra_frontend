@@ -49,6 +49,9 @@
   },
   "projects": {
     "actions": {
+      "save": "Save",
+      "back": "Back",
+      "cancel": "Cancel",
       "create": "Create Project",
       "delete": "Delete Project",
       "edit": "Edit Project",
@@ -56,7 +59,13 @@
       "generate_mockups": "Generate Mockups",
       "generate_plan": "Generate Development Plan",
       "generate_requirements": "Generate Requirements",
-      "view": "View Details"
+      "view": "View Details",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "back_to_projects": "Back to Projects",
+      "generate_all_user_stories": "Generate All User Stories",
+      "generate_user_stories_for_requirement": "Generate User Stories for this Requirement",
+      "back_to_all_user_stories": "Back to All User Stories"
     },
     "categories": {
       "all": "All Categories",
@@ -66,74 +75,263 @@
       "uiux": "UI/UX"
     },
     "details": {
-      "additional_requirements": "Additional Requirements",
-      "application_description": "Application Description",
-      "basic_info": "Basic Information",
+      "project_overview": "Project Overview",
+      "created_at": "Created",
+      "updated_at": "Updated",
+      "type": "Type",
+      "language": "Language",
+      "deadline": "Deadline",
       "budget": "Budget",
       "color_scheme": "Color Scheme",
-      "created_at": "Created At",
-      "deadline": "Deadline",
-      "language": "Language",
-      "non_functional_requirements": "Non-Functional Requirements",
-      "operating_system": "Operating System",
-      "priority_modules": "Priority Modules",
-      "project_overview": "Project Overview",
-      "short_description": "Short Description",
-      "status": "Status",
-      "target_users": "Target Users",
+      "color": "color",
+      "additional_requirements": "Additional Requirements",
       "technical_details": "Technical Details",
       "technology_stack": "Technology Stack",
-      "type": "Type",
-      "updated_at": "Updated At"
+      "operating_system": "Operating System",
+      "description": "Description",
+      "application_description": "Detailed Description",
+      "target_users": "Target Users",
+      "non_functional_requirements": "Non-Functional Requirements",
+      "priority_modules": "Priority Modules/Features",
+      "generation_status": "Generation Status",
+      "requirements": "Requirements",
+      "user_story": "User Story",
+      "user_stories": "User Stories",
+      "mockups": "Mockups",
+      "uml_diagrams": "UML Diagrams",
+      "status": "Status",
+      "requirement": "Requirement",
+      "not_set": "Not set",
+      "completed": "completed",
+      "total": "total",
+      "pending": "pending",
+      "requirements_count": "requirements"
     },
     "development_plan": {
       "actions": {
+        "new_version": "Create New Plan Version",
+        "create_version": "Create Version",
+        "set_current": "Set as Current",
+        "edit": "Edit",
+        "view_details": "View Full Details",
         "create_plan": "Create Development Plan",
-        "new_version": "New Version",
-        "set_current": "Set as Current"
+        "generate": "Generate Development Plan"
       },
-      "current_plan": "Current Development Plan",
-      "empty": "No Development Plan",
-      "estimated_cost": "Estimated Cost",
+      "creating_version": "Creating version {version} for this development plan",
+      "estimated_cost": "Estimated Cost ($)",
+      "roles_hours": "Roles & Hours (JSON format)",
+      "roles_hours_hint": "Format: [{'{'} 'role': 'Developer', 'hours': 40, 'cost': 4000 {'}'}]",
       "notes": "Notes",
-      "roles_hours": "Roles & Hours Breakdown",
-      "version_history": "Version History"
+      "current_plan": "Current Development Plan",
+      "version_history": "Version History",
+      "empty": {
+        "title": "No Development Plan",
+        "description": "This project does not have a development plan yet."
+      },
+      "version": {
+        "current": "Current",
+        "version": "Version",
+        "created": "Created",
+        "created_by": "Created by",
+        "estimated_total_cost": "Estimated total cost",
+        "roles_hours_breakdown": "Roles & Hours Breakdown",
+        "no_roles": "No roles and hours defined",
+        "only_one_version": "Only one version available. Create more versions to see the history.",
+        "no_versions": "No versions available yet.",
+        "role": "Role",
+        "hours": "Hours",
+        "cost": "Cost"
+      },
+      "validation": {
+        "estimated_cost_required": "Estimated cost is required",
+        "estimated_cost_number": "Estimated cost must be a number",
+        "roles_hours_json": "Roles and hours must be valid JSON"
+      },
+      "notifications": {
+        "created": "Development plan created successfully",
+        "create_failed": "Failed to create development plan",
+        "version_created": "Plan version created successfully",
+        "version_create_failed": "Failed to create plan version",
+        "version_updated": "Plan version updated successfully",
+        "version_update_failed": "Failed to update plan version",
+        "set_current_success": "Set as current version successfully",
+        "set_current_failed": "Failed to set as current version"
+      }
     },
     "empty": "No projects found",
     "filters": {
       "search": "Search projects...",
       "sort_by": "Sort By",
+      "sort_by_name": "Name",
+      "sort_by_created": "Creation Date",
+      "sort_by_status": "Status",
+      "sort_by_type": "Type",
+      "order": "Order",
+      "order_asc": "Ascending",
+      "order_desc": "Descending",
       "status": "Status"
     },
     "mockups": {
       "actions": {
-        "generate": "Generate Mockups",
-        "view_html": "View HTML"
+        "edit": "Edit Mockup",
+        "regenerate": "Regenerate",
+        "view_html": "View HTML",
+        "preview": "Preview",
+        "generate": "Generate Mockups"
       },
-      "empty": "No mockups found",
-      "preview": "Preview"
+      "name": "Mockup Name",
+      "html_content": "HTML Content",
+      "preview": "Mockup Preview",
+      "search": "Search mockups...",
+      "status": {
+        "generating": "Generating",
+        "pending": "Pending",
+        "preparing": "Preparing",
+        "regenerating": "Regenerating",
+        "pending_count": "mockup(s) generating or pending refresh",
+        "generating_description": "We're creating a beautiful mockup based on the requirements. This may take a minute.",
+        "preparing_description": "Your mockup will be regenerated soon based on recent changes."
+      },
+      "no_content": {
+        "title": "No HTML Content",
+        "description": "This mockup doesn't have any HTML content to display."
+      },
+      "empty": {
+        "title": "No Mockups Found",
+        "description": "This project does not have any mockups yet.",
+        "filtered": "Try adjusting your filters to see more results."
+      },
+      "validation": {
+        "name_required": "Name is required",
+        "html_required": "HTML content is required"
+      },
+      "notifications": {
+        "updated": "Mockup updated successfully",
+        "update_failed": "Failed to update mockup",
+        "update_error": "Failed to update mockup: {error}",
+        "regeneration_started": "Mockup regeneration started",
+        "regeneration_error": "Failed to regenerate mockup: {error}",
+        "deleted": "Mockup deleted successfully",
+        "delete_failed": "Failed to delete mockup"
+      },
+      "delete_confirm": {
+        "message": "Are you sure you want to delete this mockup? This action cannot be undone."
+      }
     },
     "notifications": {
       "created": "Project created successfully",
       "deleted": "Project deleted successfully",
       "error": "An error occurred",
       "requirements_generated": "Requirements generation started",
-      "updated": "Project updated successfully"
+      "updated": "Project updated successfully",
+      "requirements_generation_started": "Requirements generation started successfully",
+      "requirements_generation_failed": "Failed to start requirements generation",
+      "srs_export_started": "SRS export started successfully",
+      "srs_export_failed": "Failed to start SRS export",
+      "plan_generation_started": "Development plan generation started successfully",
+      "plan_generation_failed": "Failed to start development plan generation",
+      "mockups_generation_started": "Mockups generation started successfully",
+      "mockups_generation_failed": "Failed to start mockups generation",
+      "user_stories_generation_started": "User stories generation started successfully",
+      "user_stories_generation_failed": "Failed to start user stories generation",
+      "uml_diagrams_generation_started": "UML diagram generation started successfully",
+      "uml_diagrams_generation_failed": "Failed to start UML diagram generation"
     },
     "requirements": {
       "actions": {
-        "add": "Add Requirement",
+        "add": "Add",
         "comment": "Add Comment",
         "delete": "Delete Requirement",
         "edit": "Edit Requirement",
-        "generate": "Generate Requirements"
+        "generate": "Generate Requirements",
+        "view_details": "View Details",
+        "view_all_stories": "View All Stories",
+        "view_all_stories_count": "View All {count} Stories",
+        "generate_user_stories": "Generate User Stories",
+        "update": "Update",
+        "category": "Category",
+        "status": "Status",
+        "search": "Search requirements...",
+        "add_requirement": "Add Requirement"
       },
-      "comments": "Comments",
+      "search": "Search user stories...",
+      "category": "Category",
+      "comments": {
+        "add": "Add a comment",
+        "add_button": "Add Comment",
+        "empty": {
+          "title": "No Comments",
+          "description": "Be the first to comment on this requirement"
+        },
+        "unknown_user": "Unknown User"
+      },
       "description": "Description",
-      "empty": "No requirements found",
-      "history": "History",
+      "empty": {
+        "title": "No User Stories Found",
+        "description": "This requirement does not have any user stories yet.",
+        "filtered": "Try adjusting your filters to see more results.",
+        "no_requirements": "No requirements have been added yet."
+      },
+      "history": {
+        "empty": {
+          "title": "No History",
+          "description": "This requirement hasn't been modified yet"
+        },
+        "changed_by": "Changed by",
+        "unknown": "Unknown"
+      },
       "status": "Status",
-      "title": "Title"
+      "title": "Title",
+      "type": "Type",
+      "tabs": {
+        "details": "Details",
+        "user_stories": "User Stories",
+        "history": "History",
+        "comments": "Comments"
+      },
+      "types": {
+        "feature": "Feature",
+        "constraint": "Constraint",
+        "quality": "Quality",
+        "interface": "Interface",
+        "security": "Security",
+        "performance": "Performance",
+        "other": "Other"
+      },
+      "user_stories": {
+        "title": "User Stories",
+        "empty": {
+          "title": "No User Stories",
+          "description": "Generate user stories for this requirement"
+        },
+        "as_a": "As a {role}",
+        "i_want_to": "I want to",
+        "so_that": "So that",
+        "acceptance_criteria": "Acceptance Criteria",
+        "and_more": "...and {count} more",
+        "single": "user story",
+        "multiple": "user stories"
+      },
+      "validation": {
+        "title_length": "Title must be less than 255 characters"
+      },
+      "notifications": {
+        "created": "User story created successfully",
+        "create_failed": "Failed to create user story",
+        "updated": "User story updated successfully",
+        "update_failed": "Failed to update user story",
+        "deleted": "User story deleted successfully",
+        "delete_failed": "Failed to delete user story",
+        "regeneration_started": "User story regeneration started",
+        "regeneration_failed": "Failed to regenerate user story",
+        "comment_added": "Comment added successfully",
+        "comment_add_failed": "Failed to add comment",
+        "comment_deleted": "Comment deleted successfully",
+        "comment_delete_failed": "Failed to delete comment"
+      },
+      "delete_confirm": {
+        "message": "Are you sure you want to delete this user story? This action cannot be undone."
+      }
     },
     "status": {
       "active": "Active",
@@ -146,7 +344,10 @@
       "development_plan": "Development Plan",
       "mockups": "Mockups",
       "overview": "Overview",
-      "requirements": "Requirements"
+      "requirements": "Requirements",
+      "user_stories": "User Stories",
+      "uml_diagrams": "UML Diagrams",
+      "exports": "Exports"
     },
     "title": "Projects",
     "types": {
@@ -155,6 +356,179 @@
       "mobile": "Mobile App",
       "other": "Other",
       "website": "Website"
+    },
+    "errors": {
+      "loading_failed": "Failed to load project details",
+      "delete_failed": "Failed to delete project",
+      "update_failed": "Failed to update project"
+    },
+    "delete_confirm": {
+      "title": "Delete Project",
+      "message": "Are you sure you want to delete this project? This action cannot be undone."
+    },
+    "uml_diagrams": {
+      "actions": {
+        "edit": "Edit UML Diagram",
+        "delete": "Delete UML Diagram",
+        "regenerate": "Regenerate",
+        "generate": "Generate Diagram",
+        "view": "View Diagram",
+        "search": "Search diagrams..."
+      },
+      "title": "UML Diagrams",
+      "name": "Diagram Name",
+      "type": "Diagram Type",
+      "notes": "Notes",
+      "content": "Diagram Content (SVG)",
+      "content_hint": "Note: Direct editing of diagram content is not recommended. Use the Regenerate button to create a new version instead.",
+      "types": {
+        "all": "All Diagram Types",
+        "class": "Class Diagram",
+        "sequence": "Sequence Diagram",
+        "activity": "Activity Diagram",
+        "usecase": "Use Case Diagram",
+        "state": "State Diagram",
+        "component": "Component Diagram",
+        "deployment": "Deployment Diagram",
+        "er": "ER Diagram"
+      },
+      "empty": {
+        "title": "No UML Diagrams Found",
+        "description": "This project does not have any UML diagrams yet.",
+        "filtered": "Try adjusting your filters to see more results."
+      },
+      "generation": {
+        "title": "Generate UML Diagram",
+        "description": "Select the type of UML diagram you want to generate for this project. The system will analyze the requirements and create an appropriate diagram.",
+        "started": "{type} diagram generation started"
+      },
+      "status": {
+        "title": "Status",
+        "generating": "Generating Diagram",
+        "generating_description": "This diagram is currently being generated. Please check back shortly.",
+        "no_content": {
+          "title": "No Diagram Content",
+          "description": "This diagram doesn't have any content to display. Try regenerating it."
+        }
+      },
+      "validation": {
+        "name_required": "Name is required"
+      },
+      "notifications": {
+        "updated": "UML diagram updated successfully",
+        "update_failed": "Failed to update UML diagram",
+        "deleted": "UML diagram deleted successfully",
+        "delete_failed": "Failed to delete UML diagram",
+        "regeneration_started": "UML diagram regeneration started",
+        "regeneration_failed": "Failed to regenerate UML diagram"
+      },
+      "delete_confirm": {
+        "message": "Are you sure you want to delete this UML diagram? This action cannot be undone."
+      }
+    },
+    "user_stories": {
+      "and_more": "and {count} more",
+      "actions": {
+        "create": "Create New User Story",
+        "edit": "Edit User Story",
+        "delete": "Delete User Story",
+        "regenerate": "Regenerate User Story",
+        "save": "Save Changes",
+        "search": "Search user stories...",
+        "cancel": "Cancel",
+        "add": "Add",
+        "add_comment": "Add Comment"
+      },
+      "title": {
+        "create": "Create New User Story",
+        "edit": "Edit User Story",
+        "details": "User Story Details"
+      },
+      "fields": {
+        "role": "Role (As a...)",
+        "action": "Action (I want to...)",
+        "benefit": "Benefit (So that...)",
+        "status": "Status",
+        "acceptance_criteria": "Acceptance Criteria",
+        "add_criterion": "Add new criterion",
+        "feedback": "Feedback for Regeneration"
+      },
+      "placeholders": {
+        "role": "e.g. registered user, system administrator, customer",
+        "action": "e.g. search for products, export reports, reset my password",
+        "benefit": "e.g. I can find what I need quickly, I can analyze the data offline",
+        "feedback": "Explain what you want to improve about this user story..."
+      },
+      "validation": {
+        "role_required": "Role is required",
+        "action_required": "Action is required",
+        "benefit_required": "Benefit is required"
+      },
+      "empty": {
+        "acceptance_criteria": {
+          "title": "No Acceptance Criteria",
+          "description": "No acceptance criteria added yet. Add at least one criterion to help clarify when this user story is considered done."
+        },
+        "history": {
+          "title": "No History Available",
+          "description": "This user story hasn't been modified since its creation."
+        },
+        "comments": {
+          "title": "No Comments Yet",
+          "description": "Be the first to comment on this user story."
+        },
+          "title": "No User Stories Found",
+          "description": "This project does not have any user stories yet.",
+          "filtered": "Try adjusting your filters to see more results."
+      },
+      "regeneration": {
+        "title": "Regenerate User Story",
+        "description": "This will use AI to regenerate this user story based on your feedback and the associated requirement."
+      },
+      "notifications": {
+        "created": "User story created successfully",
+        "create_failed": "Failed to create user story",
+        "updated": "User story updated successfully",
+        "update_failed": "Failed to update user story",
+        "deleted": "User story deleted successfully",
+        "delete_failed": "Failed to delete user story",
+        "regeneration_started": "User story regeneration started",
+        "regeneration_failed": "Failed to regenerate user story",
+        "comment_added": "Comment added successfully",
+        "comment_add_failed": "Failed to add comment",
+        "comment_deleted": "Comment deleted successfully",
+        "comment_delete_failed": "Failed to delete comment"
+      },
+      "delete_confirm": {
+        "message": "Are you sure you want to delete this user story? This action cannot be undone."
+      }
+    },
+    "list": {
+      "actions": {
+        "view_details": "View Details"
+      },
+      "details": {
+        "created_at": "Created",
+        "type": "Type",
+        "language": "Language"
+      }
+    },
+    "exports": {
+      "title": "Exports",
+      "table": {
+        "template": "Template",
+        "format": "Format",
+        "status": "Status",
+        "created_by": "Created by",
+        "created_at": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "empty": "No exports found"
     }
   },
   "roles": {

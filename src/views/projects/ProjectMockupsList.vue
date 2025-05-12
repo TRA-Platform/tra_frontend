@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, capitalize } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMockupStore } from '@/stores/useMockupStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import MockupPreviewDialog from '@/views/projects/MockupPreviewDialog.vue'
 import { getStatusChipColor } from "@core/utils/formatters";
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   projectId: {
@@ -24,12 +25,14 @@ const emit = defineEmits(['refresh'])
 
 const mockupStore = useMockupStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedMockup = ref(null)
 const previewDialogVisible = ref(false)
 const confirmDeleteDialog = ref(false)
 const processingAction = ref(false)
+const refreshInterval = ref(null)
 const snackbar = ref({
   show: false,
   text: '',
@@ -40,11 +43,19 @@ const isAdmin = computed(() => authStore.is_admin())
 const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
+const pendingMockups = computed(() => {
+  return props.mockups.filter(mockup => 
+    mockup.needs_regeneration || 
+    mockup.generation_status === 'in_progress' || 
+    mockup.generation_status === 'pending'
+  ).length
+})
+
 const filteredMockups = computed(() => {
   return props.mockups.filter(mockup => {
     return !searchQuery.value ||
       mockup.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (mockup.requirement && mockup.requirement.title.toLowerCase().includes(searchQuery.value.toLowerCase()))
+      (mockup.requirement && mockup.requirement.toLowerCase().includes(searchQuery.value.toLowerCase()))
   })
 })
 
@@ -75,14 +86,14 @@ const handleDeleteMockup = async () => {
     const { success, error } = await mockupStore.deleteMockup(selectedMockup.value.id)
 
     if (success && !error) {
-      showSnackbar('Mockup deleted successfully')
+      showSnackbar(t('projects.mockups.notifications.deleted'))
       emit('refresh')
       previewDialogVisible.value = false
     } else {
-      showSnackbar('Failed to delete mockup', 'error')
+      showSnackbar(t('projects.mockups.notifications.delete_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to delete mockup: ' + err.message, 'error')
+    showSnackbar(t('projects.mockups.notifications.delete_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -105,6 +116,22 @@ const truncateHtml = (html, length = 150) => {
 
   return textOnly.substring(0, length) + '...'
 }
+
+const refreshIfNeeded = () => {
+  if (pendingMockups.value > 0) {
+    emit('refresh')
+  }
+}
+
+onMounted(() => {
+  refreshInterval.value = setInterval(refreshIfNeeded, 10000)
+})
+
+onUnmounted(() => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value)
+  }
+})
 </script>
 
 <template>
@@ -114,12 +141,33 @@ const truncateHtml = (html, length = 150) => {
         <VTextField
           v-model="searchQuery"
           density="compact"
-          placeholder="Search mockups..."
+          :placeholder="t('projects.mockups.search')"
           prepend-inner-icon="tabler-search"
           hide-details
           variant="outlined"
           clearable
         />
+      </VCol>
+      
+      <VCol cols="12" md="6" class="d-flex align-center">
+        <VAlert
+          v-if="pendingMockups > 0"
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mb-0 flex-grow-1 me-2"
+        >
+          <div class="d-flex align-center">
+            <VProgressCircular
+              indeterminate
+              color="info"
+              size="16"
+              width="2"
+              class="me-2"
+            />
+            <span>{{ pendingMockups }} {{ t('projects.mockups.status.pending_count') }}</span>
+          </div>
+        </VAlert>
       </VCol>
     </VRow>
 
@@ -131,9 +179,9 @@ const truncateHtml = (html, length = 150) => {
 
     <div v-else-if="filteredMockups.length === 0" class="text-center pa-4">
       <VIcon icon="tabler-photo-off" size="64" color="secondary" class="mb-4" />
-      <h4 class="text-h6 mb-2">No Mockups Found</h4>
+      <h4 class="text-h6 mb-2">{{ t('projects.mockups.empty.title') }}</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
-        {{ searchQuery ? 'Try adjusting your search to see more results.' : 'This project does not have any mockups yet.' }}
+        {{ searchQuery ? t('projects.mockups.empty.filtered') : t('projects.mockups.empty.description') }}
       </p>
     </div>
 
@@ -153,15 +201,24 @@ const truncateHtml = (html, length = 150) => {
         >
           <VCardItem>
             <VCardTitle>{{ mockup.name }}</VCardTitle>
-
             <template #append>
-              <VChip
-                :color="getStatusChipColor(mockup.status)"
-                size="small"
-                label
-              >
-                {{ capitalize(mockup.status) }}
-              </VChip>
+              <div class="d-flex align-center">
+                <VProgressCircular
+                  v-if="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending' || mockup.needs_regeneration"
+                  indeterminate
+                  color="primary"
+                  size="20"
+                  width="2"
+                  class="me-2"
+                />
+                <VChip
+                  :color="getStatusChipColor(mockup.status)"
+                  size="small"
+                  label
+                >
+                  {{ t(`projects.status.${mockup.status}`) }}
+                </VChip>
+              </div>
             </template>
           </VCardItem>
 
@@ -170,7 +227,14 @@ const truncateHtml = (html, length = 150) => {
           <VCardText>
             <div class="mockup-preview mb-3">
               <div class="overflow-hidden position-relative rounded bg-grey-lighten-4" style="height: 150px;">
-                <div v-if="mockup.html_content" class="html-preview">
+                <div v-if="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending'" 
+                     class="d-flex justify-center align-center h-100">
+                  <div class="text-center">
+                    <VProgressCircular indeterminate color="primary" size="40" class="mb-2" />
+                    <div class="text-caption">{{ t('projects.mockups.status.generating') }}</div>
+                  </div>
+                </div>
+                <div v-else-if="mockup.html_content" class="html-preview">
                   <div v-html="truncateHtml(mockup.html_content)"></div>
                 </div>
                 <div v-else class="d-flex justify-center align-center h-100">
@@ -182,17 +246,29 @@ const truncateHtml = (html, length = 150) => {
                     variant="elevated"
                     size="small"
                     prepend-icon="tabler-eye"
+                    :disabled="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending'"
                   >
-                    Preview
+                    {{ t('projects.mockups.actions.preview') }}
                   </VBtn>
                 </div>
               </div>
             </div>
 
+            <div v-if="mockup.needs_regeneration" class="mb-2">
+              <VChip
+                color="warning"
+                size="small"
+                label
+                prepend-icon="tabler-refresh"
+              >
+                {{ t('projects.mockups.status.regenerating') }}
+              </VChip>
+            </div>
+
             <div v-if="mockup.requirement" class="mb-2">
-              <span class="text-caption font-weight-medium">Requirement: </span>
+              <span class="text-caption font-weight-medium">{{ t('projects.details.requirement') }}: </span>
               <VChip size="x-small" color="primary" class="ms-1">
-                {{ mockup.requirement }}
+                {{ mockup.requirement_name }}
               </VChip>
             </div>
 
@@ -218,7 +294,7 @@ const truncateHtml = (html, length = 150) => {
 
     <ConfirmDialog
       v-model:isDialogVisible="confirmDeleteDialog"
-      confirmationMsg="Are you sure you want to delete this mockup? This action cannot be undone."
+      :confirmationMsg="t('projects.mockups.delete_confirm.message')"
       @confirm="handleDeleteMockup"
     />
 

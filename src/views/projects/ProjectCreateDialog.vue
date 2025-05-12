@@ -1,7 +1,10 @@
 <script setup>
 import {ref, computed, onMounted} from 'vue'
+import {useI18n} from 'vue-i18n'
 import {useSrsTemplateStore} from '@/stores/useSrsTemplateStore'
 import AppDateTimePicker from "@core/components/app-form-elements/AppDateTimePicker.vue";
+
+const {t} = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -50,20 +53,20 @@ const project = ref({
 const newColor = ref('#000000')
 
 const nameRules = [
-  v => !!v || 'Name is required',
-  v => v.length <= 200 || 'Name must be less than 200 characters'
+  v => !!v || t('projects.create_dialog.validation.name_required'),
+  v => v.length <= 200 || t('projects.create_dialog.validation.name_length')
 ]
 
 const shortDescriptionRules = [
-  v => !!v || 'Short description is required'
+  v => !!v || t('projects.create_dialog.validation.description_required')
 ]
 
 const budgetRules = [
-  v => !v || !isNaN(parseFloat(v)) || 'Budget must be a number'
+  v => !v || !isNaN(parseFloat(v)) || t('projects.create_dialog.validation.budget_number')
 ]
 
 const deadlineRules = [
-  v => !v || new Date(v) > new Date() || 'Deadline must be in the future'
+  v => !v || new Date(v) > new Date() || t('projects.create_dialog.validation.deadline_future')
 ]
 
 const currentStep = ref(0)
@@ -71,23 +74,23 @@ const formRef = ref(null)
 
 const steps = [
   {
-    title: 'Basic Information',
-    subtitle: 'Project essentials',
+    title: t('projects.create_dialog.steps.basic_info.title'),
+    subtitle: t('projects.create_dialog.steps.basic_info.subtitle'),
     icon: 'tabler-info-circle'
   },
   {
-    title: 'Detailed Description',
-    subtitle: 'Application specifics',
+    title: t('projects.create_dialog.steps.detailed_description.title'),
+    subtitle: t('projects.create_dialog.steps.detailed_description.subtitle'),
     icon: 'tabler-file-description'
   },
   {
-    title: 'Technical Requirements',
-    subtitle: 'Implementation details',
+    title: t('projects.create_dialog.steps.technical_requirements.title'),
+    subtitle: t('projects.create_dialog.steps.technical_requirements.subtitle'),
     icon: 'tabler-code'
   },
   {
-    title: 'Planning',
-    subtitle: 'Timing and budget',
+    title: t('projects.create_dialog.steps.planning.title'),
+    subtitle: t('projects.create_dialog.steps.planning.subtitle'),
     icon: 'tabler-calendar'
   }
 ]
@@ -428,7 +431,7 @@ watch(dialog, (val) => {
   >
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
-        <h5 class="text-h5">{{ props.editMode ? 'Edit Project' : 'Create New Project' }}</h5>
+        <h5 class="text-h5">{{ props.editMode ? t('projects.create_dialog.title.edit') : t('projects.create_dialog.title.create') }}</h5>
         <VSpacer/>
         <IconBtn @click="handleCancel">
           <VIcon icon="tabler-x"/>
@@ -452,7 +455,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <VTextField
                     v-model="project.name"
-                    label="Project Name"
+                    :label="t('projects.create_dialog.fields.name')"
                     :rules="nameRules"
                     required
                   />
@@ -461,7 +464,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <VSelect
                     v-model="project.type_of_application"
-                    label="Application Type"
+                    :label="t('projects.create_dialog.fields.type')"
                     :items="typeOptions"
                     required
                   />
@@ -470,7 +473,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VTextarea
                     v-model="project.short_description"
-                    label="Short Description"
+                    :label="t('projects.create_dialog.fields.short_description')"
                     :rules="shortDescriptionRules"
                     required
                     rows="3"
@@ -480,7 +483,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <VSelect
                     v-model="project.language"
-                    label="Language"
+                    :label="t('projects.create_dialog.fields.language')"
                     :items="languageOptions"
                     required
                   />
@@ -489,7 +492,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VColorPicker
                     v-model="newColor"
-                    label="Add Color"
+                    :label="t('projects.create_dialog.fields.color_scheme.add_color')"
                     mode="hex"
                     prepend-icon="tabler-plus"
                     hide-inputs
@@ -502,7 +505,7 @@ watch(dialog, (val) => {
                     >
                       <VTextField
                         v-model="newColor"
-                        label="Color Code"
+                        :label="t('projects.create_dialog.fields.color_scheme.color_code')"
                         readonly
                         prepend-inner-icon="tabler-color-picker"
                         class="w-100 mb-2"
@@ -519,7 +522,7 @@ watch(dialog, (val) => {
                         prepend-icon="tabler-plus"
                         @click="addColor"
                       >
-                        Add Color
+                        {{ t('projects.create_dialog.fields.color_scheme.add_color') }}
                       </VBtn>
                     </VCol>
                     <VCol
@@ -533,7 +536,7 @@ watch(dialog, (val) => {
                         prepend-icon="tabler-palette"
                         @click="generateColorPalette"
                       >
-                        Generate Palette
+                        {{ t('projects.create_dialog.fields.color_scheme.generate_palette') }}
                       </VBtn>
                     </VCol>
                   </VRow>
@@ -559,7 +562,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VTextarea
                     v-model="project.application_description"
-                    label="Application Description"
+                    :label="t('projects.create_dialog.fields.application_description')"
                     required
                     rows="6"
                   />
@@ -568,7 +571,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.target_users"
-                    label="Target Users"
+                    :label="t('projects.create_dialog.fields.target_users')"
                     :items="targetUserOptions"
                     multiple
                     chips
@@ -580,7 +583,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.additional_requirements"
-                    label="Additional Requirements"
+                    :label="t('projects.create_dialog.fields.additional_requirements')"
                     :items="additionalRequirementOptions"
                     multiple
                     chips
@@ -592,7 +595,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.non_functional_requirements"
-                    label="Non-Functional Requirements"
+                    :label="t('projects.create_dialog.fields.non_functional_requirements')"
                     :items="nonFunctionalRequirementOptions"
                     multiple
                     chips
@@ -608,7 +611,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.technology_stack"
-                    label="Technology Stack"
+                    :label="t('projects.create_dialog.fields.technology_stack')"
                     :items="technologyStackOptions"
                     multiple
                     chips
@@ -620,7 +623,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.operating_systems"
-                    label="Operating System"
+                    :label="t('projects.create_dialog.fields.operating_systems')"
                     :items="operatingSystemOptions"
                     multiple
                     chips
@@ -632,7 +635,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VCombobox
                     v-model="project.priority_modules"
-                    label="Priority Modules"
+                    :label="t('projects.create_dialog.fields.priority_modules')"
                     :items="priorityModuleOptions"
                     multiple
                     chips
@@ -644,7 +647,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VSelect
                     v-model="project.srs_template"
-                    label="SRS Template"
+                    :label="t('projects.create_dialog.fields.srs_template')"
                     :items="templates"
                     item-title="name"
                     item-value="id"
@@ -660,7 +663,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <AppDateTimePicker
                     v-model="project.deadline_start"
-                    label="Deadline Start"
+                    :label="t('projects.create_dialog.fields.deadline.start')"
                     type="date"
                     :rules="deadlineRules"
                   />
@@ -668,7 +671,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <AppDateTimePicker
                     v-model="project.deadline_end"
-                    label="Deadline End"
+                    :label="t('projects.create_dialog.fields.deadline.end')"
                     type="date"
                     :rules="deadlineRules"
                   />
@@ -677,7 +680,7 @@ watch(dialog, (val) => {
                 <VCol cols="12" md="6">
                   <VTextField
                     v-model="project.preliminary_budget"
-                    label="Preliminary Budget"
+                    :label="t('projects.create_dialog.fields.preliminary_budget')"
                     type="number"
                     :rules="budgetRules"
                     prefix="$"
@@ -687,7 +690,7 @@ watch(dialog, (val) => {
                 <VCol cols="12">
                   <VSelect
                     v-model="project.status"
-                    label="Status"
+                    :label="t('projects.create_dialog.fields.status')"
                     :items="statusOptions"
                     required
                   />
@@ -706,7 +709,7 @@ watch(dialog, (val) => {
           color="secondary"
           @click="handleCancel"
         >
-          Cancel
+          {{ t('projects.create_dialog.actions.cancel') }}
         </VBtn>
 
         <VSpacer/>
@@ -717,7 +720,7 @@ watch(dialog, (val) => {
           color="secondary"
           @click="prevStep"
         >
-          Previous
+          {{ t('projects.create_dialog.actions.previous') }}
         </VBtn>
 
         <VBtn
@@ -725,7 +728,7 @@ watch(dialog, (val) => {
           color="primary"
           @click="nextStep"
         >
-          Next
+          {{ t('projects.create_dialog.actions.next') }}
         </VBtn>
 
         <VBtn
@@ -733,7 +736,7 @@ watch(dialog, (val) => {
           color="primary"
           @click="submitForm"
         >
-          {{ props.editMode ? 'Update' : 'Create' }} Project
+          {{ props.editMode ? t('projects.create_dialog.actions.update') : t('projects.create_dialog.actions.create') }}
         </VBtn>
       </VCardActions>
     </VCard>

@@ -2,6 +2,9 @@
 import { ref, computed, watch } from 'vue'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters"
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -47,27 +50,27 @@ const snackbar = ref ({
 })
 
 const categoryOptions = [
-  { title: 'Functional', value: 'functional' },
-  { title: 'Non-Functional', value: 'nonfunctional' },
-  { title: 'UI/UX', value: 'uiux' },
-  { title: 'Other', value: 'other' }
+  { title: t('projects.categories.functional'), value: 'functional' },
+  { title: t('projects.categories.nonfunctional'), value: 'nonfunctional' },
+  { title: t('projects.categories.uiux'), value: 'uiux' },
+  { title: t('projects.categories.other'), value: 'other' }
 ]
 
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  { title: t('projects.status.draft'), value: 'draft' },
+  { title: t('projects.status.active'), value: 'active' },
+  { title: t('projects.status.archived'), value: 'archived' },
+  { title: t('projects.status.completed'), value: 'completed' }
 ]
 
 const requirementTypeOptions = [
-  { title: 'Feature', value: 'feature' },
-  { title: 'Constraint', value: 'constraint' },
-  { title: 'Quality', value: 'quality' },
-  { title: 'Interface', value: 'interface' },
-  { title: 'Security', value: 'security' },
-  { title: 'Performance', value: 'performance' },
-  { title: 'Other', value: 'other' }
+  { title: t('projects.requirements.types.feature'), value: 'feature' },
+  { title: t('projects.requirements.types.constraint'), value: 'constraint' },
+  { title: t('projects.requirements.types.quality'), value: 'quality' },
+  { title: t('projects.requirements.types.interface'), value: 'interface' },
+  { title: t('projects.requirements.types.security'), value: 'security' },
+  { title: t('projects.requirements.types.performance'), value: 'performance' },
+  { title: t('projects.requirements.types.other'), value: 'other' }
 ]
 
 const history = computed (() => {
@@ -121,28 +124,28 @@ const viewUserStories = () => {
 }
 
 const submitComment = async () => {
-  if (!newComment.value.trim ()) return
+  if (!newComment.value.trim()) return
 
   processingComment.value = true
 
   try {
-    const { data, error } = await requirementStore.createComment (props.requirement.id, {
+    const { data, error } = await requirementStore.createComment(props.requirement.id, {
       text: newComment.value,
       status: 'active'
     })
 
     if (data && !error) {
-      showSnackbar ('Comment added successfully')
+      showSnackbar(t('projects.requirements.notifications.comment_added'))
       newComment.value = ''
-      const { data: refreshedRequirement } = await requirementStore.fetchRequirementById (props.requirement.id)
+      const { data: refreshedRequirement } = await requirementStore.fetchRequirementById(props.requirement.id)
       if (refreshedRequirement) {
-        Object.assign (props.requirement, refreshedRequirement)
+        Object.assign(props.requirement, refreshedRequirement)
       }
     } else {
-      showSnackbar ('Failed to add comment', 'error')
+      showSnackbar(t('projects.requirements.notifications.comment_add_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar ('Failed to add comment: ' + err.message, 'error')
+    showSnackbar(t('projects.requirements.notifications.comment_add_failed') + ': ' + err.message, 'error')
   } finally {
     processingComment.value = false
   }
@@ -152,19 +155,19 @@ const deleteComment = async (commentId) => {
   processingComment.value = true
 
   try {
-    const { success, error } = await requirementStore.deleteComment (commentId)
+    const { success, error } = await requirementStore.deleteComment(commentId)
 
     if (success && !error) {
-      showSnackbar ('Comment deleted successfully')
-      const { data: refreshedRequirement } = await requirementStore.fetchRequirementById (props.requirement.id)
+      showSnackbar(t('projects.requirements.notifications.comment_deleted'))
+      const { data: refreshedRequirement } = await requirementStore.fetchRequirementById(props.requirement.id)
       if (refreshedRequirement) {
-        Object.assign (props.requirement, refreshedRequirement)
+        Object.assign(props.requirement, refreshedRequirement)
       }
     } else {
-      showSnackbar ('Failed to delete comment', 'error')
+      showSnackbar(t('projects.requirements.notifications.comment_delete_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar ('Failed to delete comment: ' + err.message, 'error')
+    showSnackbar(t('projects.requirements.notifications.comment_delete_failed') + ': ' + err.message, 'error')
   } finally {
     processingComment.value = false
   }
@@ -192,10 +195,10 @@ watch (() => props.requirement, (newVal) => {
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
         <template v-if="isEditMode">
-          <h5 class="text-h5">Edit Requirement</h5>
+          <h5 class="text-h5">{{ t('projects.requirements.actions.edit') }}</h5>
         </template>
         <template v-else>
-          <h5 class="text-h5">Requirement Details</h5>
+          <h5 class="text-h5">{{ t('projects.requirements.actions.view_details') }}</h5>
         </template>
 
         <VSpacer/>
@@ -213,11 +216,11 @@ watch (() => props.requirement, (newVal) => {
         >
           <VTab value="0">
             <VIcon size="18" icon="tabler-info-circle" start/>
-            Details
+            {{ t('projects.requirements.tabs.details') }}
           </VTab>
           <VTab value="1">
             <VIcon size="18" icon="tabler-user-check" start/>
-            User Stories
+            {{ t('projects.requirements.tabs.user_stories') }}
             <VChip
               v-if="userStories.length"
               size="x-small"
@@ -229,7 +232,7 @@ watch (() => props.requirement, (newVal) => {
           </VTab>
           <VTab value="2">
             <VIcon size="18" icon="tabler-history" start/>
-            History
+            {{ t('projects.requirements.tabs.history') }}
             <VChip
               v-if="history.length"
               size="x-small"
@@ -241,7 +244,7 @@ watch (() => props.requirement, (newVal) => {
           </VTab>
           <VTab value="3">
             <VIcon size="18" icon="tabler-messages" start/>
-            Comments
+            {{ t('projects.requirements.tabs.comments') }}
             <VChip
               v-if="comments.length"
               size="x-small"
@@ -265,16 +268,16 @@ watch (() => props.requirement, (newVal) => {
                   <VCol cols="12">
                     <VTextField
                       v-model="editedRequirement.title"
-                      label="Title"
+                      :label="t('projects.requirements.title')"
                       required
-                      :rules="[v => !!v || 'Title is required']"
+                      :rules="[v => !!v || t('validation.required')]"
                     />
                   </VCol>
 
                   <VCol cols="12" md="4">
                     <VSelect
                       v-model="editedRequirement.category"
-                      label="Category"
+                      :label="t('projects.requirements.category')"
                       :items="categoryOptions"
                       required
                     />
@@ -283,7 +286,7 @@ watch (() => props.requirement, (newVal) => {
                   <VCol cols="12" md="4">
                     <VSelect
                       v-model="editedRequirement.requirement_type"
-                      label="Requirement Type"
+                      :label="t('projects.requirements.type')"
                       :items="requirementTypeOptions"
                       required
                     />
@@ -292,7 +295,7 @@ watch (() => props.requirement, (newVal) => {
                   <VCol cols="12" md="4">
                     <VSelect
                       v-model="editedRequirement.status"
-                      label="Status"
+                      :label="t('projects.requirements.status')"
                       :items="statusOptions"
                       required
                     />
@@ -301,10 +304,10 @@ watch (() => props.requirement, (newVal) => {
                   <VCol cols="12">
                     <VTextarea
                       v-model="editedRequirement.description"
-                      label="Description"
+                      :label="t('projects.requirements.description')"
                       required
                       rows="8"
-                      :rules="[v => !!v || 'Description is required']"
+                      :rules="[v => !!v || t('validation.required')]"
                     />
                   </VCol>
                 </VRow>
@@ -318,7 +321,7 @@ watch (() => props.requirement, (newVal) => {
                   label
                   class="me-2"
                 >
-                  {{ requirement.category }}
+                  {{ t(`projects.categories.${requirement.category}`) }}
                 </VChip>
 
                 <VChip
@@ -326,7 +329,7 @@ watch (() => props.requirement, (newVal) => {
                   size="small"
                   label
                 >
-                  {{ capitalize (requirement.status) }}
+                  {{ t(`projects.status.${requirement.status}`) }}
                 </VChip>
 
                 <VChip
@@ -345,17 +348,17 @@ watch (() => props.requirement, (newVal) => {
                   label
                   class="ms-2"
                 >
-                  {{ requirement.requirement_type }}
+                  {{ t(`projects.requirements.types.${requirement.requirement_type}`) }}
                 </VChip>
 
                 <VSpacer/>
 
                 <div class="text-medium-emphasis d-flex align-center">
                   <VIcon size="18" icon="tabler-calendar" class="me-1"/>
-                  <span class="text-caption me-4">Updated: {{ formatDate (requirement.updated_at) }}</span>
+                  <span class="text-caption me-4">{{ t('projects.details.updated_at') }}: {{ formatDate(requirement.updated_at) }}</span>
 
                   <VIcon size="18" icon="tabler-calendar-plus" class="me-1"/>
-                  <span class="text-caption">Created: {{ formatDate (requirement.created_at) }}</span>
+                  <span class="text-caption">{{ t('projects.details.created_at') }}: {{ formatDate(requirement.created_at) }}</span>
                 </div>
               </div>
 
@@ -368,28 +371,28 @@ watch (() => props.requirement, (newVal) => {
           <VWindowItem value="1">
             <div v-if="userStories.length === 0" class="text-center pa-6">
               <VIcon icon="tabler-user-check" size="64" color="secondary" class="mb-3"/>
-              <h4 class="text-h6 mb-2">No User Stories Available</h4>
+              <h4 class="text-h6 mb-2">{{ t('projects.requirements.user_stories.empty.title') }}</h4>
               <p class="text-medium-emphasis mb-4">
-                This requirement doesn't have any user stories yet.
+                {{ t('projects.requirements.user_stories.empty.description') }}
               </p>
 
               <VBtn
                 color="primary"
                 @click="viewUserStories"
               >
-                Generate User Stories
+                {{ t('projects.requirements.actions.generate_user_stories') }}
               </VBtn>
             </div>
 
             <div v-else>
               <div class="d-flex justify-space-between align-center mb-4">
-                <h5 class="text-h5">User Stories</h5>
+                <h5 class="text-h5">{{ t('projects.requirements.user_stories.title') }}</h5>
                 <VBtn
                   color="primary"
                   variant="tonal"
                   @click="viewUserStories"
                 >
-                  View All User Stories
+                  {{ t('projects.requirements.actions.view_all_stories') }}
                 </VBtn>
               </div>
 
@@ -400,29 +403,29 @@ watch (() => props.requirement, (newVal) => {
                 border
               >
                 <VCardItem>
-                  <VCardTitle>As a {{ story.role }}</VCardTitle>
+                  <VCardTitle>{{ t('projects.requirements.user_stories.as_a', { role: story.role }) }}</VCardTitle>
                   <template #append>
                     <VChip
                       :color="getStatusChipColor(story.status)"
                       size="small"
                       label
                     >
-                      {{ story.status }}
+                      {{ t(`projects.status.${story.status}`) }}
                     </VChip>
                   </template>
                 </VCardItem>
                 <VCardText>
-                  <p class="mb-2"><strong>I want to:</strong> {{ story.action }}</p>
-                  <p><strong>So that:</strong> {{ story.benefit }}</p>
+                  <p class="mb-2"><strong>{{ t('projects.requirements.user_stories.i_want_to') }}:</strong> {{ story.action }}</p>
+                  <p><strong>{{ t('projects.requirements.user_stories.so_that') }}:</strong> {{ story.benefit }}</p>
 
                   <div v-if="story.acceptance_criteria && story.acceptance_criteria.length > 0" class="mt-3">
-                    <div class="text-subtitle-2">Acceptance Criteria:</div>
+                    <div class="text-subtitle-2">{{ t('projects.requirements.user_stories.acceptance_criteria') }}:</div>
                     <ul class="pl-4">
                       <li v-for="(criterion, idx) in story.acceptance_criteria.slice(0, 2)" :key="idx">
                         {{ criterion }}
                       </li>
                       <li v-if="story.acceptance_criteria.length > 2">
-                        ...and {{ story.acceptance_criteria.length - 2 }} more
+                        {{ t('projects.requirements.user_stories.and_more', { count: story.acceptance_criteria.length - 2 }) }}
                       </li>
                     </ul>
                   </div>
@@ -435,7 +438,7 @@ watch (() => props.requirement, (newVal) => {
                   variant="tonal"
                   @click="viewUserStories"
                 >
-                  View All {{ userStories.length }} User Stories
+                  {{ t('projects.requirements.actions.view_all_stories_count', { count: userStories.length }) }}
                 </VBtn>
               </div>
             </div>
@@ -444,9 +447,9 @@ watch (() => props.requirement, (newVal) => {
           <VWindowItem value="2">
             <div v-if="history.length === 0" class="text-center pa-6">
               <VIcon icon="tabler-history" size="64" color="secondary" class="mb-3"/>
-              <h4 class="text-h6 mb-2">No History Available</h4>
+              <h4 class="text-h6 mb-2">{{ t('projects.requirements.history.empty.title') }}</h4>
               <p class="text-medium-emphasis">
-                This requirement hasn't been modified since its creation.
+                {{ t('projects.requirements.history.empty.description') }}
               </p>
             </div>
 
@@ -459,7 +462,7 @@ watch (() => props.requirement, (newVal) => {
                   size="small"
                 >
                   <template #opposite>
-                    <div class="text-caption">{{ formatDate (item.changed_at) }}</div>
+                    <div class="text-caption">{{ formatDate(item.changed_at) }}</div>
                     <div class="text-caption text-medium-emphasis">v{{ item.version_number }}</div>
                   </template>
 
@@ -473,7 +476,7 @@ watch (() => props.requirement, (newVal) => {
                           label
                           class="ms-2"
                         >
-                          {{ item.status }}
+                          {{ t(`projects.status.${item.status}`) }}
                         </VChip>
                       </template>
                     </VCardItem>
@@ -486,11 +489,11 @@ watch (() => props.requirement, (newVal) => {
                           label
                           class="me-2"
                         >
-                          {{ item.category }}
+                          {{ t(`projects.categories.${item.category}`) }}
                         </VChip>
 
                         <span class="text-caption">
-                          Changed by: {{ item.changed_by ? item.changed_by.username : 'Unknown' }}
+                          {{ t('projects.requirements.history.changed_by') }}: {{ item.changed_by ? item.changed_by.username : t('projects.requirements.history.unknown') }}
                         </span>
                       </div>
 
@@ -507,7 +510,7 @@ watch (() => props.requirement, (newVal) => {
               <VCol cols="12">
                 <VTextarea
                   v-model="newComment"
-                  label="Add a comment"
+                  :label="t('projects.requirements.comments.add')"
                   rows="3"
                   counter
                   :disabled="processingComment"
@@ -521,7 +524,7 @@ watch (() => props.requirement, (newVal) => {
                     :disabled="!newComment.trim()"
                     @click="submitComment"
                   >
-                    Add Comment
+                    {{ t('projects.requirements.comments.add_button') }}
                   </VBtn>
                 </div>
               </VCol>
@@ -531,9 +534,9 @@ watch (() => props.requirement, (newVal) => {
 
                 <div v-if="comments.length === 0" class="text-center pa-6">
                   <VIcon icon="tabler-messages" size="64" color="secondary" class="mb-3"/>
-                  <h4 class="text-h6 mb-2">No Comments Yet</h4>
+                  <h4 class="text-h6 mb-2">{{ t('projects.requirements.comments.empty.title') }}</h4>
                   <p class="text-medium-emphasis">
-                    Be the first to comment on this requirement.
+                    {{ t('projects.requirements.comments.empty.description') }}
                   </p>
                 </div>
 
@@ -557,9 +560,9 @@ watch (() => props.requirement, (newVal) => {
 
                           <div>
                             <div class="d-flex align-center">
-                              <strong>{{ comment.user ? comment.user.username : 'Unknown User' }}</strong>
+                              <strong>{{ comment.user ? comment.user.username : t('projects.requirements.comments.unknown_user') }}</strong>
                               <div class="text-caption text-medium-emphasis ml-2">
-                                {{ formatDate (comment.created_at) }}
+                                {{ formatDate(comment.created_at) }}
                               </div>
                             </div>
                           </div>
@@ -600,7 +603,7 @@ watch (() => props.requirement, (newVal) => {
             variant="tonal"
             @click="toggleEditMode"
           >
-            Cancel
+            {{ t('projects.actions.cancel') }}
           </VBtn>
 
           <VSpacer/>
@@ -609,7 +612,7 @@ watch (() => props.requirement, (newVal) => {
             color="primary"
             @click="saveRequirement"
           >
-            Save Changes
+            {{ t('projects.actions.save') }}
           </VBtn>
         </template>
         <template v-else>
@@ -620,7 +623,7 @@ watch (() => props.requirement, (newVal) => {
             prepend-icon="tabler-trash"
             @click="handleDeleteRequirement"
           >
-            Delete
+            {{ t('projects.requirements.actions.delete') }}
           </VBtn>
 
           <VBtn
@@ -631,7 +634,7 @@ watch (() => props.requirement, (newVal) => {
             class="ms-2"
             @click="viewUserStories"
           >
-            Generate User Stories
+            {{ t('projects.requirements.actions.generate_user_stories') }}
           </VBtn>
 
           <VSpacer/>
@@ -642,7 +645,7 @@ watch (() => props.requirement, (newVal) => {
             prepend-icon="tabler-edit"
             @click="toggleEditMode"
           >
-            Edit
+            {{ t('projects.requirements.actions.edit') }}
           </VBtn>
         </template>
       </VCardActions>

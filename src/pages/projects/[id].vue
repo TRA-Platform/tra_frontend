@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import {useI18n} from 'vue-i18n'
 import {useProjectStore} from '@/stores/useProjectStore'
 import {useUserStoryStore} from '@/stores/useUserStoryStore'
 import {useUmlDiagramStore} from '@/stores/useUmlDiagramStore'
@@ -20,6 +21,7 @@ const projectStore = useProjectStore()
 const userStoryStore = useUserStoryStore()
 const umlDiagramStore = useUmlDiagramStore()
 const authStore = useAuthStore()
+const {t} = useI18n()
 
 const loading = ref(true)
 const error = ref(null)
@@ -58,11 +60,11 @@ const fetchProjectDetails = async () => {
 
     if (apiError) {
       error.value = apiError
-      showSnackbar('Failed to load project details', 'error')
+      showSnackbar('projects.errors.loading_failed')
     }
   } catch (err) {
     error.value = err.message || 'Failed to load project details'
-    showSnackbar('Failed to load project details', 'error')
+    showSnackbar('projects.errors.loading_failed')
   } finally {
     loading.value = false
   }
@@ -71,7 +73,7 @@ const fetchProjectDetails = async () => {
 const showSnackbar = (text, color = 'success') => {
   snackbar.value = {
     show: true,
-    text,
+    text: t(text),
     color
   }
 }
@@ -89,13 +91,13 @@ const handleDeleteProject = async (deleting = false) => {
     const {success, error} = await projectStore.deleteProject(projectId.value)
 
     if (success && !error) {
-      showSnackbar('Project deleted successfully')
+      showSnackbar('projects.notifications.deleted')
       router.push({name: 'projects'})
     } else {
-      showSnackbar('Failed to delete project', 'error')
+      showSnackbar('projects.notifications.error')
     }
   } catch (err) {
-    showSnackbar('Failed to delete project: ' + err.message, 'error')
+    showSnackbar('projects.errors.delete_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -108,12 +110,12 @@ const handleUpdateProject = async (updatedData) => {
     const {data, error} = await projectStore.updateProject(projectId.value, updatedData)
 
     if (data && !error) {
-      showSnackbar('Project updated successfully')
+      showSnackbar('projects.notifications.updated')
     } else {
-      showSnackbar('Failed to update project', 'error')
+      showSnackbar('projects.notifications.error')
     }
   } catch (err) {
-    showSnackbar('Failed to update project: ' + err.message, 'error')
+    showSnackbar('projects.errors.update_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -131,13 +133,13 @@ const handleGenerateRequirements = async () => {
     const {data, error} = await projectStore.generateRequirements(projectId.value)
 
     if (data && !error) {
-      showSnackbar('Requirements generation started successfully')
+      showSnackbar('projects.notifications.requirements_generation_started')
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start requirements generation', 'error')
+      showSnackbar('projects.notifications.requirements_generation_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start requirements generation: ' + err.message, 'error')
+    showSnackbar('projects.notifications.requirements_generation_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -150,14 +152,14 @@ const handleExportSrs = async (format = 'md') => {
     const {data, error} = await projectStore.exportSrs(projectId.value, format)
 
     if (data && !error) {
-      showSnackbar('SRS export started successfully')
+      showSnackbar('projects.notifications.srs_export_started')
       activeTab.value = "6"
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start SRS export', 'error')
+      showSnackbar('projects.notifications.srs_export_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start SRS export: ' + err.message, 'error')
+    showSnackbar('projects.notifications.srs_export_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -170,13 +172,13 @@ const handleGeneratePlan = async () => {
     const {data, error} = await projectStore.generatePlan(projectId.value)
 
     if (data && !error) {
-      showSnackbar('Development plan generation started successfully')
+      showSnackbar('projects.notifications.plan_generation_started')
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start development plan generation', 'error')
+      showSnackbar('projects.notifications.plan_generation_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start development plan generation: ' + err.message, 'error')
+    showSnackbar('projects.notifications.plan_generation_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -189,13 +191,13 @@ const handleGenerateMockups = async () => {
     const {data, error} = await projectStore.generateMockups(projectId.value)
 
     if (data && !error) {
-      showSnackbar('Mockups generation started successfully')
+      showSnackbar('projects.notifications.mockups_generation_started')
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start mockups generation', 'error')
+      showSnackbar('projects.notifications.mockups_generation_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start mockups generation: ' + err.message, 'error')
+    showSnackbar('projects.notifications.mockups_generation_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -215,13 +217,13 @@ const handleGenerateUserStories = async (requirementId = null) => {
     }
 
     if (response.data && !response.error) {
-      showSnackbar('User stories generation started successfully')
+      showSnackbar('projects.notifications.user_stories_generation_started')
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start user stories generation', 'error')
+      showSnackbar('projects.notifications.user_stories_generation_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start user stories generation: ' + err.message, 'error')
+    showSnackbar('projects.notifications.user_stories_generation_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -237,13 +239,13 @@ const handleGenerateUmlDiagrams = async (diagramType = null) => {
     )
 
     if (data && !error) {
-      showSnackbar(`UML diagram generation started successfully`)
+      showSnackbar('projects.notifications.uml_diagrams_generation_started')
       delayedFetchProjectDetails()
     } else {
-      showSnackbar('Failed to start UML diagram generation', 'error')
+      showSnackbar('projects.notifications.uml_diagrams_generation_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to start UML diagram generation: ' + err.message, 'error')
+    showSnackbar('projects.notifications.uml_diagrams_generation_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -269,14 +271,14 @@ onMounted(() => {
 
     <VRow v-else-if="error && !project">
       <VCol cols="12">
-        <VAlert color="error" variant="tonal" title="Error Loading Project"
-                text="There was an error loading the project details" class="mb-4"/>
+        <VAlert color="error" variant="tonal" :title="t('projects.errors.loading_failed')"
+                :text="t('projects.errors.loading_failed')" class="mb-4"/>
         <div class="text-center">
           <VBtn color="primary" @click="fetchProjectDetails">
-            Retry
+            {{$t('projects.actions.retry')}}
           </VBtn>
           <VBtn color="secondary" variant="outlined" class="ms-2" :to="{ name: 'projects' }">
-            Back to Projects
+            {{$t('projects.actions.back_to_projects')}}
           </VBtn>
         </div>
       </VCol>
@@ -296,14 +298,14 @@ onMounted(() => {
             <div class="d-flex align-center mt-3 mt-sm-0">
               <VBtn color="info" variant="tonal" prepend-icon="tabler-refresh" class="me-2" @click="fetchProjectDetails"
                     :loading="processingAction">
-                Refresh
+                {{$t('projects.actions.refresh')}}
               </VBtn>
               <VMenu v-if="hasModeratorPermission" v-model="exportMenu" location="top" :loading="processingAction">
                 <template #activator="{ props }">
 
                   <VBtn v-bind="props" color="secondary" variant="outlined" prepend-icon="tabler-file-export"
                         class="me-2">
-                    Export SRS
+                    {{$t('projects.actions.export_srs')}}
                   </VBtn>
                 </template>
                 <VList>
@@ -323,12 +325,12 @@ onMounted(() => {
 
               <VBtn v-if="hasManagerPermission" color="primary" prepend-icon="tabler-edit" class="me-2"
                     @click="handleEditProject" :loading="processingAction">
-                Edit
+                {{$t('projects.actions.edit')}}
               </VBtn>
 
               <VBtn v-if="isAdmin" color="error" variant="tonal" prepend-icon="tabler-trash"
                     @click="confirmDeleteDialog = true" :loading="processingAction">
-                Delete
+                {{$t('projects.actions.delete')}}
               </VBtn>
             </div>
           </div>
@@ -341,12 +343,12 @@ onMounted(() => {
             <VTabs v-model="activeTab" bg-color="primary" grow slider-color="white">
               <VTab value="0" color="white">
                 <VIcon size="18" icon="tabler-info-circle" start/>
-                Overview
+                {{$t('projects.tabs.overview')}}
               </VTab>
 
               <VTab value="1" color="white">
                 <VIcon size="18" icon="tabler-list" start/>
-                Requirements
+                {{$t('projects.tabs.requirements')}}
                 <VChip v-if="project.requirements?.length" size="x-small" color="white" class="ms-2">
                   {{ project.requirements.length }}
                 </VChip>
@@ -354,7 +356,7 @@ onMounted(() => {
 
               <VTab value="2" color="white">
                 <VIcon size="18" icon="tabler-user-check" start/>
-                User Stories
+                {{$t('projects.tabs.user_stories')}}
                 <VChip v-if="project.user_stories?.length" size="x-small" color="white" class="ms-2">
                   {{ project.user_stories?.length || 0 }}
                 </VChip>
@@ -362,7 +364,7 @@ onMounted(() => {
 
               <VTab value="3" color="white">
                 <VIcon size="18" icon="tabler-layout-kanban" start/>
-                Mockups
+                {{$t('projects.tabs.mockups')}}
                 <VChip v-if="project.mockups?.length" size="x-small" color="white" class="ms-2">
                   {{ project.mockups.length }}
                 </VChip>
@@ -370,7 +372,7 @@ onMounted(() => {
 
               <VTab value="4" color="white">
                 <VIcon size="18" icon="tabler-chart-dots" start/>
-                UML Diagrams
+                {{$t('projects.tabs.uml_diagrams')}}
                 <VChip v-if="project.uml_diagrams?.length" size="x-small" color="white" class="ms-2">
                   {{ project.uml_diagrams?.length || 0 }}
                 </VChip>
@@ -378,12 +380,12 @@ onMounted(() => {
 
               <VTab value="5" color="white">
                 <VIcon size="18" icon="tabler-chart-dots" start/>
-                Development Plan
+                {{$t('projects.tabs.development_plan')}}
               </VTab>
 
               <VTab value="6" color="white">
                 <VIcon size="18" icon="tabler-file-export" start/>
-                Exports
+                {{$t('projects.tabs.exports')}}
                 <VChip v-if="project.srs_exports?.length" size="x-small" color="white" class="ms-2">
                   {{ project.srs_exports?.length || 0 }}
                 </VChip>
@@ -402,7 +404,7 @@ onMounted(() => {
                   <VSpacer/>
                   <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateRequirements" :loading="processingAction">
-                    Generate Requirements
+                    {{ t('projects.requirements.actions.generate') }}
                   </VBtn>
                 </VCardActions>
 
@@ -415,15 +417,13 @@ onMounted(() => {
                 <VCardActions class="pt-3 px-6">
                   <VBtn v-if="selectedRequirement" color="secondary" variant="tonal" prepend-icon="tabler-arrow-left"
                         @click="selectedRequirement = null">
-                    Back to All User Stories
+                    {{$t('projects.actions.back_to_all_user_stories')}}
                   </VBtn>
                   <VSpacer/>
                   <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateUserStories(selectedRequirement ? selectedRequirement.id : null)"
                         :loading="processingAction">
-                    {{
-                      selectedRequirement ? 'Generate User Stories for this Requirement' : 'Generate All User Stories'
-                    }}
+                    {{$t(selectedRequirement ? 'projects.actions.generate_user_stories_for_requirement' : 'projects.actions.generate_all_user_stories')}}
                   </VBtn>
                 </VCardActions>
 
@@ -438,7 +438,7 @@ onMounted(() => {
                   <VSpacer/>
                   <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateMockups" :loading="processingAction">
-                    Generate Mockups
+                    {{ t('projects.mockups.actions.generate') }}
                   </VBtn>
                 </VCardActions>
 
@@ -447,14 +447,6 @@ onMounted(() => {
               </VWindowItem>
 
               <VWindowItem value="4">
-                <VCardActions class="pt-3 px-6">
-                  <VSpacer/>
-                  <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
-                        @click="handleGenerateUmlDiagrams(null)" :loading="processingAction">
-                    Generate UML Diagrams
-                  </VBtn>
-                </VCardActions>
-
                 <UmlDiagramList :project-id="projectId" :diagrams="project.uml_diagrams || []" :loading="loading"
                                 @refresh="fetchProjectDetails"/>
               </VWindowItem>
@@ -464,7 +456,7 @@ onMounted(() => {
                   <VSpacer/>
                   <VBtn v-if="hasManagerPermission" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGeneratePlan" :loading="processingAction">
-                    Generate Development Plan
+                    {{$t('projects.development_plan.actions.generate')}}
                   </VBtn>
                 </VCardActions>
 
@@ -486,7 +478,7 @@ onMounted(() => {
 
     <!-- Confirm Delete Dialog -->
     <ConfirmDialog v-model:isDialogVisible="confirmDeleteDialog"
-                   confirmationMsg="Are you sure you want to delete this project? This action cannot be undone."
+                   :confirmationMsg="t('projects.delete_confirm.message')"
                    @confirm="handleDeleteProject"/>
 
     <!-- Snackbar -->

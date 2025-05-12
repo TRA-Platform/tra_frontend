@@ -1,5 +1,8 @@
 <script setup>
 import {ref, computed} from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -35,22 +38,22 @@ const criteriaInput = ref('')
 const formRef = ref(null)
 
 const roleRules = [
-  v => !!v || 'Role is required'
+  v => !!v || t('projects.user_stories.validation.role_required')
 ]
 
 const actionRules = [
-  v => !!v || 'Action is required'
+  v => !!v || t('projects.user_stories.validation.action_required')
 ]
 
 const benefitRules = [
-  v => !!v || 'Benefit is required'
+  v => !!v || t('projects.user_stories.validation.benefit_required')
 ]
 
 const statusOptions = [
-  {title: 'Draft', value: 'draft'},
-  {title: 'Active', value: 'active'},
-  {title: 'Archived', value: 'archived'},
-  {title: 'Completed', value: 'completed'}
+  {title: t('projects.status.draft'), value: 'draft'},
+  {title: t('projects.status.active'), value: 'active'},
+  {title: t('projects.status.archived'), value: 'archived'},
+  {title: t('projects.status.completed'), value: 'completed'}
 ]
 
 const addCriterion = () => {
@@ -109,7 +112,7 @@ watch(dialog, (val) => {
   >
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
-        <h5 class="text-h5">{{ props.editMode ? 'Edit User Story' : 'Create New User Story' }}</h5>
+        <h5 class="text-h5">{{ props.editMode ? t('projects.user_stories.title.edit') : t('projects.user_stories.title.create') }}</h5>
         <VSpacer/>
         <IconBtn @click="handleCancel">
           <VIcon icon="tabler-x"/>
@@ -122,9 +125,9 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextField
                 v-model="userStory.role"
-                label="Role (As a...)"
+                :label="t('projects.user_stories.fields.role')"
                 :rules="roleRules"
-                placeholder="e.g. registered user, system administrator, customer"
+                :placeholder="t('projects.user_stories.placeholders.role')"
                 required
               />
             </VCol>
@@ -132,9 +135,9 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextField
                 v-model="userStory.action"
-                label="Action (I want to...)"
+                :label="t('projects.user_stories.fields.action')"
                 :rules="actionRules"
-                placeholder="e.g. search for products, export reports, reset my password"
+                :placeholder="t('projects.user_stories.placeholders.action')"
                 required
               />
             </VCol>
@@ -142,9 +145,9 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextField
                 v-model="userStory.benefit"
-                label="Benefit (So that...)"
+                :label="t('projects.user_stories.fields.benefit')"
                 :rules="benefitRules"
-                placeholder="e.g. I can find what I need quickly, I can analyze the data offline"
+                :placeholder="t('projects.user_stories.placeholders.benefit')"
                 required
               />
             </VCol>
@@ -152,14 +155,14 @@ watch(dialog, (val) => {
             <VCol cols="12" md="6">
               <VSelect
                 v-model="userStory.status"
-                label="Status"
+                :label="t('projects.user_stories.fields.status')"
                 :items="statusOptions"
                 required
               />
             </VCol>
 
             <VCol cols="12">
-              <div class="text-subtitle-1 font-weight-medium">Acceptance Criteria</div>
+              <div class="text-subtitle-1 font-weight-medium">{{ t('projects.user_stories.fields.acceptance_criteria') }}</div>
               <div class="d-flex align-center justify-space-between mb-3">
                 <VRow
                   class="w-100"
@@ -170,7 +173,7 @@ watch(dialog, (val) => {
                   >
                     <VTextField
                       v-model="criteriaInput"
-                      placeholder="Add new criterion"
+                      :placeholder="t('projects.user_stories.fields.add_criterion')"
                       density="compact"
                       hide-details
                       class="me-2"
@@ -187,7 +190,7 @@ watch(dialog, (val) => {
                       :disabled="!criteriaInput.trim()"
                       @click="addCriterion"
                     >
-                      Add
+                      {{ t('projects.user_stories.actions.add') }}
                     </VBtn>
                   </VCol>
                 </VRow>
@@ -218,8 +221,7 @@ watch(dialog, (val) => {
                 v-else
                 class="text-medium-emphasis text-center pa-4 rounded bg-grey-lighten-5"
               >
-                No acceptance criteria added yet. Add at least one criterion to help clarify when this user story is
-                considered done.
+                {{ t('projects.user_stories.empty.acceptance_criteria.description') }}
               </div>
             </VCol>
           </VRow>
@@ -234,7 +236,7 @@ watch(dialog, (val) => {
           color="secondary"
           @click="handleCancel"
         >
-          Cancel
+          {{ t('projects.user_stories.actions.cancel') }}
         </VBtn>
 
         <VSpacer/>
@@ -243,7 +245,7 @@ watch(dialog, (val) => {
           color="primary"
           @click="submitForm"
         >
-          {{ props.editMode ? 'Update' : 'Create' }} User Story
+          {{ props.editMode ? t('projects.user_stories.actions.save') : t('projects.user_stories.actions.create') }}
         </VBtn>
       </VCardActions>
     </VCard>
