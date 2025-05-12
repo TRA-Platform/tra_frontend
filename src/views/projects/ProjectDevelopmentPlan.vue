@@ -4,6 +4,9 @@ import { useDevelopmentPlanStore } from '@/stores/useDevelopmentPlanStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import PlanVersionDialog from '@/views/projects/PlanVersionDialog.vue'
 import PlanVersionCreateDialog from '@/views/projects/PlanVersionCreateDialog.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   projectId: {
@@ -87,13 +90,13 @@ const handleCreateVersion = async (versionData) => {
     const { data, error } = await planStore.createPlanVersion(props.developmentPlan.id, versionData)
 
     if (data && !error) {
-      showSnackbar('Plan version created successfully')
+      showSnackbar(t('projects.development_plan.notifications.version_created'))
       emit('refresh')
     } else {
-      showSnackbar('Failed to create plan version', 'error')
+      showSnackbar(t('projects.development_plan.notifications.version_create_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to create plan version: ' + err.message, 'error')
+    showSnackbar(t('projects.development_plan.notifications.version_create_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
     createVersionDialogVisible.value = false
@@ -107,13 +110,13 @@ const createInitialPlan = async () => {
     const { data, error } = await planStore.createDevelopmentPlan(props.projectId)
 
     if (data && !error) {
-      showSnackbar('Development plan created successfully')
+      showSnackbar(t('projects.development_plan.notifications.created'))
       emit('refresh')
     } else {
-      showSnackbar('Failed to create development plan', 'error')
+      showSnackbar(t('projects.development_plan.notifications.create_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to create development plan: ' + err.message, 'error')
+    showSnackbar(t('projects.development_plan.notifications.create_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -150,9 +153,9 @@ const parseRolesAndHours = (rolesAndHours) => {
 
     <div v-else-if="!hasPlan" class="text-center pa-6">
       <VIcon icon="tabler-calendar-time" size="64" color="secondary" class="mb-4" />
-      <h4 class="text-h6 mb-2">No Development Plan</h4>
+      <h4 class="text-h6 mb-2">{{ t('projects.development_plan.empty.title') }}</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
-        This project does not have a development plan yet.
+        {{ t('projects.development_plan.empty.description') }}
       </p>
 
       <VBtn
@@ -161,7 +164,7 @@ const parseRolesAndHours = (rolesAndHours) => {
         @click="createInitialPlan"
         :loading="processingAction"
       >
-        Create Development Plan
+        {{ t('projects.development_plan.actions.create_plan') }}
       </VBtn>
     </div>
 
@@ -181,7 +184,7 @@ const parseRolesAndHours = (rolesAndHours) => {
                 </VAvatar>
               </template>
 
-              <VCardTitle>Current Development Plan</VCardTitle>
+              <VCardTitle>{{ t('projects.development_plan.current_plan') }}</VCardTitle>
 
               <template #append>
                 <VChip
@@ -198,7 +201,7 @@ const parseRolesAndHours = (rolesAndHours) => {
                   size="small"
                   label
                 >
-                  {{ developmentPlan.status }}
+                  {{ t(`projects.status.${developmentPlan.status}`) }}
                 </VChip>
               </template>
             </VCardItem>
@@ -209,23 +212,23 @@ const parseRolesAndHours = (rolesAndHours) => {
               <VRow>
                 <VCol cols="12" md="4">
                   <div class="d-flex flex-column">
-                    <div class="text-h6 mb-2">Estimated Cost</div>
+                    <div class="text-h6 mb-2">{{ t('projects.development_plan.estimated_cost') }}</div>
                     <div class="text-h4 font-weight-bold">{{ formatCurrency(currentVersion.estimated_cost) }}</div>
                     <div class="text-caption text-medium-emphasis">
-                      Last updated: {{ formatDate(currentVersion.created_at) }}
+                      {{ t('projects.development_plan.version.created') }}: {{ formatDate(currentVersion.created_at) }}
                     </div>
                   </div>
                 </VCol>
 
                 <VCol cols="12" md="8">
-                  <div class="text-h6 mb-3">Roles & Hours Breakdown</div>
+                  <div class="text-h6 mb-3">{{ t('projects.development_plan.version.roles_hours_breakdown') }}</div>
 
                   <VTable density="compact">
                     <thead>
                     <tr>
-                      <th>Role</th>
-                      <th class="text-right">Hours</th>
-                      <th class="text-right">Cost</th>
+                      <th>{{ t('projects.development_plan.version.role') }}</th>
+                      <th class="text-right">{{ t('projects.development_plan.version.hours') }}</th>
+                      <th class="text-right">{{ t('projects.development_plan.version.cost') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -244,7 +247,7 @@ const parseRolesAndHours = (rolesAndHours) => {
                     size="small"
                     @click="viewVersionDetails(currentVersion)"
                   >
-                    View Full Details
+                    {{ t('projects.development_plan.actions.view_details') }}
                   </VBtn>
                 </VCol>
               </VRow>
@@ -254,7 +257,7 @@ const parseRolesAndHours = (rolesAndHours) => {
 
         <VCol cols="12">
           <div class="d-flex align-center justify-space-between mb-4">
-            <h5 class="text-h5">Version History</h5>
+            <h5 class="text-h5">{{ t('projects.development_plan.version_history') }}</h5>
 
             <VBtn
               v-if="hasManagerPermission"
@@ -263,18 +266,18 @@ const parseRolesAndHours = (rolesAndHours) => {
               @click="openCreateVersion"
               :disabled="processingAction"
             >
-              New Version
+              {{ t('projects.development_plan.actions.new_version') }}
             </VBtn>
           </div>
 
           <VTable v-if="planVersions.length > 1">
             <thead>
             <tr>
-              <th>Version</th>
-              <th>Created</th>
-              <th>Status</th>
-              <th class="text-right">Estimated Cost</th>
-              <th class="text-right">Actions</th>
+              <th>{{ t('projects.development_plan.version.version') }}</th>
+              <th>{{ t('projects.development_plan.version.created') }}</th>
+              <th>{{ t('projects.details.status') }}</th>
+              <th class="text-right">{{ t('projects.development_plan.estimated_cost') }}</th>
+              <th class="text-right">{{ t('projects.actions.title') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -295,7 +298,7 @@ const parseRolesAndHours = (rolesAndHours) => {
                     label
                     class="ms-2"
                   >
-                    Current
+                    {{ t('projects.development_plan.version.current') }}
                   </VChip>
                 </div>
               </td>
@@ -306,7 +309,7 @@ const parseRolesAndHours = (rolesAndHours) => {
                   size="small"
                   label
                 >
-                  {{ version.status }}
+                  {{ t(`projects.status.${version.status}`) }}
                 </VChip>
               </td>
               <td class="text-right">{{ formatCurrency(version.estimated_cost) }}</td>
@@ -327,13 +330,13 @@ const parseRolesAndHours = (rolesAndHours) => {
 
           <div v-else-if="planVersions.length === 1" class="text-center pa-4">
             <p class="text-medium-emphasis">
-              Only one version available. Create more versions to see the history.
+              {{ t('projects.development_plan.version.only_one_version') }}
             </p>
           </div>
 
           <div v-else class="text-center pa-4">
             <p class="text-medium-emphasis">
-              No versions available yet.
+              {{ t('projects.development_plan.version.no_versions') }}
             </p>
           </div>
         </VCol>

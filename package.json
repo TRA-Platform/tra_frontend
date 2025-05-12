@@ -1,6 +1,6 @@
 {
   "name": "tra-frontend",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -32,6 +32,7 @@
     "jwt-decode": "3.1.2",
     "pako": "^2.1.0",
     "pinia": "2.0.35",
+    "plantuml-encoder": "^1.4.0",
     "prismjs": "1.29.0",
     "roboto-fontface": "0.10.0",
     "sass": "1.62.1",

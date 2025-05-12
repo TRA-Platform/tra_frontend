@@ -8,46 +8,45 @@ import {
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import { useAuthStore } from "@/stores/useAuthStore"
+import { useI18n } from 'vue-i18n'
 
-const snackbar = ref ({
+const { t } = useI18n()
+
+const snackbar = ref({
   enabled: false,
   type: 'error',
-  message: 'Permission denied!',
+  message: t('auth.login.messages.error'),
 })
 
-const form = ref ({
-  // email: '',
+const form = ref({
   username: '',
   password: '',
   stay_signed: false,
   code: '',
 })
 
-const isLoading = ref (false)
-const isPasswordVisible = ref (false)
+const isLoading = ref(false)
+const isPasswordVisible = ref(false)
 
-const router = useRouter ()
-const authStore = useAuthStore ()
-const refForm = ref ()
-const {t} = useI18n()
+const router = useRouter()
+const authStore = useAuthStore()
+const refForm = ref()
 
 const login = async () => {
-  let validation = await refForm?.value?.validate ()
+  let validation = await refForm?.value?.validate()
   if (!validation.valid) {
     snackbar.value = {
       enabled: true,
       type: 'error',
-      message: "Проверьте правильность заполнения всех полей!",
+      message: t('validation.required'),
     }
-
     return
   }
   let response
   isLoading.value = true
   try {
-    response = await authStore.login (form.value)
+    response = await authStore.login(form.value)
 
-    // console.log (response.data)
     if (!response.data.access) {
       snackbar.value = {
         enabled: true,
@@ -55,7 +54,6 @@ const login = async () => {
         message: response.data,
       }
       isLoading.value = false
-
       return
     }
   } catch (e) {
@@ -65,7 +63,6 @@ const login = async () => {
       message: e.data,
     }
     isLoading.value = false
-
     return
   }
   authStore.authData = {
@@ -73,7 +70,7 @@ const login = async () => {
     access: `${response.data.access}`,
     refresh: `${response.data.refresh}`,
   }
-  response = await authStore.me ({})
+  response = await authStore.me({})
   if (response.data.error) {
     snackbar.value = {
       enabled: true,
@@ -81,7 +78,6 @@ const login = async () => {
       message: response.data.error,
     }
     isLoading.value = false
-
     return
   }
   authStore.userData = response.data
@@ -91,9 +87,9 @@ const login = async () => {
     message: t('auth.login.messages.success'),
   }
   isLoading.value = false
-  setTimeout (
+  setTimeout(
     () => {
-      router.push ({
+      router.push({
         "name": authStore.authData.nextUrl,
         "params": authStore.authData.nextParams,
       })
@@ -104,9 +100,7 @@ const login = async () => {
 </script>
 
 <template>
-  <div
-    class="auth-wrapper d-flex justify-center align-center pa-md-4"
-  >
+  <div class="auth-wrapper d-flex justify-center align-center pa-md-4">
     <VSnackbar
       v-model="snackbar.enabled"
       location="bottom end"
@@ -117,9 +111,6 @@ const login = async () => {
       {{ snackbar.message }}
     </VSnackbar>
     <div class="position-relative">
-      <!-- 👉 Top shape -->
-
-      <!-- 👉 Auth Card -->
       <VCard
         class="auth-card pa-4"
         min-width="448"
@@ -139,10 +130,10 @@ const login = async () => {
 
         <VCardText class="pt-1">
           <h5 class="text-h5 font-weight-semibold mb-1">
-            {{ $t('auth.login.welcome') }}
+            {{ t('auth.login.welcome') }}
           </h5>
           <p class="mb-0">
-            {{ $t('auth.login.slogan') }}
+            {{ t('auth.login.slogan') }}
           </p>
         </VCardText>
 
@@ -152,21 +143,19 @@ const login = async () => {
             @submit.prevent="() => {}"
           >
             <VRow>
-              <!-- email -->
               <VCol cols="12">
                 <VTextField
                   v-model="form.username"
-                  :label="$t('auth.login.username')"
+                  :label="t('auth.login.username')"
                   type="text"
                   :rules="[requiredValidator]"
                 />
               </VCol>
 
-              <!-- password -->
               <VCol cols="12">
                 <VTextField
                   v-model="form.password"
-                  :label="$t('auth.login.password')"
+                  :label="t('auth.login.password')"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :rules="[requiredValidator]"
                   autocomplete="on"
@@ -175,13 +164,11 @@ const login = async () => {
                 />
               </VCol>
               <VCol cols="12">
-
                 <div class="d-flex align-center justify-space-between flex-wrap mt-2 mb-4">
                   <VCheckbox
                     v-model="form.stay_signed"
-                    :label="$t('auth.login.remember_me')"
+                    :label="t('auth.login.remember_me')"
                   />
-
                 </div>
 
                 <VBtn
@@ -191,23 +178,9 @@ const login = async () => {
                   type="submit"
                   @click="login"
                 >
-                  {{ $t('auth.login.login_btn') }}
+                  {{ t('auth.login.login_btn') }}
                 </VBtn>
               </VCol>
-
-              <!-- create account -->
-              <!--              <VCol -->
-              <!--                cols="12" -->
-              <!--                class="text-center text-base" -->
-              <!--              > -->
-              <!--                <span>Нет аккаунта?</span> -->
-              <!--                <RouterLink -->
-              <!--                  class="text-primary ms-2" -->
-              <!--                  :to="{ name: 'auth-register' }" -->
-              <!--                > -->
-              <!--                  Зарегистрироваться -->
-              <!--                </RouterLink> -->
-              <!--              </VCol> -->
             </VRow>
           </VForm>
         </VCardText>

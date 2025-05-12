@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import RequirementDetailsDialog from '@/views/projects/RequirementDetailsDialog.vue'
@@ -23,6 +24,8 @@ const props = defineProps({
 
 const emit = defineEmits(['refresh', 'view-user-stories'])
 
+const { t } = useI18n()
+
 const requirementStore = useRequirementStore()
 const authStore = useAuthStore()
 
@@ -45,17 +48,17 @@ const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
 const categoryOptions = [
-  { title: 'Functional', value: 'functional' },
-  { title: 'Non-Functional', value: 'nonfunctional' },
-  { title: 'UI/UX', value: 'uiux' },
-  { title: 'Other', value: 'other' }
+  { title: t('projects.categories.functional'), value: 'functional' },
+  { title: t('projects.categories.nonfunctional'), value: 'nonfunctional' },
+  { title: t('projects.categories.uiux'), value: 'uiux' },
+  { title: t('projects.categories.other'), value: 'other' }
 ]
 
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  { title: t('projects.status.draft'), value: 'draft' },
+  { title: t('projects.status.active'), value: 'active' },
+  { title: t('projects.status.archived'), value: 'archived' },
+  { title: t('projects.status.completed'), value: 'completed' }
 ]
 
 const filteredRequirements = computed(() => {
@@ -92,13 +95,13 @@ const handleCreateRequirement = async (requirementData) => {
     })
 
     if (data && !error) {
-      showSnackbar('Requirement created successfully')
+      showSnackbar('projects.requirements.notifications.created')
       emit('refresh')
     } else {
-      showSnackbar('Failed to create requirement', 'error')
+      showSnackbar('projects.requirements.notifications.create_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to create requirement: ' + err.message, 'error')
+    showSnackbar('projects.requirements.notifications.create_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -114,13 +117,13 @@ const handleUpdateRequirement = async (requirementData) => {
     )
 
     if (data && !error) {
-      showSnackbar('Requirement updated successfully')
+      showSnackbar('projects.requirements.notifications.updated')
       emit('refresh')
     } else {
-      showSnackbar('Failed to update requirement', 'error')
+      showSnackbar('projects.requirements.notifications.update_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to update requirement: ' + err.message, 'error')
+    showSnackbar('projects.requirements.notifications.update_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -136,14 +139,14 @@ const handleDeleteRequirement = async () => {
     const { success, error } = await requirementStore.deleteRequirement(selectedRequirement.value.id)
 
     if (success && !error) {
-      showSnackbar('Requirement deleted successfully')
+      showSnackbar('projects.requirements.notifications.deleted')
       emit('refresh')
       detailsDialogVisible.value = false
     } else {
-      showSnackbar('Failed to delete requirement', 'error')
+      showSnackbar('projects.requirements.notifications.delete_failed', 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to delete requirement: ' + err.message, 'error')
+    showSnackbar('projects.requirements.notifications.delete_failed', 'error')
   } finally {
     processingAction.value = false
   }
@@ -156,7 +159,7 @@ const viewUserStories = (requirement) => {
 const showSnackbar = (text, color = 'success') => {
   snackbar.value = {
     show: true,
-    text,
+    text: t(text),
     color
   }
 }
@@ -191,7 +194,7 @@ const capitalize = (str) => {
         <VTextField
           v-model="searchQuery"
           density="compact"
-          placeholder="Search requirements..."
+          :placeholder="t('projects.requirements.actions.search')"
           prepend-inner-icon="tabler-search"
           hide-details
           variant="outlined"
@@ -205,7 +208,7 @@ const capitalize = (str) => {
           :items="categoryOptions"
           density="compact"
           hide-details
-          label="Category"
+          :label="t('projects.requirements.actions.category')"
           variant="outlined"
           multiple
           chips
@@ -218,7 +221,7 @@ const capitalize = (str) => {
           :items="statusOptions"
           density="compact"
           hide-details
-          label="Status"
+          :label="t('projects.requirements.actions.status')"
           variant="outlined"
           multiple
           chips
@@ -234,7 +237,7 @@ const capitalize = (str) => {
           :loading="processingAction"
           block
         >
-          Add
+          {{ t('projects.requirements.actions.add') }}
         </VBtn>
       </VCol>
     </VRow>
@@ -247,11 +250,11 @@ const capitalize = (str) => {
 
     <div v-else-if="filteredRequirements.length === 0" class="text-center pa-4">
       <VIcon icon="tabler-file-search" size="64" color="secondary" class="mb-4" />
-      <h4 class="text-h6 mb-2">No Requirements Found</h4>
+      <h4 class="text-h6 mb-2">{{ t('projects.requirements.empty.title') }}</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
         {{ searchQuery || filteredCategory.length > 0 || filteredStatus.length > 0
-        ? 'Try adjusting your filters to see more results.'
-        : 'This project does not have any requirements yet.' }}
+        ? t('projects.requirements.empty.filtered')
+        : t('projects.requirements.empty.no_requirements') }}
       </p>
 
       <VBtn
@@ -260,7 +263,7 @@ const capitalize = (str) => {
         @click="openCreateRequirement"
         prepend-icon="tabler-plus"
       >
-        Add Requirement
+        {{ t('projects.requirements.actions.add_requirement') }}
       </VBtn>
     </div>
 
@@ -342,7 +345,7 @@ const capitalize = (str) => {
                 prepend-icon="tabler-user-check"
                 @click.stop="viewUserStories(req)"
               >
-                {{ req.user_stories.length }} User {{ req.user_stories.length === 1 ? 'Story' : 'Stories' }}
+                {{ req.user_stories.length }} {{ t(req.user_stories.length === 1 ? 'projects.requirements.user_stories.single' : 'projects.requirements.user_stories.multiple') }}
               </VBtn>
             </div>
           </VCardText>
@@ -369,7 +372,7 @@ const capitalize = (str) => {
 
     <ConfirmDialog
       v-model:isDialogVisible="confirmDeleteDialog"
-      confirmationMsg="Are you sure you want to delete this requirement? This action cannot be undone."
+      :confirmationMsg="t('projects.requirements.delete_confirm.message')"
       @confirm="handleDeleteRequirement"
     />
 

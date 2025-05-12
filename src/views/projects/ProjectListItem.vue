@@ -1,6 +1,9 @@
 <script setup>
 import { capitalize, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getStatusChipColor } from "@core/utils/formatters";
+
+const { t } = useI18n()
 
 const props = defineProps({
   project: {
@@ -86,7 +89,7 @@ const truncateDescription = (text, length = 100) => {
 
       <template #append>
         <MoreBtn :menu-list="[
-          { title: 'View Details', value: 'view', props: { prependIcon: 'tabler-eye' } },
+          { title: t('projects.list.actions.view_details'), value: 'view', props: { prependIcon: 'tabler-eye' } },
         ]" @click="name => emit(name, project.id)" />
       </template>
     </VCardItem>
@@ -97,17 +100,17 @@ const truncateDescription = (text, length = 100) => {
       <div class="d-flex mt-4 pt-1">
         <div class="me-2">
           <VIcon icon="tabler-calendar" size="16" class="me-1" />
-          <span class="text-caption">{{ formattedDate }}</span>
+          <span class="text-caption">{{ t('projects.list.details.created_at') }}: {{ formattedDate }}</span>
         </div>
 
         <div class="me-2">
           <VIcon icon="tabler-code" size="16" class="me-1" />
-          <span class="text-caption">{{ project.type_of_application }}</span>
+          <span class="text-caption">{{ t('projects.list.details.type') }}: {{ project.type_of_application }}</span>
         </div>
 
         <div v-if="project.language">
           <VIcon icon="tabler-language" size="16" class="me-1" />
-          <span class="text-caption">{{ project.language }}</span>
+          <span class="text-caption">{{ t('projects.list.details.language') }}: {{ project.language }}</span>
         </div>
       </div>
     </VCardText>
@@ -117,7 +120,7 @@ const truncateDescription = (text, length = 100) => {
         variant="tonal"
         color="primary"
       >
-        View Details
+        {{ t('projects.list.actions.view_details') }}
       </VBtn>
     </VCardActions>
   </VCard>

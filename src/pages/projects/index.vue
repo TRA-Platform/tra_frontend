@@ -3,12 +3,14 @@ import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '@/stores/useProjectStore'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useI18n } from 'vue-i18n'
 import ProjectListItem from '@/views/projects/ProjectListItem.vue'
 import ProjectCreateDialog from '@/views/projects/ProjectCreateDialog.vue'
 
 const router = useRouter()
 const projectStore = useProjectStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const loading = ref(false)
 const isCreateDialogOpen = ref(false)
@@ -18,6 +20,18 @@ const sortOrder = ref('desc')
 
 const isAdmin = computed(() => authStore.is_admin())
 const hasManagerPermission = computed(() => authStore.userData.role >= 2)
+
+const sortOptions = [
+  { title: t('projects.filters.sort_by_name'), value: 'name' },
+  { title: t('projects.filters.sort_by_created'), value: 'created_at' },
+  { title: t('projects.filters.sort_by_status'), value: 'status' },
+  { title: t('projects.filters.sort_by_type'), value: 'type_of_application' },
+]
+
+const orderOptions = [
+  { title: t('projects.filters.order_asc'), value: 'asc' },
+  { title: t('projects.filters.order_desc'), value: 'desc' },
+]
 
 const filteredProjects = computed(() => {
   if (!projectStore.projects.length) return []
@@ -81,13 +95,13 @@ onMounted(() => {
       <VCol cols="12">
         <VCard>
           <VCardTitle class="d-flex align-center justify-space-between">
-            <h5 class="text-h5">Projects</h5>
+            <h5 class="text-h5">{{ t('projects.title') }}</h5>
             <VBtn
               color="primary"
               @click="isCreateDialogOpen = true"
               prepend-icon="tabler-plus"
             >
-              Create Project
+              {{ t('projects.actions.create') }}
             </VBtn>
           </VCardTitle>
 
@@ -96,7 +110,7 @@ onMounted(() => {
               <VCol cols="12" md="6">
                 <VTextField
                   v-model="searchQuery"
-                  label="Search Projects"
+                  :label="t('projects.filters.search')"
                   prepend-inner-icon="tabler-search"
                   clearable
                   hide-details
@@ -105,24 +119,16 @@ onMounted(() => {
               <VCol cols="12" md="3">
                 <VSelect
                   v-model="sortBy"
-                  label="Sort By"
-                  :items="[
-                    { title: 'Name', value: 'name' },
-                    { title: 'Created Date', value: 'created_at' },
-                    { title: 'Status', value: 'status' },
-                    { title: 'Type', value: 'type_of_application' },
-                  ]"
+                  :label="t('projects.filters.sort_by')"
+                  :items="sortOptions"
                   hide-details
                 />
               </VCol>
               <VCol cols="12" md="3">
                 <VSelect
                   v-model="sortOrder"
-                  label="Order"
-                  :items="[
-                    { title: 'Ascending', value: 'asc' },
-                    { title: 'Descending', value: 'desc' },
-                  ]"
+                  :label="t('projects.filters.order')"
+                  :items="orderOptions"
                   hide-details
                 />
               </VCol>
@@ -138,7 +144,7 @@ onMounted(() => {
 
             <VRow v-else-if="filteredProjects.length === 0">
               <VCol cols="12" class="text-center">
-                <p class="text-medium-emphasis">No projects found. Create a new project to get started.</p>
+                <p class="text-medium-emphasis">{{ t('projects.empty') }}</p>
               </VCol>
             </VRow>
 

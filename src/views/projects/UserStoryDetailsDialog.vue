@@ -2,6 +2,7 @@
 import { ref, computed, watch, capitalize } from 'vue'
 import { useUserStoryStore } from '@/stores/useUserStoryStore'
 import { getStatusChipColor } from "@core/utils/formatters"
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: {
@@ -34,6 +35,7 @@ const dialog = computed({
 })
 
 const userStoryStore = useUserStoryStore()
+const {t} = useI18n()
 
 const activeTab = ref(0)
 const isEditMode = ref(false)
@@ -190,10 +192,10 @@ watch(() => props.userStory, (newVal) => {
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
         <template v-if="isEditMode">
-          <h5 class="text-h5">Edit User Story</h5>
+          <h5 class="text-h5">{{ t('projects.user_stories.title.edit') }}</h5>
         </template>
         <template v-else>
-          <h5 class="text-h5">User Story Details</h5>
+          <h5 class="text-h5">{{ t('projects.user_stories.title.details') }}</h5>
         </template>
 
         <VSpacer />
@@ -211,11 +213,11 @@ watch(() => props.userStory, (newVal) => {
         >
           <VTab value="0">
             <VIcon size="18" icon="tabler-user-check" start />
-            Details
+            {{ t('projects.requirements.tabs.details') }}
           </VTab>
           <VTab value="1">
             <VIcon size="18" icon="tabler-history" start />
-            History
+            {{ t('projects.requirements.tabs.history') }}
             <VChip
               v-if="history.length"
               size="x-small"
@@ -227,7 +229,7 @@ watch(() => props.userStory, (newVal) => {
           </VTab>
           <VTab value="2">
             <VIcon size="18" icon="tabler-messages" start />
-            Comments
+            {{ t('projects.requirements.tabs.comments') }}
             <VChip
               v-if="comments.length"
               size="x-small"
@@ -251,34 +253,34 @@ watch(() => props.userStory, (newVal) => {
                   <VCol cols="12">
                     <VTextField
                       v-model="editedUserStory.role"
-                      label="Role (As a...)"
+                      :label="t('projects.user_stories.fields.role')"
                       required
-                      :rules="[v => !!v || 'Role is required']"
+                      :rules="[v => !!v || t('projects.user_stories.validation.role_required')]"
                     />
                   </VCol>
 
                   <VCol cols="12">
                     <VTextField
                       v-model="editedUserStory.action"
-                      label="Action (I want to...)"
+                      :label="t('projects.user_stories.fields.action')"
                       required
-                      :rules="[v => !!v || 'Action is required']"
+                      :rules="[v => !!v || t('projects.user_stories.validation.action_required')]"
                     />
                   </VCol>
 
                   <VCol cols="12">
                     <VTextField
                       v-model="editedUserStory.benefit"
-                      label="Benefit (So that...)"
+                      :label="t('projects.user_stories.fields.benefit')"
                       required
-                      :rules="[v => !!v || 'Benefit is required']"
+                      :rules="[v => !!v || t('projects.user_stories.validation.benefit_required')]"
                     />
                   </VCol>
 
                   <VCol cols="12" md="6">
                     <VSelect
                       v-model="editedUserStory.status"
-                      label="Status"
+                      :label="t('projects.user_stories.fields.status')"
                       :items="statusOptions"
                       required
                     />
@@ -286,7 +288,7 @@ watch(() => props.userStory, (newVal) => {
 
                   <VCol cols="12">
                     <div class="align-center justify-space-between mb-3">
-                      <div class="text-subtitle-1 font-weight-medium">Acceptance Criteria</div>
+                      <div class="text-subtitle-1 font-weight-medium">{{ t('projects.user_stories.fields.acceptance_criteria') }}</div>
                       <VRow
                         class="w-100"
                       >
@@ -296,7 +298,7 @@ watch(() => props.userStory, (newVal) => {
                         >
                           <VTextField
                             v-model="criteriaInput"
-                            placeholder="Add new criterion"
+                            :placeholder="t('projects.user_stories.fields.add_criterion')"
                             density="compact"
                             hide-details
                             class="me-2"
@@ -313,7 +315,7 @@ watch(() => props.userStory, (newVal) => {
                             :disabled="!criteriaInput.trim()"
                             @click="addCriterion"
                           >
-                            Add
+                            {{ t('projects.user_stories.actions.add') }}
                           </VBtn>
                         </VCol>
                       </VRow>
@@ -344,7 +346,7 @@ watch(() => props.userStory, (newVal) => {
                       v-else
                       class="text-medium-emphasis text-center pa-4 rounded bg-grey-lighten-5"
                     >
-                      No acceptance criteria added yet
+                      {{ t('projects.user_stories.empty.acceptance_criteria.description') }}
                     </div>
                   </VCol>
                 </VRow>
@@ -374,29 +376,29 @@ watch(() => props.userStory, (newVal) => {
 
                 <div class="text-medium-emphasis d-flex align-center">
                   <VIcon size="18" icon="tabler-calendar" class="me-1" />
-                  <span class="text-caption me-4">Updated: {{ formatDate(userStory.updated_at) }}</span>
+                  <span class="text-caption me-4">{{ t('projects.details.updated_at') }}: {{ formatDate(userStory.updated_at) }}</span>
 
                   <VIcon size="18" icon="tabler-calendar-plus" class="me-1" />
-                  <span class="text-caption">Created: {{ formatDate(userStory.created_at) }}</span>
+                  <span class="text-caption">{{ t('projects.details.created_at') }}: {{ formatDate(userStory.created_at) }}</span>
                 </div>
               </div>
 
               <div class="user-story-format mb-6">
                 <div class="text-h5 mb-4">
-                  <span class="text-primary">As a</span> {{ userStory.role }},
+                  <span class="text-primary">{{ t('projects.user_stories.fields.role') }}</span> {{ userStory.role }},
                 </div>
                 <div class="text-h5 mb-4">
-                  <span class="text-primary">I want to</span> {{ userStory.action }},
+                  <span class="text-primary">{{ t('projects.user_stories.fields.action') }}</span> {{ userStory.action }},
                 </div>
                 <div class="text-h5 mb-4">
-                  <span class="text-primary">so that</span> {{ userStory.benefit }}.
+                  <span class="text-primary">{{ t('projects.user_stories.fields.benefit') }}</span> {{ userStory.benefit }}.
                 </div>
               </div>
 
               <VDivider class="mb-4" />
 
               <div v-if="userStory.acceptance_criteria && userStory.acceptance_criteria.length > 0">
-                <div class="text-h6 mb-3">Acceptance Criteria</div>
+                <div class="text-h6 mb-3">{{ t('projects.user_stories.fields.acceptance_criteria') }}</div>
                 <VList>
                   <VListItem
                     v-for="(criterion, index) in userStory.acceptance_criteria"
@@ -411,7 +413,7 @@ watch(() => props.userStory, (newVal) => {
                 </VList>
               </div>
               <div v-else class="text-medium-emphasis text-center pa-4">
-                No acceptance criteria defined for this user story.
+                {{ t('projects.user_stories.empty.acceptance_criteria.description') }}
               </div>
 
               <div class="mt-6" v-if="userStory.generation_status === 'in_progress'">
@@ -420,8 +422,8 @@ watch(() => props.userStory, (newVal) => {
                   variant="tonal"
                   icon="tabler-refresh"
                 >
-                  <VAlertTitle>Regenerating User Story</VAlertTitle>
-                  <p>This user story is currently being regenerated. Please check back shortly.</p>
+                  <VAlertTitle>{{ t('projects.user_stories.regeneration.title') }}</VAlertTitle>
+                  <p>{{ t('projects.user_stories.regeneration.description') }}</p>
                 </VAlert>
               </div>
             </div>
@@ -430,9 +432,9 @@ watch(() => props.userStory, (newVal) => {
           <VWindowItem value="1">
             <div v-if="history.length === 0" class="text-center pa-6">
               <VIcon icon="tabler-history" size="64" color="secondary" class="mb-3" />
-              <h4 class="text-h6 mb-2">No History Available</h4>
+              <h4 class="text-h6 mb-2">{{ t('projects.user_stories.empty.history.title') }}</h4>
               <p class="text-medium-emphasis">
-                This user story hasn't been modified since its creation.
+                {{ t('projects.user_stories.empty.history.description') }}
               </p>
             </div>
 
@@ -462,7 +464,7 @@ watch(() => props.userStory, (newVal) => {
                       </template>
 
                       <VCardTitle>
-                        <span class="text-primary">As a</span> {{ item.role }}
+                        <span class="text-primary">{{ t('projects.user_stories.fields.role') }}</span> {{ item.role }}
                       </VCardTitle>
 
                       <template #append>
@@ -479,14 +481,14 @@ watch(() => props.userStory, (newVal) => {
 
                     <VCardText>
                       <p class="mb-2">
-                        <span class="text-primary">I want to</span> {{ item.action }}
+                        <span class="text-primary">{{ t('projects.user_stories.fields.action') }}</span> {{ item.action }}
                       </p>
                       <p class="mb-4">
-                        <span class="text-primary">so that</span> {{ item.benefit }}
+                        <span class="text-primary">{{ t('projects.user_stories.fields.benefit') }}</span> {{ item.benefit }}
                       </p>
 
                       <div v-if="item.acceptance_criteria && item.acceptance_criteria.length > 0">
-                        <div class="text-subtitle-2 font-weight-medium mb-2">Acceptance Criteria:</div>
+                        <div class="text-subtitle-2 font-weight-medium mb-2">{{ t('projects.user_stories.fields.acceptance_criteria') }}:</div>
                         <ul class="ms-3">
                           <li v-for="(criterion, idx) in item.acceptance_criteria" :key="idx">
                             {{ criterion }}
@@ -495,7 +497,7 @@ watch(() => props.userStory, (newVal) => {
                       </div>
 
                       <div class="text-caption mt-3">
-                        Changed by: {{ item.changed_by ? item.changed_by.username : 'System' }}
+                        {{ t('projects.requirements.history.changed_by') }}: {{ item.changed_by ? item.changed_by.username : t('projects.requirements.history.unknown') }}
                       </div>
                     </VCardText>
                   </VCard>
@@ -509,7 +511,7 @@ watch(() => props.userStory, (newVal) => {
               <VCol cols="12">
                 <VTextarea
                   v-model="newComment"
-                  label="Add a comment"
+                  :label="t('projects.requirements.comments.add')"
                   rows="3"
                   counter
                   :disabled="processingComment"
@@ -523,7 +525,7 @@ watch(() => props.userStory, (newVal) => {
                     :disabled="!newComment.trim()"
                     @click="submitComment"
                   >
-                    Add Comment
+                    {{ t('projects.user_stories.actions.add_comment') }}
                   </VBtn>
                 </div>
               </VCol>
@@ -533,9 +535,9 @@ watch(() => props.userStory, (newVal) => {
 
                 <div v-if="comments.length === 0" class="text-center pa-6">
                   <VIcon icon="tabler-messages" size="64" color="secondary" class="mb-3" />
-                  <h4 class="text-h6 mb-2">No Comments Yet</h4>
+                  <h4 class="text-h6 mb-2">{{ t('projects.user_stories.empty.comments.title') }}</h4>
                   <p class="text-medium-emphasis">
-                    Be the first to comment on this user story.
+                    {{ t('projects.user_stories.empty.comments.description') }}
                   </p>
                 </div>
 
@@ -559,7 +561,7 @@ watch(() => props.userStory, (newVal) => {
 
                           <div>
                             <div class="d-flex align-center">
-                              <strong>{{ comment.user ? comment.user.username : 'Unknown User' }}</strong>
+                              <strong>{{ comment.user ? comment.user.username : t('projects.requirements.comments.unknown_user') }}</strong>
                               <div class="text-caption text-medium-emphasis ml-2">
                                 {{ formatDate(comment.created_at) }}
                               </div>
@@ -602,7 +604,7 @@ watch(() => props.userStory, (newVal) => {
             variant="tonal"
             @click="toggleEditMode"
           >
-            Cancel
+            {{ t('projects.user_stories.actions.cancel') }}
           </VBtn>
 
           <VSpacer />
@@ -611,7 +613,7 @@ watch(() => props.userStory, (newVal) => {
             color="primary"
             @click="saveUserStory"
           >
-            Save Changes
+            {{ t('projects.user_stories.actions.save') }}
           </VBtn>
         </template>
         <template v-else>
@@ -622,7 +624,7 @@ watch(() => props.userStory, (newVal) => {
             prepend-icon="tabler-trash"
             @click="handleDeleteUserStory"
           >
-            Delete
+            {{ t('projects.user_stories.actions.delete') }}
           </VBtn>
 
           <VBtn
@@ -633,7 +635,7 @@ watch(() => props.userStory, (newVal) => {
             class="ms-2"
             @click="openRegenerateDialog"
           >
-            Regenerate
+            {{ t('projects.user_stories.actions.regenerate') }}
           </VBtn>
 
           <VSpacer />
@@ -644,7 +646,7 @@ watch(() => props.userStory, (newVal) => {
             prepend-icon="tabler-edit"
             @click="toggleEditMode"
           >
-            Edit
+            {{ t('projects.user_stories.actions.edit') }}
           </VBtn>
         </template>
       </VCardActions>
@@ -656,18 +658,18 @@ watch(() => props.userStory, (newVal) => {
     >
       <VCard>
         <VCardTitle class="pt-3 pb-0">
-          Regenerate User Story
+          {{ t('projects.user_stories.regeneration.title') }}
         </VCardTitle>
 
         <VCardText>
           <p class="text-body-1 mb-3">
-            This will use AI to regenerate this user story based on your feedback and the associated requirement.
+            {{ t('projects.user_stories.regeneration.description') }}
           </p>
 
           <VTextarea
             v-model="regenerateFeedback"
-            label="Feedback for Regeneration"
-            placeholder="Explain what you want to improve about this user story..."
+            :label="t('projects.user_stories.fields.feedback')"
+            :placeholder="t('projects.user_stories.placeholders.feedback')"
             rows="4"
             counter
           />
@@ -679,7 +681,7 @@ watch(() => props.userStory, (newVal) => {
             variant="tonal"
             @click="regenerateDialogVisible = false"
           >
-            Cancel
+            {{ t('projects.user_stories.actions.cancel') }}
           </VBtn>
 
           <VSpacer />
@@ -688,7 +690,7 @@ watch(() => props.userStory, (newVal) => {
             color="primary"
             @click="submitRegeneration"
           >
-            Regenerate
+            {{ t('projects.user_stories.actions.regenerate') }}
           </VBtn>
         </VCardActions>
       </VCard>

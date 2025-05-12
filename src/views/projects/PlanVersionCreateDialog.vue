@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -29,9 +32,10 @@ const planVersion = ref({
   notes: '',
   status: 'draft'
 })
+
 const estimatedCostRules = [
-  v => !!v || 'Estimated cost is required',
-  v => !isNaN(parseFloat(v)) || 'Estimated cost must be a number'
+  v => !!v || t('projects.development_plan.validation.estimated_cost_required'),
+  v => !isNaN(parseFloat(v)) || t('projects.development_plan.validation.estimated_cost_number')
 ]
 
 const rolesAndHoursRules = [
@@ -40,7 +44,7 @@ const rolesAndHoursRules = [
       JSON.parse(v)
       return true
     } catch (e) {
-      return 'Roles and hours must be valid JSON'
+      return t('projects.development_plan.validation.roles_hours_json')
     }
   }
 ]
@@ -90,7 +94,7 @@ watch(dialog, (val) => {
   >
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
-        <h5 class="text-h5">Create New Plan Version</h5>
+        <h5 class="text-h5">{{ t('projects.development_plan.actions.new_version') }}</h5>
         <VSpacer />
         <IconBtn @click="handleCancel">
           <VIcon icon="tabler-x" />
@@ -99,7 +103,7 @@ watch(dialog, (val) => {
 
       <VCardText class="px-5 pt-4">
         <p class="text-subtitle-1 mb-4">
-          Creating version {{ currentVersionNumber + 1 }} for this development plan.
+          {{ t('projects.development_plan.creating_version', { version: currentVersionNumber + 1 }) }}
         </p>
 
         <VForm ref="formRef" @submit.prevent="submitForm">
@@ -107,7 +111,7 @@ watch(dialog, (val) => {
             <VCol cols="12" md="6">
               <VTextField
                 v-model.number="planVersion.estimated_cost"
-                label="Estimated Cost ($)"
+                :label="t('projects.development_plan.estimated_cost')"
                 type="number"
                 :rules="estimatedCostRules"
                 required
@@ -117,12 +121,12 @@ watch(dialog, (val) => {
             <VCol cols="12" md="6">
               <VSelect
                 v-model="planVersion.status"
-                label="Status"
+                :label="t('projects.details.status')"
                 :items="[
-                  { title: 'Draft', value: 'draft' },
-                  { title: 'Active', value: 'active' },
-                  { title: 'Archived', value: 'archived' },
-                  { title: 'Completed', value: 'completed' }
+                  { title: t('projects.status.draft'), value: 'draft' },
+                  { title: t('projects.status.active'), value: 'active' },
+                  { title: t('projects.status.archived'), value: 'archived' },
+                  { title: t('projects.status.completed'), value: 'completed' }
                 ]"
                 required
               />
@@ -131,11 +135,11 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextarea
                 v-model="planVersion.roles_and_hours"
-                label="Roles & Hours (JSON format)"
+                :label="t('projects.development_plan.roles_hours')"
                 :rules="rolesAndHoursRules"
                 rows="6"
                 monospace
-                hint="Format: [{ 'role': 'Developer', 'hours': 40, 'cost': 4000 }]"
+                :hint="t('projects.development_plan.roles_hours_hint')"
                 persistent-hint
               />
             </VCol>
@@ -143,7 +147,7 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextarea
                 v-model="planVersion.notes"
-                label="Notes"
+                :label="t('projects.development_plan.notes')"
                 rows="4"
               />
             </VCol>
@@ -159,7 +163,7 @@ watch(dialog, (val) => {
           color="secondary"
           @click="handleCancel"
         >
-          Cancel
+          {{ t('projects.actions.cancel') }}
         </VBtn>
 
         <VSpacer />
@@ -168,7 +172,7 @@ watch(dialog, (val) => {
           color="primary"
           @click="submitForm"
         >
-          Create Version
+          {{ t('projects.development_plan.actions.create_version') }}
         </VBtn>
       </VCardActions>
     </VCard>

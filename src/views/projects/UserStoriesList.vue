@@ -5,6 +5,7 @@ import {useAuthStore} from '@/stores/useAuthStore'
 import UserStoryDetailsDialog from '@/views/projects/UserStoryDetailsDialog.vue'
 import UserStoryCreateDialog from '@/views/projects/UserStoryCreateDialog.vue'
 import {getStatusChipColor} from "@core/utils/formatters"
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   projectId: {
@@ -30,6 +31,7 @@ const emit = defineEmits(['refresh'])
 
 const userStoryStore = useUserStoryStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const filteredStatus = ref(['draft', 'active', 'completed'])
@@ -49,10 +51,10 @@ const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
 const statusOptions = [
-  {title: 'Draft', value: 'draft'},
-  {title: 'Active', value: 'active'},
-  {title: 'Archived', value: 'archived'},
-  {title: 'Completed', value: 'completed'}
+  {title: t('projects.status.draft'), value: 'draft'},
+  {title: t('projects.status.active'), value: 'active'},
+  {title: t('projects.status.archived'), value: 'archived'},
+  {title: t('projects.status.completed'), value: 'completed'}
 ]
 
 const filteredUserStories = computed(() => {
@@ -207,7 +209,7 @@ onMounted(() => {
         <VTextField
           v-model="searchQuery"
           density="compact"
-          placeholder="Search user stories..."
+          :placeholder="t('projects.user_stories.actions.search')"
           prepend-inner-icon="tabler-search"
           hide-details
           variant="outlined"
@@ -221,7 +223,7 @@ onMounted(() => {
           :items="statusOptions"
           density="compact"
           hide-details
-          label="Status"
+          :label="t('projects.user_stories.fields.status')"
           variant="outlined"
           multiple
           chips
@@ -237,7 +239,7 @@ onMounted(() => {
           :loading="processingAction"
           block
         >
-          Add
+          {{ t('projects.user_stories.actions.add') }}
         </VBtn>
       </VCol>
     </VRow>
@@ -250,12 +252,12 @@ onMounted(() => {
 
     <div v-else-if="filteredUserStories.length === 0" class="text-center pa-4">
       <VIcon icon="tabler-notebook" size="64" color="secondary" class="mb-4"/>
-      <h4 class="text-h6 mb-2">No User Stories Found</h4>
+      <h4 class="text-h6 mb-2">{{ t('projects.user_stories.empty.title') }}</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
         {{
           searchQuery || filteredStatus.length > 0
-            ? 'Try adjusting your filters to see more results.'
-            : 'This requirement does not have any user stories yet.'
+            ? t('projects.user_stories.empty.filtered')
+            : t('projects.user_stories.empty.description')
         }}
       </p>
 
@@ -265,7 +267,7 @@ onMounted(() => {
         @click="openCreateUserStory"
         prepend-icon="tabler-plus"
       >
-        Add User Story
+        {{ t('projects.user_stories.actions.create') }}
       </VBtn>
     </div>
 
@@ -293,7 +295,7 @@ onMounted(() => {
               </VAvatar>
             </template>
 
-            <VCardTitle>As a {{ userStory.role }}</VCardTitle>
+            <VCardTitle>{{ t('projects.user_stories.fields.role') }} {{ userStory.role }}</VCardTitle>
 
             <template #append>
               <VChip
@@ -308,20 +310,20 @@ onMounted(() => {
 
           <VCardText class="d-flex flex-column">
             <p class="text-body-1 mb-2">
-              <span class="font-weight-medium text-primary">I want to:</span> {{ userStory.action }}
+              <span class="font-weight-medium text-primary">{{ t('projects.user_stories.fields.action') }}:</span> {{ userStory.action }}
             </p>
             <p class="text-body-1 mb-4">
-              <span class="font-weight-medium text-primary">So that:</span> {{ userStory.benefit }}
+              <span class="font-weight-medium text-primary">{{ t('projects.user_stories.fields.benefit') }}:</span> {{ userStory.benefit }}
             </p>
 
             <div v-if="userStory.acceptance_criteria && userStory.acceptance_criteria.length > 0">
-              <div class="text-subtitle-2 font-weight-medium mb-2 text-primary">Acceptance Criteria:</div>
+              <div class="text-subtitle-2 font-weight-medium mb-2 text-primary">{{ t('projects.user_stories.fields.acceptance_criteria') }}:</div>
               <ul class="ml-4">
                 <li v-for="(criterion, idx) in userStory.acceptance_criteria.slice(0, 2)" :key="idx">
                   {{ criterion }}
                 </li>
                 <li v-if="userStory.acceptance_criteria.length > 2">
-                  ...and {{ userStory.acceptance_criteria.length - 2 }} more
+                  {{ t('projects.user_stories.and_more', { count: userStory.acceptance_criteria.length - 2 }) }}
                 </li>
               </ul>
             </div>
@@ -361,7 +363,7 @@ onMounted(() => {
 
     <ConfirmDialog
       v-model:isDialogVisible="confirmDeleteDialog"
-      confirmationMsg="Are you sure you want to delete this user story? This action cannot be undone."
+      :confirmationMsg="t('projects.user_stories.delete_confirm.message')"
       @confirm="handleDeleteUserStory"
     />
 

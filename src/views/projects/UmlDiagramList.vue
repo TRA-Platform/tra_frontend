@@ -4,6 +4,7 @@ import { useUmlDiagramStore } from '@/stores/useUmlDiagramStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import UmlDiagramDetailsDialog from '@/views/projects/UmlDiagramDetailsDialog.vue'
 import { getStatusChipColor, renderUML } from "@core/utils/formatters"
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   projectId: {
@@ -24,6 +25,7 @@ const emit = defineEmits(['refresh'])
 
 const umlDiagramStore = useUmlDiagramStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedDiagramType = ref('all')
@@ -43,15 +45,15 @@ const hasManagerPermission = computed(() => authStore.userData.role >= 2)
 const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
 
 const diagramTypeOptions = [
-  { title: 'All Diagram Types', value: 'all' },
-  { title: 'Class Diagram', value: 'class' },
-  { title: 'Sequence Diagram', value: 'sequence' },
-  { title: 'Activity Diagram', value: 'activity' },
-  { title: 'Use Case Diagram', value: 'usecase' },
-  { title: 'State Diagram', value: 'state' },
-  { title: 'Component Diagram', value: 'component' },
-  { title: 'Deployment Diagram', value: 'deployment' },
-  { title: 'ER Diagram', value: 'er' }
+  { title: t('projects.uml_diagrams.types.all'), value: 'all' },
+  { title: t('projects.uml_diagrams.types.class'), value: 'class' },
+  { title: t('projects.uml_diagrams.types.sequence'), value: 'sequence' },
+  { title: t('projects.uml_diagrams.types.activity'), value: 'activity' },
+  { title: t('projects.uml_diagrams.types.usecase'), value: 'use_case' },
+  { title: t('projects.uml_diagrams.types.state'), value: 'state' },
+  { title: t('projects.uml_diagrams.types.component'), value: 'component' },
+  { title: t('projects.uml_diagrams.types.deployment'), value: 'deployment' },
+  { title: t('projects.uml_diagrams.types.er'), value: 'er' }
 ]
 
 const generatingDiagramType = ref('class')
@@ -90,15 +92,15 @@ const handleGenerateDiagrams = async () => {
     )
 
     if (data && !error) {
-      showSnackbar(`${generatingDiagramType.value.charAt(0).toUpperCase() + generatingDiagramType.value.slice(1)} diagram generation started`)
+      showSnackbar(t('projects.uml_diagrams.notifications.generation_started'))
       setTimeout(() => {
         emit('refresh')
       }, 3000)
     } else {
-      showSnackbar('Failed to generate UML diagrams', 'error')
+      showSnackbar(t('projects.uml_diagrams.notifications.generation_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to generate UML diagrams: ' + err.message, 'error')
+    showSnackbar(t('projects.uml_diagrams.notifications.generation_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -114,14 +116,14 @@ const handleDeleteDiagram = async () => {
     const { success, error } = await umlDiagramStore.deleteDiagram(selectedDiagram.value.id)
 
     if (success && !error) {
-      showSnackbar('UML diagram deleted successfully')
+      showSnackbar(t('projects.uml_diagrams.notifications.delete_success'))
       emit('refresh')
       detailsDialogVisible.value = false
     } else {
-      showSnackbar('Failed to delete UML diagram', 'error')
+      showSnackbar(t('projects.uml_diagrams.notifications.delete_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar('Failed to delete UML diagram: ' + err.message, 'error')
+    showSnackbar(t('projects.uml_diagrams.notifications.delete_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
@@ -147,6 +149,7 @@ const formatDate = (dateString) => {
 
 const getDiagramTypeIcon = (type) => {
   switch (type.toLowerCase()) {
+    case 'all': return 'tabler-chart-dots'
     case 'class': return 'tabler-box'
     case 'sequence': return 'tabler-arrow-right-square'
     case 'activity': return 'tabler-activity'
@@ -161,15 +164,16 @@ const getDiagramTypeIcon = (type) => {
 
 const getDiagramTypeDisplay = (type) => {
   switch (type.toLowerCase()) {
-    case 'class': return 'Class Diagram'
-    case 'sequence': return 'Sequence Diagram'
-    case 'activity': return 'Activity Diagram'
-    case 'usecase': return 'Use Case Diagram'
-    case 'state': return 'State Diagram'
-    case 'component': return 'Component Diagram'
-    case 'deployment': return 'Deployment Diagram'
-    case 'er': return 'ER Diagram'
-    default: return type.charAt(0).toUpperCase() + type.slice(1) + ' Diagram'
+    case 'all': return t('projects.uml_diagrams.types.all')
+    case 'class': return t('projects.uml_diagrams.types.class')
+    case 'sequence': return t('projects.uml_diagrams.types.sequence')
+    case 'activity': return t('projects.uml_diagrams.types.activity')
+    case 'usecase': return t('projects.uml_diagrams.types.usecase')
+    case 'state': return t('projects.uml_diagrams.types.state')
+    case 'component': return t('projects.uml_diagrams.types.component')
+    case 'deployment': return t('projects.uml_diagrams.types.deployment')
+    case 'er': return t('projects.uml_diagrams.types.er')
+    default: return type.charAt(0).toUpperCase() + type.slice(1) + ' ' + t('projects.uml_diagrams.types.diagram')
   }
 }
 
@@ -192,7 +196,7 @@ onMounted(() => {
         <VTextField
           v-model="searchQuery"
           density="compact"
-          placeholder="Search diagrams..."
+          :placeholder="t('projects.uml_diagrams.actions.search')"
           prepend-inner-icon="tabler-search"
           hide-details
           variant="outlined"
@@ -206,7 +210,7 @@ onMounted(() => {
           :items="diagramTypeOptions"
           density="compact"
           hide-details
-          label="Diagram Type"
+          :label="t('projects.uml_diagrams.type')"
           variant="outlined"
         />
       </VCol>
@@ -220,7 +224,7 @@ onMounted(() => {
           :loading="processingAction"
           block
         >
-          Generate Diagram
+          {{ t('projects.uml_diagrams.actions.generate') }}
         </VBtn>
       </VCol>
     </VRow>
@@ -233,11 +237,11 @@ onMounted(() => {
 
     <div v-else-if="filteredDiagrams.length === 0" class="text-center pa-4">
       <VIcon icon="tabler-chart-dots" size="64" color="secondary" class="mb-4" />
-      <h4 class="text-h6 mb-2">No UML Diagrams Found</h4>
+      <h4 class="text-h6 mb-2">{{ t('projects.uml_diagrams.empty.title') }}</h4>
       <p class="text-body-1 text-medium-emphasis mb-6">
         {{ searchQuery || selectedDiagramType !== 'all'
-        ? 'Try adjusting your filters to see more results.'
-        : 'This project does not have any UML diagrams yet.' }}
+        ? t('projects.uml_diagrams.empty.filtered')
+        : t('projects.uml_diagrams.empty.description') }}
       </p>
 
       <VBtn
@@ -246,7 +250,7 @@ onMounted(() => {
         @click="openGenerateDialog"
         prepend-icon="tabler-plus"
       >
-        Generate UML Diagram
+        {{ t('projects.uml_diagrams.actions.generate') }}
       </VBtn>
     </div>
 
@@ -310,19 +314,19 @@ onMounted(() => {
                       size="40"
                       class="mb-2"
                     />
-                    <div class="text-caption">Generating diagram...</div>
+                    <div class="text-caption">{{ t('projects.uml_diagrams.status.generating') }}</div>
                   </div>
                   <div v-else-if="diagram.content" class="diagram-thumbnail pa-2">
                     <VImg
                       v-if="diagram.content"
                       :src="renderUML(diagram.content)"
                       class="diagram-svg"
-                      alt="Generated Diagram"
+                      :alt="t('projects.uml_diagrams.title')"
                     />
                   </div>
                   <div v-else class="text-center">
                     <VIcon :icon="getDiagramTypeIcon(diagram.diagram_type)" size="48" color="secondary" />
-                    <div class="text-caption mt-2">Preview not available</div>
+                    <div class="text-caption mt-2">{{ t('projects.uml_diagrams.status.no_content.title') }}</div>
                   </div>
                 </div>
                 <div class="preview-overlay d-flex justify-center align-center">
@@ -332,7 +336,7 @@ onMounted(() => {
                     size="small"
                     prepend-icon="tabler-eye"
                   >
-                    View Diagram
+                    {{ t('projects.uml_diagrams.actions.view') }}
                   </VBtn>
                 </div>
               </div>
@@ -365,26 +369,18 @@ onMounted(() => {
     >
       <VCard>
         <VCardTitle class="pt-5 pb-2">
-          Generate UML Diagram
+          {{ t('projects.uml_diagrams.generation.title') }}
         </VCardTitle>
 
         <VCardText>
           <p class="text-body-1 mb-4">
-            Select the type of UML diagram you want to generate for this project.
-            The system will analyze the requirements and create an appropriate diagram.
+            {{ t('projects.uml_diagrams.generation.description') }}
           </p>
 
           <VSelect
             v-model="generatingDiagramType"
-            :items="[
-              { title: 'Class Diagram', value: 'class' },
-              { title: 'Sequence Diagram', value: 'sequence' },
-              { title: 'Activity Diagram', value: 'activity' },
-              { title: 'Use Case Diagram', value: 'usecase' },
-              { title: 'State Diagram', value: 'state' },
-              { title: 'Component Diagram', value: 'component' }
-            ]"
-            label="Diagram Type"
+            :items="diagramTypeOptions"
+            :label="t('projects.uml_diagrams.type')"
           />
         </VCardText>
 
@@ -394,7 +390,7 @@ onMounted(() => {
             variant="tonal"
             @click="generateDiagramDialog = false"
           >
-            Cancel
+            {{ t('projects.user_stories.actions.cancel') }}
           </VBtn>
 
           <VSpacer />
@@ -403,7 +399,7 @@ onMounted(() => {
             color="primary"
             @click="handleGenerateDiagrams"
           >
-            Generate
+            {{ t('projects.uml_diagrams.actions.generate') }}
           </VBtn>
         </VCardActions>
       </VCard>
@@ -411,7 +407,7 @@ onMounted(() => {
 
     <ConfirmDialog
       v-model:isDialogVisible="confirmDeleteDialog"
-      confirmationMsg="Are you sure you want to delete this UML diagram? This action cannot be undone."
+      :confirmationMsg="t('projects.uml_diagrams.delete_confirm.message')"
       @confirm="handleDeleteDiagram"
     />
 

@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -31,26 +34,26 @@ const requirement = ref({
 })
 
 const titleRules = [
-  v => !!v || 'Title is required',
-  v => v.length <= 255 || 'Title must be less than 255 characters'
+  v => !!v || t('validation.required'),
+  v => v.length <= 255 || t('projects.requirements.validation.title_length')
 ]
 
 const descriptionRules = [
-  v => !!v || 'Description is required'
+  v => !!v || t('validation.required')
 ]
 
 const categoryOptions = [
-  { title: 'Functional', value: 'functional' },
-  { title: 'Non-Functional', value: 'nonfunctional' },
-  { title: 'UI/UX', value: 'uiux' },
-  { title: 'Other', value: 'other' }
+  { title: t('projects.categories.functional'), value: 'functional' },
+  { title: t('projects.categories.nonfunctional'), value: 'nonfunctional' },
+  { title: t('projects.categories.uiux'), value: 'uiux' },
+  { title: t('projects.categories.other'), value: 'other' }
 ]
 
 const statusOptions = [
-  { title: 'Draft', value: 'draft' },
-  { title: 'Active', value: 'active' },
-  { title: 'Archived', value: 'archived' },
-  { title: 'Completed', value: 'completed' }
+  { title: t('projects.status.draft'), value: 'draft' },
+  { title: t('projects.status.active'), value: 'active' },
+  { title: t('projects.status.archived'), value: 'archived' },
+  { title: t('projects.status.completed'), value: 'completed' }
 ]
 
 const formRef = ref(null)
@@ -94,7 +97,7 @@ watch(dialog, (val) => {
   >
     <VCard>
       <VCardTitle class="d-flex pt-5 px-5">
-        <h5 class="text-h5">{{ props.editMode ? 'Edit Requirement' : 'Create New Requirement' }}</h5>
+        <h5 class="text-h5">{{ props.editMode ? t('projects.requirements.actions.edit') : t('projects.requirements.actions.add') }}</h5>
         <VSpacer />
         <IconBtn @click="handleCancel">
           <VIcon icon="tabler-x" />
@@ -107,7 +110,7 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextField
                 v-model="requirement.title"
-                label="Requirement Title"
+                :label="t('projects.requirements.title')"
                 :rules="titleRules"
                 required
               />
@@ -116,7 +119,7 @@ watch(dialog, (val) => {
             <VCol cols="12" md="6">
               <VSelect
                 v-model="requirement.category"
-                label="Category"
+                :label="t('projects.requirements.category')"
                 :items="categoryOptions"
                 required
               />
@@ -125,7 +128,7 @@ watch(dialog, (val) => {
             <VCol cols="12" md="6">
               <VSelect
                 v-model="requirement.status"
-                label="Status"
+                :label="t('projects.requirements.status')"
                 :items="statusOptions"
                 required
               />
@@ -134,7 +137,7 @@ watch(dialog, (val) => {
             <VCol cols="12">
               <VTextarea
                 v-model="requirement.description"
-                label="Description"
+                :label="t('projects.requirements.description')"
                 :rules="descriptionRules"
                 required
                 rows="6"
@@ -152,7 +155,7 @@ watch(dialog, (val) => {
           color="secondary"
           @click="handleCancel"
         >
-          Cancel
+          {{ t('projects.actions.cancel') }}
         </VBtn>
 
         <VSpacer />
@@ -161,7 +164,7 @@ watch(dialog, (val) => {
           color="primary"
           @click="submitForm"
         >
-          {{ props.editMode ? 'Update' : 'Create' }} Requirement
+          {{ props.editMode ? t('projects.actions.update') : t('projects.actions.create') }}
         </VBtn>
       </VCardActions>
     </VCard>
