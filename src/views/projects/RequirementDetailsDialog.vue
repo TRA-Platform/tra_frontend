@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRequirementStore } from '@/stores/useRequirementStore'
+import { useMockupStore } from '@/stores/useMockupStore'
 import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters"
 import { useI18n } from 'vue-i18n'
+import MockupPreviewDialog from '@/views/projects/MockupPreviewDialog.vue'
 
 const { t } = useI18n()
 
@@ -37,6 +39,7 @@ const dialog = computed ({
 })
 
 const requirementStore = useRequirementStore ()
+const mockupStore = useMockupStore()
 
 const activeTab = ref (0)
 const isEditMode = ref (false)
@@ -48,6 +51,10 @@ const snackbar = ref ({
   text: '',
   color: 'success'
 })
+
+const selectedMockup = ref(null)
+const previewDialogVisible = ref(false)
+const refreshInterval = ref(null)
 
 const categoryOptions = [
   { title: t('projects.categories.functional'), value: 'functional' },
@@ -85,6 +92,10 @@ const userStories = computed (() => {
   return props.requirement.user_stories || []
 })
 
+const relatedMockups = computed(() => {
+  return props.requirement.mockups || []
+})
+
 const formatDate = (dateString) => {
   if (!dateString) return ''
   dateString = parseInt (dateString)
@@ -107,20 +118,44 @@ const toggleEditMode = () => {
     editedRequirement.value = { ...props.requirement }
   }
   isEditMode.value = !isEditMode.value
+  activeTab.value = "0"
 }
 
+const checkRequirementStatus = () => {
+  if (dialog.value) {
+    requirementStore.fetchRequirementById(props.requirement.id)
+      .then(({ data }) => {
+        if (data) {
+          Object.assign(props.requirement, data)
+        }
+      })
+  }
+}
+
+onMounted(() => {
+  refreshInterval.value = setInterval(checkRequirementStatus, 5000)
+})
+
+onUnmounted(() => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value)
+  }
+})
+
 const saveRequirement = () => {
-  emit ('update', editedRequirement.value)
+  emit('update', editedRequirement.value)
   isEditMode.value = false
+  dialog.value = false // Close dialog after save
 }
 
 const handleDeleteRequirement = () => {
-  emit ('delete')
+  emit('delete')
+  dialog.value = false // Close dialog after delete
 }
 
 const viewUserStories = () => {
-  emit ('view-user-stories', props.requirement)
-  dialog.value = false
+  emit('view-user-stories', props.requirement)
+  dialog.value = false // Close dialog after viewing user stories
 }
 
 const submitComment = async () => {
@@ -184,6 +219,15 @@ const showSnackbar = (text, color = 'success') => {
 watch (() => props.requirement, (newVal) => {
   editedRequirement.value = { ...newVal }
 }, { deep: true })
+const truncateHtml = (html, length = 150) => {
+  if (!html || html.length <= length) return html
+
+  const textOnly = html.replace(/<[^>]*>/g, '')
+
+  if (textOnly.length <= length) return html
+
+  return textOnly.substring(0, length) + '...'
+}
 </script>
 
 <template>
@@ -231,6 +275,18 @@ watch (() => props.requirement, (newVal) => {
             </VChip>
           </VTab>
           <VTab value="2">
+            <VIcon size="18" icon="tabler-photo" start/>
+            {{ t('projects.requirements.tabs.mockups') }}
+            <VChip
+              v-if="relatedMockups.length"
+              size="x-small"
+              color="primary"
+              class="ms-2"
+            >
+              {{ relatedMockups.length }}
+            </VChip>
+          </VTab>
+          <VTab value="3">
             <VIcon size="18" icon="tabler-history" start/>
             {{ t('projects.requirements.tabs.history') }}
             <VChip
@@ -242,7 +298,7 @@ watch (() => props.requirement, (newVal) => {
               {{ history.length }}
             </VChip>
           </VTab>
-          <VTab value="3">
+          <VTab value="4">
             <VIcon size="18" icon="tabler-messages" start/>
             {{ t('projects.requirements.tabs.comments') }}
             <VChip
@@ -352,6 +408,8 @@ watch (() => props.requirement, (newVal) => {
                 </VChip>
 
                 <VSpacer/>
+                </div>
+                <div class="d-flex align-center">
 
                 <div class="text-medium-emphasis d-flex align-center">
                   <VIcon size="18" icon="tabler-calendar" class="me-1"/>
@@ -445,6 +503,108 @@ watch (() => props.requirement, (newVal) => {
           </VWindowItem>
 
           <VWindowItem value="2">
+            <div v-if="relatedMockups.length === 0" class="text-center pa-6">
+              <VIcon icon="tabler-photo-off" size="64" color="secondary" class="mb-3"/>
+              <h4 class="text-h6 mb-2">{{ t('projects.requirements.mockups.empty.title') }}</h4>
+              <p class="text-medium-emphasis">
+                {{ t('projects.requirements.mockups.empty.description') }}
+              </p>
+            </div>
+
+            <div v-else>
+              <VRow>
+                <VCol
+                  v-for="mockup in relatedMockups"
+                  :key="mockup.id"
+                  cols="12"
+                  md="6"
+                  lg="4"
+                >
+                  <VCard
+                    class="mockup-card h-100"
+                    @click="selectedMockup = mockup; previewDialogVisible = true"
+                    border
+                    hover
+                  >
+                    <VCardItem>
+                      <VCardTitle>{{ mockup.name }}</VCardTitle>
+                      <template #append>
+                        <div class="d-flex align-center">
+                          <VProgressCircular
+                            v-if="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending' || mockup.needs_regeneration"
+                            indeterminate
+                            color="primary"
+                            size="20"
+                            width="2"
+                            class="me-2"
+                          />
+                          <VChip
+                            :color="getStatusChipColor(mockup.status)"
+                            size="small"
+                            label
+                          >
+                            {{ t(`projects.status.${mockup.status}`) }}
+                          </VChip>
+                        </div>
+                      </template>
+                    </VCardItem>
+
+                    <VDivider />
+
+                    <VCardText>
+                      <div class="mockup-preview mb-3">
+                        <div class="overflow-hidden position-relative rounded bg-grey-lighten-4" style="height: 150px;">
+                          <div v-if="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending'"
+                               class="d-flex justify-center align-center h-100">
+                            <div class="text-center">
+                              <VProgressCircular indeterminate color="primary" size="40" class="mb-2" />
+                              <div class="text-caption">{{ t('projects.mockups.status.generating') }}</div>
+                            </div>
+                          </div>
+                          <div v-else-if="mockup.html_content" class="html-preview">
+                            <div v-html="truncateHtml(mockup.html_content)"></div>
+                          </div>
+                          <div v-else class="d-flex justify-center align-center h-100">
+                            <VIcon icon="tabler-file-code" size="48" color="secondary" />
+                          </div>
+                          <div class="preview-overlay d-flex justify-center align-center">
+                            <VBtn
+                              color="primary"
+                              variant="elevated"
+                              size="small"
+                              prepend-icon="tabler-eye"
+                              :disabled="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending'"
+                            >
+                              {{ t('projects.mockups.actions.preview') }}
+                            </VBtn>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div v-if="mockup.needs_regeneration" class="mb-2">
+                        <VChip
+                          color="warning"
+                          size="small"
+                          label
+                          prepend-icon="tabler-refresh"
+                        >
+                          {{ t('projects.mockups.status.regenerating') }}
+                        </VChip>
+                      </div>
+
+                      <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                          <VIcon size="16" icon="tabler-calendar" class="me-1" />
+                          <span class="text-caption">{{ formatDate(mockup.created_at) }}</span>
+                        </div>
+                      </div>
+                    </VCardText>
+                  </VCard>
+                </VCol>
+              </VRow>
+            </div>
+          </VWindowItem>
+          <VWindowItem value="3">
             <div v-if="history.length === 0" class="text-center pa-6">
               <VIcon icon="tabler-history" size="64" color="secondary" class="mb-3"/>
               <h4 class="text-h6 mb-2">{{ t('projects.requirements.history.empty.title') }}</h4>
@@ -505,7 +665,7 @@ watch (() => props.requirement, (newVal) => {
             </div>
           </VWindowItem>
 
-          <VWindowItem value="3">
+          <VWindowItem value="4">
             <VRow class="mt-3">
               <VCol cols="12">
                 <VTextarea
@@ -591,6 +751,7 @@ watch (() => props.requirement, (newVal) => {
               </VCol>
             </VRow>
           </VWindowItem>
+
         </VWindow>
       </VCardText>
 
@@ -663,6 +824,14 @@ watch (() => props.requirement, (newVal) => {
         </IconBtn>
       </template>
     </VSnackbar>
+
+    <MockupPreviewDialog
+      v-if="selectedMockup"
+      v-model="previewDialogVisible"
+      :mockup="selectedMockup"
+      :is-admin="isAdmin"
+      :has-manager-permission="hasManagerPermission"
+    />
   </VDialog>
 </template>
 
@@ -677,5 +846,46 @@ watch (() => props.requirement, (newVal) => {
 
 .comment-item:hover {
   transform: translateX(3px);
+}
+
+.mockup-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mockup-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(var(--v-theme-on-surface), 0.1) !important;
+}
+
+.mockup-preview {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.html-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding: 5px;
+  height: 100%;
+  width: 100%;
+}
+
+.preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mockup-card:hover .preview-overlay {
+  opacity: 1;
 }
 </style>

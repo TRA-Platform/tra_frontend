@@ -39,6 +39,8 @@ const isEditMode = ref(false)
 const editedMockup = ref({ ...props.mockup })
 const processingAction = ref(false)
 const refreshInterval = ref(null)
+const regenerateDialogVisible = ref(false)
+const regenerateFeedback = ref('')
 const snackbar = ref({
   show: false,
   text: '',
@@ -78,12 +80,13 @@ const saveMockup = async () => {
   processingAction.value = true
 
   try {
-    const { data, error } = await mockupStore.updateMockup(props.mockup.id, editedMockup.value)
+    const { data, error } = await mockupStore.updateMockupById(props.mockup.id, editedMockup.value)
 
     if (data && !error) {
       showSnackbar(t('projects.mockups.notifications.updated'))
       Object.assign(props.mockup, data)
       isEditMode.value = false
+      dialog.value = false
     } else {
       showSnackbar(t('projects.mockups.notifications.update_failed'), 'error')
     }
@@ -96,27 +99,45 @@ const saveMockup = async () => {
 
 const handleDeleteMockup = () => {
   emit('delete')
+  dialog.value = false
 }
 
 const handleRegenerateMockup = async () => {
+  regenerateDialogVisible.value = true
+}
+
+const submitRegeneration = async () => {
   processingAction.value = true
   
   try {
     if (props.mockup.user_story) {
       await mockupStore.regenerateMockup(
         props.mockup.id,
-        { user_story_id: props.mockup.user_story.id }
+        { 
+          user_story_id: props.mockup.user_story.id,
+          feedback: regenerateFeedback.value
+        }
       )
     } else if (props.mockup.requirement) {
       await mockupStore.regenerateMockup(
         props.mockup.id,
-        { requirement_id: props.mockup.requirement.id }
+        { 
+          requirement_id: props.mockup.requirement.id,
+          feedback: regenerateFeedback.value
+        }
       )
     } else {
-      await mockupStore.regenerateMockup(props.mockup.id)
+      await mockupStore.regenerateMockup(
+        props.mockup.id,
+        { feedback: regenerateFeedback.value }
+      )
     }
     
     showSnackbar(t('projects.mockups.notifications.regeneration_started'))
+    regenerateDialogVisible.value = false
+    regenerateFeedback.value = ''
+    dialog.value = false
+    refreshInterval.value = setInterval(checkMockupStatus, 5000)
   } catch (err) {
     showSnackbar(t('projects.mockups.notifications.regeneration_error', { error: err.message }), 'error')
   } finally {
@@ -366,14 +387,6 @@ onUnmounted(() => {
 
           <VSpacer />
 
-          <VBtn
-            v-if="hasManagerPermission"
-            color="primary"
-            prepend-icon="tabler-edit"
-            @click="toggleEditMode"
-          >
-            {{ t('projects.actions.edit') }}
-          </VBtn>
 
           <VBtn
             class="ms-2"
@@ -383,11 +396,59 @@ onUnmounted(() => {
             @click="toggleEditMode"
             v-if="hasManagerPermission"
           >
-            {{ t('projects.mockups.actions.view_html') }}
+            {{ t('projects.mockups.actions.edit') }}
           </VBtn>
         </template>
       </VCardActions>
     </VCard>
+
+    <VDialog
+      v-model="regenerateDialogVisible"
+      max-width="600"
+      persistent
+    >
+      <VCard>
+        <VCardTitle class="pt-3 pb-0">
+          {{ t('projects.mockups.regeneration.title') }}
+        </VCardTitle>
+
+        <VCardText>
+          <p class="text-body-1 mb-3">
+            {{ t('projects.mockups.regeneration.description') }}
+          </p>
+
+          <VTextarea
+            autofocus
+            v-model="regenerateFeedback"
+            :label="t('projects.mockups.fields.feedback')"
+            :hint="t('projects.mockups.placeholders.feedback')"
+            aria-placeholder="t('projects.mockups.placeholders.feedback')"
+            rows="4"
+            counter
+          />
+        </VCardText>
+
+        <VCardActions>
+          <VBtn
+            color="secondary"
+            variant="tonal"
+            @click="regenerateDialogVisible = false"
+          >
+            {{ t('projects.actions.cancel') }}
+          </VBtn>
+
+          <VSpacer />
+
+          <VBtn
+            color="primary"
+            @click="submitRegeneration"
+            :loading="processingAction"
+          >
+            {{ t('projects.mockups.actions.regenerate') }}
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
     <VSnackbar
       v-model="snackbar.show"

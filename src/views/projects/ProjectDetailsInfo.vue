@@ -46,9 +46,9 @@ const typeIcon = computed(() => {
 })
 
 const languageMap = {
-  'en': 'English',
-  'ru': 'Russian',
-  'de': 'German'
+  'en': t('projects.languages.english'),
+  'ru': t('projects.languages.russian'),
+  'de': t('projects.languages.german'),
 }
 
 const formatLanguage = (code) => {

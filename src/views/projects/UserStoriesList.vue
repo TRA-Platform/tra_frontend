@@ -1,11 +1,12 @@
 <script setup>
-import {ref, computed, onMounted} from 'vue'
+import {ref, computed, onMounted, onUnmounted, watch} from 'vue'
 import {useUserStoryStore} from '@/stores/useUserStoryStore'
 import {useAuthStore} from '@/stores/useAuthStore'
 import UserStoryDetailsDialog from '@/views/projects/UserStoryDetailsDialog.vue'
 import UserStoryCreateDialog from '@/views/projects/UserStoryCreateDialog.vue'
 import {getStatusChipColor} from "@core/utils/formatters"
 import { useI18n } from 'vue-i18n'
+import mitt from 'mitt'
 
 const props = defineProps({
   projectId: {
@@ -45,6 +46,7 @@ const snackbar = ref({
   text: '',
   color: 'success'
 })
+const eventBus = mitt()
 
 const isAdmin = computed(() => authStore.is_admin())
 const hasManagerPermission = computed(() => authStore.userData.role >= 2)
@@ -70,8 +72,19 @@ const filteredUserStories = computed(() => {
   })
 })
 
-const openUserStoryDetails = (userStory) => {
-  selectedUserStory.value = userStory
+const anyUserStoryInProgress = computed(() =>
+  props.userStories.some(s => s.generation_status === 'in_progress' || s.generation_status === 'pending')
+)
+
+const refreshIfNeeded = () => {
+  if (anyUserStoryInProgress.value) {
+    emit('refresh')
+  }
+}
+
+const openUserStoryDetails = async (userStory) => {
+  const { data } = await userStoryStore.fetchUserStoryById(userStory.id)
+  selectedUserStory.value = data || userStory
   detailsDialogVisible.value = true
 }
 
@@ -194,16 +207,39 @@ onMounted(() => {
   if (props.requirementId && !props.userStories.length && !props.loading) {
     userStoryStore.fetchUserStories(props.requirementId)
       .then(({data}) => {
-        if (data) {
-          emit('refresh')
-        }
+        if (data) emit('refresh')
       })
+  }
+  eventBus.on('project-refresh', () => {
+    userStoryStore.fetchUserStories(props.requirementId, { silent: true })
+      .then(({ data }) => {
+        if (data) emit('refresh')
+      })
+  })
+})
+
+watch(detailsDialogVisible, (val) => {
+  if (val) {
+    eventBus.on('project-refresh', async () => {
+      if (selectedUserStory.value) {
+        const { data } = await userStoryStore.fetchUserStoryById(selectedUserStory.value.id)
+        if (data) selectedUserStory.value = data
+      }
+    })
+  } else {
+    eventBus.off('project-refresh')
   }
 })
 </script>
 
 <template>
   <VCardText class="pa-6">
+    <div v-if="anyUserStoryInProgress" class="mb-4">
+      <VAlert type="info" variant="tonal" border="start" class="d-flex align-center">
+        <VProgressCircular indeterminate color="primary" size="24" class="me-3" />
+        <span>{{ t('projects.user_stories.regeneration.title') }}</span>
+      </VAlert>
+    </div>
     <VRow>
       <VCol cols="12" md="6">
         <VTextField
@@ -298,13 +334,32 @@ onMounted(() => {
             <VCardTitle>{{ t('projects.user_stories.fields.role') }} {{ userStory.role }}</VCardTitle>
 
             <template #append>
-              <VChip
-                :color="getStatusChipColor(userStory.status)"
-                size="small"
-                label
-              >
-                {{ userStory.status }}
-              </VChip>
+              <div class="d-flex align-center">
+                <VProgressCircular
+                  v-if="userStory.generation_status === 'in_progress' || userStory.generation_status === 'pending'"
+                  indeterminate
+                  color="primary"
+                  size="20"
+                  width="2"
+                  class="me-2"
+                />
+                <VChip
+                  v-if="userStory.generation_status === 'pending'"
+                  color="warning"
+                  size="small"
+                  label
+                  prepend-icon="tabler-refresh"
+                >
+                  {{ t('projects.user_stories.regeneration.title') }}
+                </VChip>
+                <VChip
+                  :color="getStatusChipColor(userStory.status)"
+                  size="small"
+                  label
+                >
+                  {{ $t(`projects.status.${userStory.status}`) }}
+                </VChip>
+              </div>
             </template>
           </VCardItem>
 

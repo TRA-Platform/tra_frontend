@@ -96,24 +96,24 @@ const steps = [
 ]
 
 const typeOptions = [
-  {title: 'Website', value: 'website'},
-  {title: 'Mobile App', value: 'mobile'},
-  {title: 'Desktop App', value: 'desktop'},
-  {title: 'API Service', value: 'api'},
-  {title: 'Other', value: 'other'}
+  {title: t('projects.types.website'), value: 'website'},
+  {title: t('projects.types.mobile'), value: 'mobile'},
+  {title: t('projects.types.desktop'), value: 'desktop'},
+  {title: t('projects.types.api'), value: 'api'},
+  {title: t('projects.types.other'), value: 'other'}
 ]
 
 const languageOptions = [
-  {title: 'English', value: 'en'},
-  {title: 'Russian', value: 'ru'},
-  {title: 'German', value: 'de'}
+  {title: t('projects.languages.english'), value: 'en'},
+  {title: t('projects.languages.russian'), value: 'ru'},
+  {title: t('projects.languages.german'), value: 'de'}
 ]
 
 const statusOptions = [
-  {title: 'Draft', value: 'draft'},
-  {title: 'Active', value: 'active'},
-  {title: 'Archived', value: 'archived'},
-  {title: 'Completed', value: 'completed'}
+  {title: t('projects.status.draft'), value: 'draft'},
+  {title: t('projects.status.active'), value: 'active'},
+  {title: t('projects.status.archived'), value: 'archived'},
+  {title: t('projects.status.completed'), value: 'completed'}
 ]
 
 const templates = ref([])
@@ -230,45 +230,45 @@ const colorSchemeOptions = [
 ]
 
 const targetUserOptions = [
-  'General Users',
-  'Business Users',
-  'Developers',
-  'Administrators',
-  'Students',
-  'Teachers',
-  'Healthcare Professionals',
-  'Financial Professionals',
-  'Other'
+  t('projects.target_users.general_users'),
+  t('projects.target_users.business_users'),
+  t('projects.target_users.developers'),
+  t('projects.target_users.administrators'),
+  t('projects.target_users.students'),
+  t('projects.target_users.teachers'),
+  t('projects.target_users.healthcare_professionals'),
+  t('projects.target_users.financial_professionals'),
+  t('projects.target_users.other')
 ]
 
 const additionalRequirementOptions = [
-  'User Authentication',
-  'Payment Integration',
-  'Social Media Integration',
-  'Analytics',
-  'Reporting',
-  'Export/Import',
-  'Multi-language Support',
-  'Accessibility',
-  'Mobile Responsive',
-  'API Integration',
-  'Cloud Storage',
-  'Real-time Updates'
+  t('projects.additional_requirements.user_authentication'),
+  t('projects.additional_requirements.payment_integration'),
+  t('projects.additional_requirements.social_media_integration'),
+  t('projects.additional_requirements.analytics'),
+  t('projects.additional_requirements.reporting'),
+  t('projects.additional_requirements.export_import'),
+  t('projects.additional_requirements.multi_language_support'),
+  t('projects.additional_requirements.accessibility'),
+  t('projects.additional_requirements.mobile_responsive'),
+  t('projects.additional_requirements.api_integration'),
+  t('projects.additional_requirements.cloud_storage'),
+  t('projects.additional_requirements.real_time_updates')
 ]
 
 const nonFunctionalRequirementOptions = [
-  'Performance',
-  'Security',
-  'Scalability',
-  'Reliability',
-  'Maintainability',
-  'Usability',
-  'Compatibility',
-  'Portability',
-  'Availability',
-  'Recoverability',
-  'Testability',
-  'Interoperability'
+  t('projects.non_functional_requirements.performance'),
+  t('projects.non_functional_requirements.security'),
+  t('projects.non_functional_requirements.scalability'),
+  t('projects.non_functional_requirements.reliability'),
+  t('projects.non_functional_requirements.maintainability'),
+  t('projects.non_functional_requirements.usability'),
+  t('projects.non_functional_requirements.compatibility'),
+  t('projects.non_functional_requirements.portability'),
+  t('projects.non_functional_requirements.availability'),
+  t('projects.non_functional_requirements.recoverability'),
+  t('projects.non_functional_requirements.testability'),
+  t('projects.non_functional_requirements.interoperability')
 ]
 
 const technologyStackOptions = [
@@ -302,28 +302,28 @@ const technologyStackOptions = [
 ]
 
 const operatingSystemOptions = [
-  'Windows',
-  'macOS',
-  'Linux',
-  'iOS',
-  'Android',
-  'Cross-platform',
-  'Web-based'
+  t('projects.operating_systems.windows'),
+  t('projects.operating_systems.macos'),
+  t('projects.operating_systems.linux'),
+  t('projects.operating_systems.ios'),
+  t('projects.operating_systems.android'),
+  t('projects.operating_systems.cross_platform'),
+  t('projects.operating_systems.web_based')
 ]
 
 const priorityModuleOptions = [
-  'User Management',
-  'Content Management',
-  'Dashboard',
-  'Reporting',
-  'Analytics',
-  'Settings',
-  'Notifications',
-  'Search',
-  'File Management',
-  'Communication',
-  'Payment Processing',
-  'Security'
+  t('projects.priority_modules.user_management'),
+  t('projects.priority_modules.content_management'),
+  t('projects.priority_modules.dashboard'),
+  t('projects.priority_modules.reporting'),
+  t('projects.priority_modules.analytics'),
+  t('projects.priority_modules.settings'),
+  t('projects.priority_modules.notifications'),
+  t('projects.priority_modules.search'),
+  t('projects.priority_modules.file_management'),
+  t('projects.priority_modules.communication'),
+  t('projects.priority_modules.payment_processing'),
+  t('projects.priority_modules.security')
 ]
 
 const convertStringToArray = (value) => {

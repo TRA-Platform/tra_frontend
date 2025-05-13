@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUmlDiagramStore } from '@/stores/useUmlDiagramStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import UmlDiagramDetailsDialog from '@/views/projects/UmlDiagramDetailsDialog.vue'
 import { getStatusChipColor, renderUML } from "@core/utils/formatters"
 import { useI18n } from 'vue-i18n'
+import mitt from 'mitt'
 
 const props = defineProps({
   projectId: {
@@ -71,8 +72,11 @@ const filteredDiagrams = computed(() => {
   })
 })
 
-const openDiagramDetails = (diagram) => {
-  selectedDiagram.value = diagram
+const eventBus = mitt()
+
+const openDiagramDetails = async (diagram) => {
+  const { data } = await umlDiagramStore.fetchDiagram(diagram.id)
+  selectedDiagram.value = data || diagram
   detailsDialogVisible.value = true
 }
 
@@ -178,19 +182,36 @@ const getDiagramTypeDisplay = (type) => {
 }
 
 onMounted(() => {
-  if (props.projectId && !props.diagrams.length && !props.loading) {
-    umlDiagramStore.fetchDiagrams(props.projectId)
+  eventBus.on('project-refresh', () => {
+    umlDiagramStore.fetchDiagrams(props.projectId, { silent: true })
       .then(({ data }) => {
-        if (data) {
-          emit('refresh')
-        }
+        if (data) emit('refresh')
       })
+  })
+})
+
+watch(detailsDialogVisible, (val) => {
+  if (val) {
+    eventBus.on('project-refresh', async () => {
+      if (selectedDiagram.value) {
+        const { data } = await umlDiagramStore.fetchDiagram(selectedDiagram.value.id)
+        if (data) selectedDiagram.value = data
+      }
+    })
+  } else {
+    eventBus.off('project-refresh')
   }
 })
 </script>
 
 <template>
   <VCardText class="pa-6">
+    <div v-if="anyDiagramInProgress" class="mb-4">
+      <VAlert type="info" variant="tonal" border="start" class="d-flex align-center">
+        <VProgressCircular indeterminate color="primary" size="24" class="me-3" />
+        <span>{{ t('projects.uml_diagrams.status.generating') }}</span>
+      </VAlert>
+    </div>
     <VRow>
       <VCol cols="12" md="4">
         <VTextField
@@ -282,13 +303,32 @@ onMounted(() => {
             <VCardTitle>{{ diagram.name }}</VCardTitle>
 
             <template #append>
-              <VChip
-                :color="getStatusChipColor(diagram.status)"
-                size="small"
-                label
-              >
-                {{ diagram.status }}
-              </VChip>
+              <div class="d-flex align-center">
+                <VProgressCircular
+                  v-if="diagram.generation_status === 'in_progress' || diagram.generation_status === 'pending'"
+                  indeterminate
+                  color="primary"
+                  size="20"
+                  width="2"
+                  class="me-2"
+                />
+                <VChip
+                  v-if="diagram.generation_status === 'pending'"
+                  color="warning"
+                  size="small"
+                  label
+                  prepend-icon="tabler-refresh"
+                >
+                  {{ t('projects.uml_diagrams.status.generating') }}
+                </VChip>
+                <VChip
+                  :color="getStatusChipColor(diagram.status)"
+                  size="small"
+                  label
+                >
+                  {{ diagram.status }}
+                </VChip>
+              </div>
             </template>
           </VCardItem>
 

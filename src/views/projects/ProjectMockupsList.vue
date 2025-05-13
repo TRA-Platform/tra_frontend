@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useMockupStore } from '@/stores/useMockupStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import MockupPreviewDialog from '@/views/projects/MockupPreviewDialog.vue'
 import { getStatusChipColor } from "@core/utils/formatters";
 import { useI18n } from 'vue-i18n'
+import mitt from 'mitt'
 
 const props = defineProps({
   projectId: {
@@ -71,8 +72,11 @@ const formatDate = (dateString) => {
   })
 }
 
-const previewMockup = (mockup) => {
-  selectedMockup.value = mockup
+const eventBus = mitt()
+
+const previewMockup = async (mockup) => {
+  const { data } = await mockupStore.fetchMockupById(mockup.id)
+  selectedMockup.value = data || mockup
   previewDialogVisible.value = true
 }
 
@@ -83,7 +87,7 @@ const handleDeleteMockup = async () => {
   confirmDeleteDialog.value = false
 
   try {
-    const { success, error } = await mockupStore.deleteMockup(selectedMockup.value.id)
+    const { success, error } = await mockupStore.deleteMockupById(selectedMockup.value.id)
 
     if (success && !error) {
       showSnackbar(t('projects.mockups.notifications.deleted'))
@@ -117,25 +121,41 @@ const truncateHtml = (html, length = 150) => {
   return textOnly.substring(0, length) + '...'
 }
 
-const refreshIfNeeded = () => {
-  if (pendingMockups.value > 0) {
-    emit('refresh')
-  }
-}
+const anyMockupInProgress = computed(() =>
+  props.mockups.some(m => m.generation_status === 'in_progress' || m.generation_status === 'pending' || m.needs_regeneration)
+)
 
 onMounted(() => {
-  refreshInterval.value = setInterval(refreshIfNeeded, 10000)
+  eventBus.on('project-refresh', () => {
+    mockupStore.fetchProjectMockups(props.projectId)
+      .then(({ data }) => {
+        if (data) emit('refresh')
+      })
+  })
 })
 
-onUnmounted(() => {
-  if (refreshInterval.value) {
-    clearInterval(refreshInterval.value)
+watch(previewDialogVisible, (val) => {
+  if (val) {
+    eventBus.on('project-refresh', async () => {
+      if (selectedMockup.value) {
+        const { data } = await mockupStore.fetchMockupById(selectedMockup.value.id)
+        if (data) selectedMockup.value = data
+      }
+    })
+  } else {
+    eventBus.off('project-refresh')
   }
 })
 </script>
 
 <template>
   <VCardText class="pa-6">
+    <div v-if="anyMockupInProgress" class="mb-4">
+      <VAlert type="info" variant="tonal" border="start" class="d-flex align-center">
+        <VProgressCircular indeterminate color="primary" size="24" class="me-3" />
+        <span>{{ t('projects.mockups.status.generating') }}</span>
+      </VAlert>
+    </div>
     <VRow>
       <VCol cols="12" md="6">
         <VTextField
@@ -212,6 +232,15 @@ onUnmounted(() => {
                   class="me-2"
                 />
                 <VChip
+                  v-if="mockup.generation_status === 'pending' || mockup.needs_regeneration"
+                  color="warning"
+                  size="small"
+                  label
+                  prepend-icon="tabler-refresh"
+                >
+                  {{ t('projects.mockups.status.generating') }}
+                </VChip>
+                <VChip
                   :color="getStatusChipColor(mockup.status)"
                   size="small"
                   label
@@ -269,6 +298,12 @@ onUnmounted(() => {
               <span class="text-caption font-weight-medium">{{ t('projects.details.requirement') }}: </span>
               <VChip size="x-small" color="primary" class="ms-1">
                 {{ mockup.requirement_name }}
+              </VChip>
+            </div>
+            <div v-if="mockup.user_story" class="mb-2">
+              <span class="text-caption font-weight-medium">{{ t('projects.details.user_story') }}: </span>
+              <VChip size="x-small" color="primary" class="ms-1">
+                {{ mockup.user_story_name }}
               </VChip>
             </div>
 

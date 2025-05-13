@@ -14,6 +14,10 @@
       "welcome": "Добро пожаловать!"
     }
   },
+  "confirmation": {
+    "confirm": "Подтвердить",
+    "cancel": "Отмена"
+  },
   "change_password": "Изменить пароль",
   "data": {
     "empty": "Нет данных",
@@ -48,14 +52,19 @@
     }
   },
   "projects": {
+    "languages": {
+      "english": "Английский",
+      "russian": "Русский",
+      "german": "Немецкий"
+    },
     "actions": {
       "save": "Сохранить",
       "back": "Назад",
       "cancel": "Отмена",
-      "create": "Создать проект",
-      "delete": "Удалить проект",
-      "edit": "Редактировать проект",
-      "export_srs": "Экспорт SRS",
+      "create": "Создать",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "export_srs": "Экспорт",
       "generate_mockups": "Сгенерировать макеты",
       "generate_plan": "Сгенерировать план разработки",
       "generate_requirements": "Сгенерировать требования",
@@ -74,7 +83,73 @@
       "other": "Другие",
       "uiux": "UI/UX"
     },
+    "target_users": {
+      "all": "Все целевые пользователи",
+      "general_users": "Общие пользователи",
+      "business_users": "Бизнес-пользователи",
+      "developers": "Разработчики",
+      "administrators": "Администраторы",
+      "students": "Студенты",
+      "teachers": "Учителя",
+      "healthcare_professionals": "Специалисты в области здравоохранения",
+      "financial_professionals": "Финансовые специалисты",
+      "other": "Другие"
+    },
+    "operating_systems": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "ios": "iOS",
+      "android": "Android",
+      "cross_platform": "Кросс-платформенный",
+      "web_based": "Веб"
+    },
+    "priority_modules": {
+      "dashboard": "Дэшборд",
+      "user_management": "Управление пользователями",
+      "content_management": "Управление контентом",
+      "reporting": "Отчеты",
+      "analytics": "Аналитика",
+      "file_management": "Управление файлами",
+      "notifications": "Уведомления",
+      "settings": "Настройки",
+      "payment_processing": "Обработка платежей",
+      "security": "Безопасность",
+      "communication": "Коммуникация",
+      "search": "Поиск"
+    },
+    "non_functional_requirements": {
+      "all": "Все нефункциональные требования",
+      "performance": "Производительность",
+      "security": "Безопасность",
+      "scalability": "Масштабируемость",
+      "reliability": "Надежность",
+      "usability": "Удобство использования",
+      "compatibility": "Совместимость",
+      "maintainability": "Поддерживаемость",
+      "testability": "Тестируемость",
+      "interoperability": "Интерoperability",
+      "availability": "Доступность",
+      "recoverability": "Восстанавливаемость",
+      "portability": "Переносимость"
+    },
+    "additional_requirements": {
+      "all": "Все дополнительные требования",
+      "user_authentication": "Аутентификация пользователей",
+      "payment_integration": "Интеграция платежей",
+      "social_media_integration": "Интеграция социальных сетей",
+      "analytics": "Аналитика",
+      "cloud_storage": "Хранение в облаке",
+      "mobile_responsive": "Мобильная адаптация",
+      "accessibility": "Доступность",
+      "real_time_updates": "Обновление в реальном времени",
+      "api_integration": "Интеграция API",
+      "multi_language_support": "Мультиязычность",
+      "reporting": "Отчеты",
+      "export_import": "Экспорт/Импорт"
+    },
     "details": {
+      "in_progress": "В процессе",
       "project_overview": "Обзор проекта",
       "created_at": "Создано",
       "updated_at": "Обновлено",
@@ -203,7 +278,8 @@
       },
       "validation": {
         "name_required": "Требуется указать название",
-        "html_required": "Требуется указать HTML содержимое"
+        "html_required": "Требуется указать HTML содержимое",
+        "feedback_required": "Требуется указать отзыв для перегенерации"
       },
       "notifications": {
         "updated": "Макет успешно обновлен",
@@ -216,6 +292,18 @@
       },
       "delete_confirm": {
         "message": "Вы уверены, что хотите удалить этот макет? Это действие нельзя отменить."
+      },
+      "regeneration": {
+        "title": "Перегенерировать макет",
+        "description": "Это использует AI для перегенерации этого макета на основе вашего отзыва и связанного требования."
+      },
+      "fields": {
+        "user_story": "Пользовательская история",
+        "requirement": "Требование",
+        "feedback": "Отзыв для перегенерации"
+      },
+      "placeholders": {
+        "feedback": "Объясните, что вы хотите улучшить в этом макете..."
       }
     },
     "notifications": {
@@ -241,8 +329,8 @@
       "actions": {
         "add": "Добавить",
         "comment": "Добавить комментарий",
-        "delete": "Удалить требование",
-        "edit": "Редактировать требование",
+        "delete": "Удалить",
+        "edit": "Редактировать",
         "generate": "Сгенерировать требования",
         "view_details": "Просмотр деталей",
         "view_all_stories": "Просмотр всех историй",
@@ -261,7 +349,7 @@
           "title": "Нет комментариев",
           "description": "Будьте первым, кто прокомментирует это требование"
         },
-        "unknown_user": "Неизвестный пользователь"
+        "unknown_user": "Система"
       },
       "category": "Категория",
       "description": "Описание",
@@ -277,16 +365,23 @@
           "description": "Это требование еще не изменялось"
         },
         "changed_by": "Изменено пользователем",
-        "unknown": "Неизвестно"
+        "unknown": "Система"
       },
       "status": "Статус",
       "title": "Название",
       "type": "Тип",
+      "mockups":{
+        "empty":{
+          "title": "Нет макетов",
+          "description": "Сгенерируйте макеты для этого требования"
+        }
+      },
       "tabs": {
         "details": "Детали",
         "user_stories": "Пользовательские истории",
         "history": "История",
-        "comments": "Комментарии"
+        "comments": "Комментарии",
+        "mockups": "Макеты"
       },
       "types": {
         "feature": "Функциональность",
@@ -520,9 +615,9 @@
       "and_more": "и ещё {count}...",
       "actions": {
         "create": "Создать пользовательскую историю",
-        "edit": "Редактировать пользовательскую историю",
-        "delete": "Удалить пользовательскую историю",
-        "regenerate": "Перегенерировать пользовательскую историю",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "regenerate": "Перегенерировать",
         "save": "Сохранить изменения",
         "search": "Поиск пользовательских историй...",
         "cancel": "Отмена",
@@ -533,6 +628,12 @@
         "create": "Создание пользовательской истории",
         "edit": "Редактирование пользовательской истории",
         "details": "Детали пользовательской истории"
+      },
+      "mockups":{
+        "empty":{
+          "title": "Нет макетов",
+          "description": "Сгенерируйте макеты для этой пользовательской истории"
+        }
       },
       "fields": {
         "role": "Роль (Как...)",
