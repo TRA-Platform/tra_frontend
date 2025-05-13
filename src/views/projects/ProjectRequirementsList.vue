@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRequirementStore } from '@/stores/useRequirementStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import RequirementDetailsDialog from '@/views/projects/RequirementDetailsDialog.vue'
 import RequirementCreateDialog from '@/views/projects/RequirementCreateDialog.vue'
 import { getCategoryChipColor, getStatusChipColor } from "@core/utils/formatters"
+import mitt from 'mitt'
 
 const props = defineProps({
   projectId: {
@@ -76,8 +77,11 @@ const filteredRequirements = computed(() => {
   })
 })
 
-const openRequirementDetails = (req) => {
-  selectedRequirement.value = req
+const eventBus = mitt()
+
+const openRequirementDetails = async (req) => {
+  const { data } = await requirementStore.fetchRequirement(req.id)
+  selectedRequirement.value = data || req
   detailsDialogVisible.value = true
 }
 
@@ -185,10 +189,38 @@ const capitalize = (str) => {
   if (!str) return ''
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+
+onMounted(() => {
+  eventBus.on('project-refresh', () => {
+    requirementStore.fetchRequirements(props.projectId, { silent: true })
+      .then(({ data }) => {
+        if (data) emit('refresh')
+      })
+  })
+})
+
+watch(detailsDialogVisible, (val) => {
+  if (val) {
+    eventBus.on('project-refresh', async () => {
+      if (selectedRequirement.value) {
+        const { data } = await requirementStore.fetchRequirement(selectedRequirement.value.id)
+        if (data) selectedRequirement.value = data
+      }
+    })
+  } else {
+    eventBus.off('project-refresh')
+  }
+})
 </script>
 
 <template>
   <VCardText class="pa-6">
+    <div v-if="anyRequirementInProgress" class="mb-4">
+      <VAlert type="info" variant="tonal" border="start" class="d-flex align-center">
+        <VProgressCircular indeterminate color="primary" size="24" class="me-3" />
+        <span>{{ t('projects.requirements.actions.generate_user_stories') }}</span>
+      </VAlert>
+    </div>
     <VRow>
       <VCol cols="12" md="4">
         <VTextField
@@ -308,13 +340,32 @@ const capitalize = (str) => {
             <VCardTitle>{{req.handle}} {{ req.title }}</VCardTitle>
 
             <template #append>
-              <VChip
-                :color="getStatusChipColor(req.status)"
-                size="small"
-                label
-              >
-                {{ capitalize(req.status) }}
-              </VChip>
+              <div class="d-flex align-center">
+                <VProgressCircular
+                  v-if="(req.user_stories && req.user_stories.some(s => s.generation_status === 'in_progress' || s.generation_status === 'pending')) || (req.mockups && req.mockups.some(m => m.generation_status === 'in_progress' || m.generation_status === 'pending' || m.needs_regeneration))"
+                  indeterminate
+                  color="primary"
+                  size="20"
+                  width="2"
+                  class="me-2"
+                />
+                <VChip
+                  v-if="(req.user_stories && req.user_stories.some(s => s.generation_status === 'pending')) || (req.mockups && req.mockups.some(m => m.generation_status === 'pending' || m.needs_regeneration))"
+                  color="warning"
+                  size="small"
+                  label
+                  prepend-icon="tabler-refresh"
+                >
+                  {{ t('projects.requirements.actions.generate_user_stories') }}
+                </VChip>
+                <VChip
+                  :color="getStatusChipColor(req.status)"
+                  size="small"
+                  label
+                >
+                  {{ t(`projects.status.${req.status}`) }}
+                </VChip>
+              </div>
             </template>
           </VCardItem>
 
@@ -324,7 +375,7 @@ const capitalize = (str) => {
             <div class="d-flex align-center justify-space-between mb-2">
               <div class="d-flex align-center">
                 <VIcon size="16" icon="tabler-tag" class="me-1" />
-                <span class="text-caption text-capitalize">{{ req.category }}</span>
+                <span class="text-caption text-capitalize">{{ t(`projects.categories.${req.category}`) }}</span>
               </div>
 
               <div class="d-flex align-center">

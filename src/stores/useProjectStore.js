@@ -28,7 +28,7 @@ export const useProjectStore = defineStore({
     },
 
     async fetchProjectById(id) {
-      this.loading = true
+      // this.loading = true
       try {
         const response = await instance.get(`/service/projects/${id}/`)
         if (response.status === 200) {

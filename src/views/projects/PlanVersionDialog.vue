@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, capitalize } from 'vue'
+import { ref, computed, capitalize, onMounted, onUnmounted } from 'vue'
 import { useDevelopmentPlanStore } from '@/stores/useDevelopmentPlanStore'
 import { getStatusChipColor } from "@core/utils/formatters";
 import { useI18n } from 'vue-i18n'
@@ -49,6 +49,7 @@ const snackbar = ref({
   text: '',
   color: 'success'
 })
+const refreshInterval = ref(null)
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
@@ -78,6 +79,27 @@ const toggleEditMode = () => {
   isEditMode.value = !isEditMode.value
 }
 
+const checkVersionStatus = () => {
+  if (dialog.value) {
+    planStore.fetchPlanVersionById(props.version.id)
+      .then(({ data }) => {
+        if (data) {
+          Object.assign(props.version, data)
+        }
+      })
+  }
+}
+
+onMounted(() => {
+  refreshInterval.value = setInterval(checkVersionStatus, 5000)
+})
+
+onUnmounted(() => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value)
+  }
+})
+
 const saveVersion = async () => {
   processingAction.value = true
 
@@ -88,6 +110,7 @@ const saveVersion = async () => {
       showSnackbar(t('projects.development_plan.notifications.version_updated'))
       Object.assign(props.version, data)
       isEditMode.value = false
+      dialog.value = false
       emit('refresh')
     } else {
       showSnackbar(t('projects.development_plan.notifications.version_update_failed'), 'error')
@@ -109,6 +132,7 @@ const setAsCurrent = async () => {
 
     if (data && !error) {
       showSnackbar(t('projects.development_plan.notifications.set_current_success'))
+      dialog.value = false
       emit('refresh')
     } else {
       showSnackbar(t('projects.development_plan.notifications.set_current_failed'), 'error')

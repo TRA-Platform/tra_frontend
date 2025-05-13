@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useUmlDiagramStore } from '@/stores/useUmlDiagramStore'
 import { getStatusChipColor, renderUML } from "@core/utils/formatters"
 import pako from 'pako'
@@ -103,46 +103,72 @@ const toggleEditMode = () => {
   isEditMode.value = !isEditMode.value
 }
 
+const refreshInterval = ref(null)
+
+const checkDiagramStatus = () => {
+  if (dialog.value) {
+    umlDiagramStore.fetchDiagramById(props.diagram.id)
+      .then(({ data }) => {
+        if (data) {
+          Object.assign(props.diagram, data)
+        }
+      })
+  }
+}
+
+onMounted(() => {
+  refreshInterval.value = setInterval(checkDiagramStatus, 5000)
+})
+
+onUnmounted(() => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value)
+  }
+})
+
 const saveDiagram = async () => {
   processingAction.value = true
 
   try {
-    const { data, error } = await umlDiagramStore.updateDiagram (props.diagram.id, editedDiagram.value)
+    const { data, error } = await umlDiagramStore.updateDiagram(props.diagram.id, editedDiagram.value)
 
     if (data && !error) {
-      showSnackbar (t('projects.uml_diagrams.notifications.updated'))
-      Object.assign (props.diagram, data)
+      showSnackbar(t('projects.uml_diagrams.notifications.updated'))
+      Object.assign(props.diagram, data)
       isEditMode.value = false
+      dialog.value = false // Close dialog after save
     } else {
-      showSnackbar (t('projects.uml_diagrams.notifications.update_failed'), 'error')
+      showSnackbar(t('projects.uml_diagrams.notifications.update_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar (t('projects.uml_diagrams.notifications.update_failed') + ': ' + err.message, 'error')
+    showSnackbar(t('projects.uml_diagrams.notifications.update_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
 }
 
 const handleDeleteDiagram = () => {
-  emit ('delete')
+  emit('delete')
+  dialog.value = false // Close dialog after delete
 }
 
 const handleRegenerateDiagram = async () => {
   processingAction.value = true
 
   try {
-    const { data, error } = await umlDiagramStore.regenerateDiagram (props.diagram.id)
+    const { data, error } = await umlDiagramStore.regenerateDiagram(props.diagram.id)
 
     if (data && !error) {
-      showSnackbar (t('projects.uml_diagrams.notifications.regeneration_started'))
-      setTimeout (() => {
-        emit ('regenerate')
+      showSnackbar(t('projects.uml_diagrams.notifications.regeneration_started'))
+      dialog.value = false // Close dialog after regeneration
+      setTimeout(() => {
+        emit('regenerate')
       }, 3000)
     } else {
-      showSnackbar (t('projects.uml_diagrams.notifications.regeneration_failed'), 'error')
+      showSnackbar(t('projects.uml_diagrams.notifications.regeneration_failed'), 'error')
     }
   } catch (err) {
-    showSnackbar (t('projects.uml_diagrams.notifications.regeneration_failed') + ': ' + err.message, 'error')
+    showSnackbar(t('projects.uml_diagrams.notifications.regeneration_failed') + ': ' + err.message, 'error')
   } finally {
     processingAction.value = false
   }
