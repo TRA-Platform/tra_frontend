@@ -80,7 +80,10 @@ const saveMockup = async () => {
   processingAction.value = true
 
   try {
-    const { data, error } = await mockupStore.updateMockupById(props.mockup.id, editedMockup.value)
+    const { data, error } = await mockupStore.updateMockupById(props.mockup.id, {
+      ...editedMockup.value,
+      needs_regeneration: false,
+    })
 
     if (data && !error) {
       showSnackbar(t('projects.mockups.notifications.updated'))
