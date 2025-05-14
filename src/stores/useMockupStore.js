@@ -32,7 +32,7 @@ export const useMockupStore = defineStore('mockup', () => {
             if (index !== -1) {
                 mockups.value[index] = response.data
             }
-            return response.data
+            return response
         } catch (err) {
             error.value = 'Failed to fetch mockup'
             console.error(err)
@@ -48,7 +48,7 @@ export const useMockupStore = defineStore('mockup', () => {
         try {
             const response = await instance.put(`/service/mockups/${mockupId}/`, params)
 
-            return response.data
+            return response
         } catch (err) {
             error.value = 'Failed to update mockup'
             console.error(err)

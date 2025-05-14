@@ -75,7 +75,7 @@ const filteredDiagrams = computed(() => {
 const eventBus = mitt()
 
 const openDiagramDetails = async (diagram) => {
-  const { data } = await umlDiagramStore.fetchDiagram(diagram.id)
+  const { data } = await umlDiagramStore.fetchDiagramById(diagram.id)
   selectedDiagram.value = data || diagram
   detailsDialogVisible.value = true
 }
@@ -194,7 +194,7 @@ watch(detailsDialogVisible, (val) => {
   if (val) {
     eventBus.on('project-refresh', async () => {
       if (selectedDiagram.value) {
-        const { data } = await umlDiagramStore.fetchDiagram(selectedDiagram.value.id)
+        const { data } = await umlDiagramStore.fetchDiagramById(selectedDiagram.value.id)
         if (data) selectedDiagram.value = data
       }
     })

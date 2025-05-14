@@ -263,8 +263,11 @@ watch(previewDialogVisible, (val) => {
                     <div class="text-caption">{{ t('projects.mockups.status.generating') }}</div>
                   </div>
                 </div>
-                <div v-else-if="mockup.html_content" class="html-preview">
-                  <div v-html="truncateHtml(mockup.html_content)"></div>
+                <div v-else-if="mockup.image" class="html-preview">
+                  <VImg
+                    :src="mockup.image"
+                    :alt="mockup.name"
+                  />
                 </div>
                 <div v-else class="d-flex justify-center align-center h-100">
                   <VIcon icon="tabler-file-code" size="48" color="secondary" />
@@ -366,13 +369,17 @@ watch(previewDialogVisible, (val) => {
 }
 
 .html-preview {
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
   width: 100%;
+}
+
+.html-preview :deep(img) {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 .preview-overlay {
