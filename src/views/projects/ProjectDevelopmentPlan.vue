@@ -175,7 +175,7 @@ watch(() => props.projectId, () => {
       <VBtn
         v-if="hasManagerPermission"
         color="primary"
-        @click="createInitialPlan"
+        @click="openCreateVersion"
         :loading="processingAction"
       >
         {{ t('projects.development_plan.actions.create_plan') }}

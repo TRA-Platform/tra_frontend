@@ -113,7 +113,7 @@ const removeCriterion = (index) => {
 }
 
 const checkUserStoryStatus = () => {
-  if (dialog.value) {
+  if (dialog.value && !isEditMode.value) {
     userStoryStore.fetchUserStoryById(props.userStory.id)
       .then(({ data }) => {
         if (data) {
