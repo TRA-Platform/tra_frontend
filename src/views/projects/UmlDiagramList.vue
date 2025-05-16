@@ -42,8 +42,13 @@ const snackbar = ref({
 })
 
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
-const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
+const hasManagerPermission = ref(false)
+const hasModeratorPermission = ref(false)
+
+const updatePermissions = async () => {
+  hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
+  hasModeratorPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'ADMIN')
+}
 
 const diagramTypeOptions = [
   { title: t('projects.uml_diagrams.types.all'), value: 'all' },
@@ -71,6 +76,10 @@ const filteredDiagrams = computed(() => {
     return matchesSearch && matchesType
   })
 })
+
+const anyDiagramInProgress = computed(() => 
+  props.diagrams.some(d => d.generation_status === 'in_progress' || d.generation_status === 'pending')
+)
 
 const eventBus = mitt()
 
@@ -182,6 +191,7 @@ const getDiagramTypeDisplay = (type) => {
 }
 
 onMounted(() => {
+  updatePermissions()
   eventBus.on('project-refresh', () => {
     umlDiagramStore.fetchDiagrams(props.projectId, { silent: true })
       .then(({ data }) => {
@@ -201,6 +211,10 @@ watch(detailsDialogVisible, (val) => {
   } else {
     eventBus.off('project-refresh')
   }
+})
+
+watch(() => props.projectId, () => {
+  updatePermissions()
 })
 </script>
 

@@ -136,7 +136,7 @@ const saveDiagram = async () => {
       showSnackbar(t('projects.uml_diagrams.notifications.updated'))
       Object.assign(props.diagram, data)
       isEditMode.value = false
-      dialog.value = false // Close dialog after save
+      dialog.value = false
     } else {
       showSnackbar(t('projects.uml_diagrams.notifications.update_failed'), 'error')
     }
@@ -149,7 +149,7 @@ const saveDiagram = async () => {
 
 const handleDeleteDiagram = () => {
   emit('delete')
-  dialog.value = false // Close dialog after delete
+  dialog.value = false
 }
 
 const handleRegenerateDiagram = async () => {
@@ -160,7 +160,7 @@ const handleRegenerateDiagram = async () => {
 
     if (data && !error) {
       showSnackbar(t('projects.uml_diagrams.notifications.regeneration_started'))
-      dialog.value = false // Close dialog after regeneration
+      dialog.value = false
       setTimeout(() => {
         emit('regenerate')
       }, 3000)

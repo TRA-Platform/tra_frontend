@@ -14,6 +14,7 @@ import ProjectDevelopmentPlan from '@/views/projects/ProjectDevelopmentPlan.vue'
 import UserStoriesList from '@/views/projects/UserStoriesList.vue'
 import UmlDiagramList from '@/views/projects/UmlDiagramList.vue'
 import ProjectExportsList from '@/views/projects/ProjectExportsList.vue'
+import ProjectRoles from '@/views/projects/ProjectRoles.vue'
 import mitt from 'mitt'
 
 const route = useRoute()
@@ -39,8 +40,10 @@ const snackbar = ref({
 const projectId = computed(() => route.params.id)
 const project = computed(() => projectStore.currentProject)
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
-const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
+const isProjectOwner = ref(false)
+const canEditProject = ref(false)
+const canDeleteProject = ref(false)
+const canManageProject = ref(false)
 
 const selectedRequirement = ref(null)
 
@@ -54,6 +57,17 @@ const exportFormats = [
 
 const eventBus = mitt()
 const refreshInterval = ref(null)
+
+const tabs = computed(() => [
+  {title: t('projects.tabs.info'), icon: 'tabler-info-circle', value: "0"},
+  {title: t('projects.tabs.requirements'), icon: 'tabler-list-check', value: "1"},
+  {title: t('projects.tabs.user_stories'), icon: 'tabler-user-check', value: "2"},
+  {title: t('projects.tabs.mockups'), icon: 'tabler-photo', value: "3"},
+  {title: t('projects.tabs.uml_diagrams'), icon: 'tabler-chart-dots', value: "4"},
+  {title: t('projects.tabs.development_plan'), icon: 'tabler-chart-bar', value: "5"},
+  {title: t('projects.tabs.exports'), icon: 'tabler-file-export', value: "6"},
+  {title: t('projects.tabs.roles'), icon: 'tabler-users', value: "7"}
+])
 
 const fetchProjectDetails = async () => {
   if (!project.value)
@@ -250,12 +264,21 @@ const showRequirementUserStories = (requirement) => {
   activeTab.value = "2"
 }
 
-onMounted(() => {
-  fetchProjectDetails()
+const checkPermissions = async () => {
+  isProjectOwner.value = await authStore.hasProjectRole(projectId.value, ['OWNER'])
+  canEditProject.value = await authStore.hasProjectRoleAtLeast(projectId.value, 'MANAGER')
+  canDeleteProject.value = await authStore.hasProjectRoleAtLeast(projectId.value, 'ADMIN')
+  canManageProject.value = await authStore.hasProjectRoleAtLeast(projectId.value, 'MEMBER')
+}
+
+onMounted(async () => {
+  await fetchProjectDetails()
   refreshInterval.value = setInterval(() => {
     eventBus.emit('project-refresh')
     fetchProjectDetails()
-  }, 8000) // 8 seconds
+  }, 8000)
+
+  await checkPermissions()
 })
 
 onBeforeUnmount(() => {
@@ -299,45 +322,71 @@ onBeforeUnmount(() => {
               </VBtn>
               <h3 class="text-h3">{{ project.name }}</h3>
             </div>
+            <VSpacer/>
+            <VRow class="d-flex align-center mt-3 mt-sm-0">
+              <VCol
+                cols="6"
+                sm="3"
+              >
+                <VBtn color="info" variant="tonal" prepend-icon="tabler-refresh" class="w-100 me-2"
+                      @click="fetchProjectDetails"
+                      :loading="processingAction">
+                  {{ $t('projects.actions.refresh') }}
+                </VBtn>
+              </VCol>
+              <VCol
+                v-if="canManageProject"
+                cols="6"
+                sm="3"
+              >
+                <VMenu
+                  class="w-100" v-model="exportMenu" location="top" :loading="processingAction">
+                  <template #activator="{ props }">
 
-            <div class="d-flex align-center mt-3 mt-sm-0">
-              <VBtn color="info" variant="tonal" prepend-icon="tabler-refresh" class="me-2" @click="fetchProjectDetails"
-                    :loading="processingAction">
-                {{ $t('projects.actions.refresh') }}
-              </VBtn>
-              <VMenu v-if="hasModeratorPermission" v-model="exportMenu" location="top" :loading="processingAction">
-                <template #activator="{ props }">
+                    <VBtn v-bind="props" color="secondary" variant="outlined" prepend-icon="tabler-file-export"
+                          class="me-2 w-100">
+                      {{ $t('projects.actions.export_srs') }}
+                    </VBtn>
+                  </template>
+                  <VList>
+                    <VListItem
+                      v-for="format in exportFormats"
+                      :key="format.value"
+                      :value="format.value"
+                      @click="handleExportSrs(format.value); exportMenu = false"
+                    >
+                      <template #prepend>
+                        <VIcon :icon="format.icon"/>
+                      </template>
+                      <VListItemTitle>{{ format.title }}</VListItemTitle>
+                    </VListItem>
+                  </VList>
+                </VMenu>
 
-                  <VBtn v-bind="props" color="secondary" variant="outlined" prepend-icon="tabler-file-export"
-                        class="me-2">
-                    {{ $t('projects.actions.export_srs') }}
-                  </VBtn>
-                </template>
-                <VList>
-                  <VListItem
-                    v-for="format in exportFormats"
-                    :key="format.value"
-                    :value="format.value"
-                    @click="handleExportSrs(format.value); exportMenu = false"
-                  >
-                    <template #prepend>
-                      <VIcon :icon="format.icon"/>
-                    </template>
-                    <VListItemTitle>{{ format.title }}</VListItemTitle>
-                  </VListItem>
-                </VList>
-              </VMenu>
+              </VCol>
+              <VCol v-if="canEditProject"
+                    cols="6"
+                sm="3"
+              >
+                <VBtn color="primary" prepend-icon="tabler-edit" class="me-2 w-100"
+                      @click="handleEditProject" :loading="processingAction">
+                  {{ $t('projects.actions.edit') }}
+                </VBtn>
 
-              <VBtn v-if="hasManagerPermission" color="primary" prepend-icon="tabler-edit" class="me-2"
-                    @click="handleEditProject" :loading="processingAction">
-                {{ $t('projects.actions.edit') }}
-              </VBtn>
-
-              <VBtn v-if="isAdmin" color="error" variant="tonal" prepend-icon="tabler-trash"
-                    @click="confirmDeleteDialog = true" :loading="processingAction">
-                {{ $t('projects.actions.delete') }}
-              </VBtn>
-            </div>
+              </VCol>
+              <VCol
+                v-if="canDeleteProject"
+                cols="6"
+                sm="3"
+              >
+                <VBtn
+                  class="w-100"
+                  color="error" variant="tonal" prepend-icon="tabler-trash"
+                      @click="confirmDeleteDialog = true" :loading="processingAction">
+                  {{ $t('projects.actions.delete') }}
+                </VBtn>
+              </VCol>
+              </VRow>
           </div>
         </VCol>
       </VRow>
@@ -395,6 +444,11 @@ onBeforeUnmount(() => {
                   {{ project.srs_exports?.length || 0 }}
                 </VChip>
               </VTab>
+
+              <VTab value="7" color="white">
+                <VIcon size="18" icon="tabler-users" start/>
+                {{ $t('projects.tabs.roles') }}
+              </VTab>
             </VTabs>
 
             <VDivider/>
@@ -407,15 +461,17 @@ onBeforeUnmount(() => {
               <VWindowItem value="1">
                 <VCardActions class="pt-3 px-6">
                   <VSpacer/>
-                  <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
+                  <VBtn v-if="canManageProject" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateRequirements" :loading="processingAction">
                     {{ t('projects.requirements.actions.generate') }}
                   </VBtn>
                 </VCardActions>
 
-                <ProjectRequirementsList :project-id="projectId" :requirements="project.requirements || []"
-                                         :loading="loading" @refresh="fetchProjectDetails"
-                                         @view-user-stories="showRequirementUserStories"/>
+                <ProjectRequirementsList
+                  :project-id="project.id"
+                  :requirements="project.requirements || []"
+                  :can-manage="canManageProject" @selected="selectedRequirement = $event"
+                  @view-user-stories="showRequirementUserStories"/>
               </VWindowItem>
 
               <VWindowItem value="2">
@@ -425,53 +481,75 @@ onBeforeUnmount(() => {
                     {{ $t('projects.actions.back_to_all_user_stories') }}
                   </VBtn>
                   <VSpacer/>
-                  <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
+                  <VBtn v-if="canManageProject" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateUserStories(selectedRequirement ? selectedRequirement.id : null)"
                         :loading="processingAction">
-                    {{ $t(selectedRequirement ? 'projects.actions.generate_user_stories_for_requirement' : 'projects.actions.generate_all_user_stories') }}
+                    {{
+                      $t(selectedRequirement ? 'projects.actions.generate_user_stories_for_requirement' : 'projects.actions.generate_all_user_stories')
+                    }}
                   </VBtn>
                 </VCardActions>
 
-                <UserStoriesList :project-id="projectId"
-                                 :requirement-id="selectedRequirement ? selectedRequirement.id : null" :user-stories="selectedRequirement ?
+                <UserStoriesList :project-id="project.id"
+                                 :requirement-id="selectedRequirement ? selectedRequirement.id : null"
+                                 :user-stories="selectedRequirement ?
                     (project.requirements?.find(r => r.id === selectedRequirement.id)?.user_stories || []) :
-                    (project.user_stories || [])" :loading="loading" @refresh="fetchProjectDetails"/>
+                    (project.user_stories || [])"
+                                 :can-manage="canManageProject"/>
               </VWindowItem>
 
               <VWindowItem value="3">
                 <VCardActions class="pt-3 px-6">
                   <VSpacer/>
-                  <VBtn v-if="hasModeratorPermission" color="primary" prepend-icon="tabler-refresh"
+                  <VBtn v-if="canManageProject" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGenerateMockups" :loading="processingAction">
                     {{ t('projects.mockups.actions.generate') }}
                   </VBtn>
                 </VCardActions>
 
-                <ProjectMockupsList :project-id="projectId" :mockups="project.mockups || []" :loading="loading"
-                                    @refresh="fetchProjectDetails"/>
+                <ProjectMockupsList
+                  :project-id="project.id"
+                  :can-manage="canManageProject"
+                  :mockups="project.mockups || []"
+                  @refresh="fetchProjectDetails"
+                />
               </VWindowItem>
 
               <VWindowItem value="4">
-                <UmlDiagramList :project-id="projectId" :diagrams="project.uml_diagrams || []" :loading="loading"
-                                @refresh="fetchProjectDetails"/>
+                <UmlDiagramList :project-id="project.id"
+                                :diagrams="project.uml_diagrams || []"
+                                :can-manage="canManageProject"
+                                @refresh="fetchProjectDetails"
+                />
               </VWindowItem>
 
               <VWindowItem value="5">
                 <VCardActions class="pt-3 px-6">
                   <VSpacer/>
-                  <VBtn v-if="hasManagerPermission" color="primary" prepend-icon="tabler-refresh"
+                  <VBtn v-if="canManageProject" color="primary" prepend-icon="tabler-refresh"
                         @click="handleGeneratePlan" :loading="processingAction">
                     {{ $t('projects.development_plan.actions.generate') }}
                   </VBtn>
                 </VCardActions>
 
-                <ProjectDevelopmentPlan :project-id="projectId" :development-plan="project.development_plan"
-                                        :loading="loading" @refresh="fetchProjectDetails"/>
+                <ProjectDevelopmentPlan :project-id="project.id"
+                                        :development-plan="project.development_plan"
+                                        :can-manage="canManageProject"
+                                        @refresh="fetchProjectDetails"
+                />
               </VWindowItem>
 
               <VWindowItem value="6">
-                <ProjectExportsList :project-id="projectId" :exports="project.srs_exports || []" :loading="loading"
-                                    @refresh="fetchProjectDetails"/>
+                <ProjectExportsList :project-id="project.id"
+                                    :exports="project.srs_exports || []"
+                                    @refresh="fetchProjectDetails"
+                />
+              </VWindowItem>
+
+              <VWindowItem value="7">
+                <ProjectRoles :project-id="project.id" @updated="checkPermissions"
+                              @refresh="fetchProjectDetails"
+                />
               </VWindowItem>
             </VWindow>
           </VCard>

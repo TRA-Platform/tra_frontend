@@ -44,9 +44,25 @@ const snackbar = ref({
   color: 'success'
 })
 
+// Updated permission computed properties
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
-const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
+const hasManagerPermission = ref(false)
+const hasModeratorPermission = ref(false)
+const hasWritePermission = ref(false)
+
+// Function to update permissions
+const updatePermissions = async () => {
+  hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
+  hasModeratorPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'ADMIN')
+  hasWritePermission.value = await authStore.hasProjectWriteAccess(props.projectId)
+}
+
+const anyRequirementInProgress = computed(() => {
+  return props.requirements.some(req => 
+    (req.user_stories && req.user_stories.some(s => s.generation_status === 'in_progress' || s.generation_status === 'pending')) || 
+    (req.mockups && req.mockups.some(m => m.generation_status === 'in_progress' || m.generation_status === 'pending' || m.needs_regeneration))
+  )
+})
 
 const categoryOptions = [
   { title: t('projects.categories.functional'), value: 'functional' },
@@ -80,7 +96,7 @@ const filteredRequirements = computed(() => {
 const eventBus = mitt()
 
 const openRequirementDetails = async (req) => {
-  const { data } = await requirementStore.fetchRequirement(req.id)
+  const { data } = await requirementStore.fetchRequirementById(req.id)
   selectedRequirement.value = data || req
   detailsDialogVisible.value = true
 }
@@ -191,6 +207,7 @@ const capitalize = (str) => {
 }
 
 onMounted(() => {
+  updatePermissions()
   eventBus.on('project-refresh', () => {
     requirementStore.fetchRequirements(props.projectId, { silent: true })
       .then(({ data }) => {
@@ -203,13 +220,17 @@ watch(detailsDialogVisible, (val) => {
   if (val) {
     eventBus.on('project-refresh', async () => {
       if (selectedRequirement.value) {
-        const { data } = await requirementStore.fetchRequirement(selectedRequirement.value.id)
+        const { data } = await requirementStore.fetchRequirementById(selectedRequirement.value.id)
         if (data) selectedRequirement.value = data
       }
     })
   } else {
     eventBus.off('project-refresh')
   }
+})
+
+watch(() => props.projectId, () => {
+  updatePermissions()
 })
 </script>
 

@@ -83,6 +83,7 @@ const saveMockup = async () => {
     const { data, error } = await mockupStore.updateMockupById(props.mockup.id, {
       ...editedMockup.value,
       needs_regeneration: false,
+      generation_status: 'completed',
     })
 
     if (data && !error) {

@@ -51,7 +51,6 @@ const downloadExport = (exportItem) => {
       <VTable v-if="!loading && exports.length > 0">
         <thead>
           <tr>
-            <th>{{ t('projects.exports.table.template') }}</th>
             <th>{{ t('projects.exports.table.format') }}</th>
             <th>{{ t('projects.exports.table.status') }}</th>
             <th>{{ t('projects.exports.table.created_by') }}</th>
@@ -61,7 +60,6 @@ const downloadExport = (exportItem) => {
         </thead>
         <tbody>
           <tr v-for="exportItem in exports" :key="exportItem.id">
-            <td>{{ exportItem.template.name }}</td>
             <td>{{ exportItem.fmt.toUpperCase() }}</td>
             <td>
               <VChip :color="getStatusColor(exportItem.status)" size="small">

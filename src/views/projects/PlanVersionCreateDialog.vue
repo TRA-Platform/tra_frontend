@@ -13,7 +13,15 @@ const props = defineProps({
     type: String,
     required: true
   },
+  projectId: {
+    type: String,
+    required: true
+  },
   currentVersionNumber: {
+    type: Number,
+    default: 0
+  },
+  preliminaryBudget: {
     type: Number,
     default: 0
   }
@@ -26,11 +34,29 @@ const dialog = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const roles = ref([
+  { role: 'Product Manager', hours: 60, cost: 1800 },
+  { role: 'System Analyst', hours: 40, cost: 1000 },
+  { role: 'UX/UI Designer', hours: 90, cost: 2250 },
+  { role: 'Flutter Developer (Middle)', hours: 240, cost: 4800 },
+  { role: 'Backend Developer', hours: 120, cost: 2400 },
+  { role: 'QA Engineer', hours: 80, cost: 1440 },
+  { role: 'DevOps/Deployment Specialist', hours: 20, cost: 400 },
+  { role: 'Support/Documentation Specialist', hours: 16, cost: 320 }
+])
+
 const planVersion = ref({
-  roles_and_hours: '[{"role": "Project Manager", "hours": 20, "cost": 2000}, {"role": "Developer", "hours": 80, "cost": 8000}]',
   estimated_cost: 10000,
   notes: '',
   status: 'draft'
+})
+
+const totalCost = computed(() => {
+  return roles.value.reduce((sum, role) => sum + role.cost, 0)
+})
+
+const isOverBudget = computed(() => {
+  return props.preliminaryBudget > 0 && totalCost.value > props.preliminaryBudget
 })
 
 const estimatedCostRules = [
@@ -38,22 +64,20 @@ const estimatedCostRules = [
   v => !isNaN(parseFloat(v)) || t('projects.development_plan.validation.estimated_cost_number')
 ]
 
-const rolesAndHoursRules = [
-  v => {
-    try {
-      JSON.parse(v)
-      return true
-    } catch (e) {
-      return t('projects.development_plan.validation.roles_hours_json')
-    }
-  }
-]
-
 const formRef = ref(null)
 
 const resetForm = () => {
+  roles.value = [
+    { role: 'Product Manager', hours: 60, cost: 1800 },
+    { role: 'System Analyst', hours: 40, cost: 1000 },
+    { role: 'UX/UI Designer', hours: 90, cost: 2250 },
+    { role: 'Flutter Developer (Middle)', hours: 240, cost: 4800 },
+    { role: 'Backend Developer', hours: 120, cost: 2400 },
+    { role: 'QA Engineer', hours: 80, cost: 1440 },
+    { role: 'DevOps/Deployment Specialist', hours: 20, cost: 400 },
+    { role: 'Support/Documentation Specialist', hours: 16, cost: 320 }
+  ]
   planVersion.value = {
-    roles_and_hours: '[{"role": "Project Manager", "hours": 20, "cost": 2000}, {"role": "Developer", "hours": 80, "cost": 8000}]',
     estimated_cost: 10000,
     notes: '',
     status: 'draft'
@@ -67,13 +91,27 @@ const handleCancel = () => {
   resetForm()
 }
 
+const addRole = () => {
+  roles.value.push({ role: '', hours: 0, cost: 0 })
+}
+
+const removeRole = (index) => {
+  roles.value.splice(index, 1)
+}
+
+const updateRoleCost = (role) => {
+  role.cost = role.hours * (role.rate || 30)
+}
+
 const submitForm = async () => {
   const { valid } = await formRef.value.validate()
 
   if (valid) {
-    const formData = { ...planVersion.value }
-
-    formData.estimated_cost = parseFloat(formData.estimated_cost)
+    const formData = { 
+      ...planVersion.value,
+      roles_and_hours: JSON.stringify(roles.value),
+      estimated_cost: totalCost.value
+    }
 
     emit('submit', formData)
     dialog.value = false
@@ -89,7 +127,7 @@ watch(dialog, (val) => {
 <template>
   <VDialog
     v-model="dialog"
-    max-width="700"
+    max-width="900"
     persistent
   >
     <VCard>
@@ -115,6 +153,8 @@ watch(dialog, (val) => {
                 type="number"
                 :rules="estimatedCostRules"
                 required
+                disabled
+                :model-value="totalCost"
               />
             </VCol>
 
@@ -133,15 +173,121 @@ watch(dialog, (val) => {
             </VCol>
 
             <VCol cols="12">
-              <VTextarea
-                v-model="planVersion.roles_and_hours"
-                :label="t('projects.development_plan.roles_hours')"
-                :rules="rolesAndHoursRules"
-                rows="6"
-                monospace
-                :hint="t('projects.development_plan.roles_hours_hint')"
-                persistent-hint
-              />
+              <VCard variant="outlined">
+                <VCardTitle class="d-flex align-center">
+                  {{ t('projects.development_plan.version.roles_hours_breakdown') }}
+                  <VSpacer />
+                  <VBtn
+                    color="primary"
+                    variant="tonal"
+                    size="small"
+                    prepend-icon="tabler-plus"
+                    @click="addRole"
+                  >
+                    {{ t('projects.development_plan.actions.add_role') }}
+                  </VBtn>
+                </VCardTitle>
+
+                <VCardText>
+                  <VRow>
+                    <VCol cols="12">
+                      <VTable>
+                        <thead>
+                          <tr>
+                            <th class="text-left" style="min-width: 200px">{{ t('projects.development_plan.version.role') }}</th>
+                            <th class="text-right" style="min-width: 120px">{{ t('projects.development_plan.version.hours') }}</th>
+                            <th class="text-right" style="min-width: 120px">{{ t('projects.development_plan.version.rate') }}</th>
+                            <th class="text-right" style="min-width: 120px">{{ t('projects.development_plan.version.cost') }}</th>
+                            <th class="text-right" style="width: 50px"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(role, index) in roles" :key="index">
+                            <td>
+                              <VTextField
+                                v-model="role.role"
+                                density="compact"
+                                hide-details
+                                variant="outlined"
+                              />
+                            </td>
+                            <td>
+                              <VTextField
+                                v-model.number="role.hours"
+                                type="number"
+                                density="compact"
+                                hide-details
+                                variant="outlined"
+                                class="text-right"
+                                @update:model-value="updateRoleCost(role)"
+                              />
+                            </td>
+                            <td>
+                              <VTextField
+                                v-model.number="role.rate"
+                                type="number"
+                                density="compact"
+                                hide-details
+                                variant="outlined"
+                                class="text-right"
+                                :model-value="role.rate || 30"
+                                @update:model-value="updateRoleCost(role)"
+                              />
+                            </td>
+                            <td>
+                              <VTextField
+                                v-model.number="role.cost"
+                                type="number"
+                                density="compact"
+                                hide-details
+                                variant="outlined"
+                                class="text-right"
+                                readonly
+                              />
+                            </td>
+                            <td class="text-right">
+                              <VBtn
+                                icon
+                                variant="text"
+                                color="error"
+                                size="small"
+                                @click="removeRole(index)"
+                              >
+                                <VIcon icon="tabler-trash" />
+                              </VBtn>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="3" class="text-right font-weight-bold">
+                              {{ t('projects.development_plan.version.total') }}:
+                            </td>
+                            <td class="text-right font-weight-bold">
+                              {{ totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }}
+                            </td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
+                      </VTable>
+                    </VCol>
+
+                    <VCol cols="12">
+                      <VAlert
+                        v-if="isOverBudget"
+                        type="warning"
+                        variant="tonal"
+                        class="mt-4"
+                      >
+                        {{ t('projects.development_plan.validation.over_budget', { 
+                          total: totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+                          budget: preliminaryBudget.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+                        }) }}
+                      </VAlert>
+                    </VCol>
+                  </VRow>
+                </VCardText>
+              </VCard>
             </VCol>
 
             <VCol cols="12">

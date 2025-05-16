@@ -12,8 +12,14 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  canManage: {
+    type: Boolean,
+    default: false
   }
 })
+
+const emit = defineEmits(['update', 'generate-requirements'])
 
 const formattedDate = (dateString) => {
   if (!dateString) return t('projects.details.not_set')
@@ -54,6 +60,10 @@ const languageMap = {
 const formatLanguage = (code) => {
   return languageMap[code] || code
 }
+
+const handleGenerateRequirements = () => {
+  emit('generate-requirements')
+}
 </script>
 
 <template>
@@ -61,6 +71,114 @@ const formatLanguage = (code) => {
     <VRow>
       <VCol cols="12" md="6">
         <div class="d-flex flex-column gap-4">
+          <VCard border class="project-info-card" v-if="project.generation_progress">
+            <VCardItem>
+              <template #prepend>
+                <VAvatar
+                  color="info"
+                  variant="tonal"
+                  rounded
+                  size="42"
+                >
+                  <VIcon icon="tabler-info-circle" />
+                </VAvatar>
+              </template>
+
+              <VCardTitle>{{ t('projects.details.generation_status') }}</VCardTitle>
+              
+              <template #append v-if="canManage">
+                <VBtn
+                  variant="text"
+                  color="primary"
+                  icon="tabler-refresh"
+                  size="small"
+                  @click="handleGenerateRequirements"
+                >
+                </VBtn>
+              </template>
+            </VCardItem>
+
+            <VDivider />
+
+            <VCardText>
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <div class="font-weight-medium mb-1">{{ t('projects.details.requirements') }}</div>
+                  <VProgressLinear
+                    :model-value="project.generation_progress.requirements.status === 'completed' ? 100 : 
+                                 project.generation_progress.requirements.status === 'in_progress' ? 50 : 
+                                 project.generation_progress.requirements.status === 'pending' ? 10 : 0"
+                    :color="project.generation_progress.requirements.status === 'completed' ? 'success' : 
+                           project.generation_progress.requirements.status === 'in_progress' ? 'info' : 
+                           project.generation_progress.requirements.status === 'failed' ? 'error' : 'warning'"
+                    height="8"
+                    rounded
+                  ></VProgressLinear>
+                  <div class="d-flex justify-space-between mt-1">
+                    <small>{{ t(`projects.details.${project.generation_progress.requirements.status}`) }}</small>
+                    <small>{{ project.requirements ? project.requirements.length : 0 }} {{ t('projects.details.requirements_count') }}</small>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="font-weight-medium mb-1">{{ t('projects.details.user_stories') }}</div>
+                  <VProgressLinear
+                    :model-value="project.generation_progress.user_stories.total > 0 ? 
+                                 (project.generation_progress.user_stories.completed / project.generation_progress.user_stories.total * 100) : 0"
+                    color="info"
+                    height="8"
+                    rounded
+                  ></VProgressLinear>
+                  <div class="d-flex justify-space-between mt-1">
+                    <small>{{ project.generation_progress.user_stories.completed }} {{ t('projects.details.completed') }}</small>
+                    <small>{{ project.generation_progress.user_stories.total }} {{ t('projects.details.total') }}</small>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="font-weight-medium mb-1">{{ t('projects.details.mockups') }}</div>
+                  <div class="d-flex align-center gap-2">
+                    <div class="flex-grow-1">
+                      <VProgressLinear
+                        :model-value="project.mockups && project.mockups.length ? 
+                                     (project.mockups.filter(m => m.generation_status === 'completed' && !m.needs_regeneration).length / project.mockups.length * 100) : 0"
+                        color="success"
+                        height="8"
+                        rounded
+                      ></VProgressLinear>
+                    </div>
+                    <div>
+                      <VChip
+                        v-if="project.mockups && project.mockups.some(m => m.needs_regeneration || m.generation_status === 'in_progress' || m.generation_status === 'pending')"
+                        color="warning"
+                        size="small"
+                        label
+                        prepend-icon="tabler-refresh"
+                      >
+                        {{ project.mockups.filter(m => m.needs_regeneration || m.generation_status === 'in_progress' || m.generation_status === 'pending').length }} {{ t('projects.details.pending') }}
+                      </VChip>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="font-weight-medium mb-1">{{ t('projects.details.uml_diagrams') }}</div>
+                  <VProgressLinear
+                    :model-value="project.generation_progress.uml_diagrams.total > 0 ? 
+                                 (project.generation_progress.uml_diagrams.completed / project.generation_progress.uml_diagrams.total * 100) : 0"
+                    color="primary"
+                    height="8"
+                    rounded
+                  ></VProgressLinear>
+                  <div class="d-flex justify-space-between mt-1">
+                    <small>{{ project.generation_progress.uml_diagrams.completed }} {{ t('projects.details.completed') }}</small>
+                    <small>{{ project.generation_progress.uml_diagrams.total }} {{ t('projects.details.total') }}</small>
+                  </div>
+                </div>
+              </div>
+            </VCardText>
+          </VCard>
+
           <VCard border class="project-info-card">
             <VCardItem>
               <template #prepend>
@@ -157,7 +275,7 @@ const formatLanguage = (code) => {
           <VCard border class="project-info-card" v-if="project.technology_stack || project.operating_system">
             <VCardItem>
               <template #prepend>
-                <VIcon color="primary" icon="tabler-device-laptop-code" />
+                <VIcon color="primary" icon="tabler-device-laptop" />
               </template>
 
               <VCardTitle>{{ t('projects.details.technical_details') }}</VCardTitle>
@@ -250,103 +368,6 @@ const formatLanguage = (code) => {
 
             <VCardText>
               <div class="whitespace-pre-wrap">{{ project.priority_modules }}</div>
-            </VCardText>
-          </VCard>
-
-          <VCard border class="project-info-card" v-if="project.generation_progress">
-            <VCardItem>
-              <template #prepend>
-                <VAvatar
-                  color="info"
-                  variant="tonal"
-                  rounded
-                  size="42"
-                >
-                  <VIcon icon="tabler-info-circle" />
-                </VAvatar>
-              </template>
-
-              <VCardTitle>{{ t('projects.details.generation_status') }}</VCardTitle>
-            </VCardItem>
-
-            <VDivider />
-
-            <VCardText>
-              <div class="d-flex flex-column gap-3">
-                <div>
-                  <div class="font-weight-medium mb-1">{{ t('projects.details.requirements') }}</div>
-                  <VProgressLinear
-                    :model-value="project.generation_progress.requirements.status === 'completed' ? 100 : 
-                                 project.generation_progress.requirements.status === 'in_progress' ? 50 : 
-                                 project.generation_progress.requirements.status === 'pending' ? 10 : 0"
-                    :color="project.generation_progress.requirements.status === 'completed' ? 'success' : 
-                           project.generation_progress.requirements.status === 'in_progress' ? 'info' : 
-                           project.generation_progress.requirements.status === 'failed' ? 'error' : 'warning'"
-                    height="8"
-                    rounded
-                  ></VProgressLinear>
-                  <div class="d-flex justify-space-between mt-1">
-                    <small>{{ t(`projects.details.${project.generation_progress.requirements.status}`) }}</small>
-                    <small>{{ project.requirements ? project.requirements.length : 0 }} {{ t('projects.details.requirements_count') }}</small>
-                  </div>
-                </div>
-                
-                <div>
-                  <div class="font-weight-medium mb-1">{{ t('projects.details.user_stories') }}</div>
-                  <VProgressLinear
-                    :model-value="project.generation_progress.user_stories.total > 0 ? 
-                                 (project.generation_progress.user_stories.completed / project.generation_progress.user_stories.total * 100) : 0"
-                    color="info"
-                    height="8"
-                    rounded
-                  ></VProgressLinear>
-                  <div class="d-flex justify-space-between mt-1">
-                    <small>{{ project.generation_progress.user_stories.completed }} {{ t('projects.details.completed') }}</small>
-                    <small>{{ project.generation_progress.user_stories.total }} {{ t('projects.details.total') }}</small>
-                  </div>
-                </div>
-                
-                <div>
-                  <div class="font-weight-medium mb-1">{{ t('projects.details.mockups') }}</div>
-                  <div class="d-flex align-center gap-2">
-                    <div class="flex-grow-1">
-                      <VProgressLinear
-                        :model-value="project.mockups && project.mockups.length ? 
-                                     (project.mockups.filter(m => m.generation_status === 'completed' && !m.needs_regeneration).length / project.mockups.length * 100) : 0"
-                        color="success"
-                        height="8"
-                        rounded
-                      ></VProgressLinear>
-                    </div>
-                    <div>
-                      <VChip
-                        v-if="project.mockups && project.mockups.some(m => m.needs_regeneration || m.generation_status === 'in_progress' || m.generation_status === 'pending')"
-                        color="warning"
-                        size="small"
-                        label
-                        prepend-icon="tabler-refresh"
-                      >
-                        {{ project.mockups.filter(m => m.needs_regeneration || m.generation_status === 'in_progress' || m.generation_status === 'pending').length }} {{ t('projects.details.pending') }}
-                      </VChip>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <div class="font-weight-medium mb-1">{{ t('projects.details.uml_diagrams') }}</div>
-                  <VProgressLinear
-                    :model-value="project.generation_progress.uml_diagrams.total > 0 ? 
-                                 (project.generation_progress.uml_diagrams.completed / project.generation_progress.uml_diagrams.total * 100) : 0"
-                    color="primary"
-                    height="8"
-                    rounded
-                  ></VProgressLinear>
-                  <div class="d-flex justify-space-between mt-1">
-                    <small>{{ project.generation_progress.uml_diagrams.completed }} {{ t('projects.details.completed') }}</small>
-                    <small>{{ project.generation_progress.uml_diagrams.total }} {{ t('projects.details.total') }}</small>
-                  </div>
-                </div>
-              </div>
             </VCardText>
           </VCard>
         </div>
