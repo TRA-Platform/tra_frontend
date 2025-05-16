@@ -44,13 +44,11 @@ const snackbar = ref({
   color: 'success'
 })
 
-// Updated permission computed properties
 const isAdmin = computed(() => authStore.is_admin())
 const hasManagerPermission = ref(false)
 const hasModeratorPermission = ref(false)
 const hasWritePermission = ref(false)
 
-// Function to update permissions
 const updatePermissions = async () => {
   hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
   hasModeratorPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'ADMIN')

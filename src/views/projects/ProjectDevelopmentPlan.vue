@@ -42,11 +42,9 @@ const snackbar = ref({
   color: 'success'
 })
 
-// Updated permission computed properties
 const isAdmin = computed(() => authStore.is_admin())
 const hasManagerPermission = ref(false)
 
-// Function to update permissions
 const updatePermissions = async () => {
   hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
 }
@@ -154,10 +152,8 @@ const parseRolesAndHours = (rolesAndHours) => {
   }
 }
 
-// Initialize permissions on component creation
 updatePermissions()
 
-// Watch for project ID changes to update permissions
 watch(() => props.projectId, () => {
   updatePermissions()
 })

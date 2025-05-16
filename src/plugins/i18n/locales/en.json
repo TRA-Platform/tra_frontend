@@ -225,8 +225,8 @@
         "description": "This project does not have a development plan yet."
       },
       "version": {
-        "rate": "Rate",
-        "total": "Total",
+        "rate": "Rate ($ / hr)",
+        "total": "Total ($)",
         "current": "Current",
         "version": "Version",
         "created": "Created",
@@ -238,7 +238,7 @@
         "no_versions": "No versions available yet.",
         "role": "Role",
         "hours": "Hours",
-        "cost": "Cost"
+        "cost": "Cost ($)"
       },
       "validation": {
         "estimated_cost_required": "Estimated cost is required",
@@ -675,8 +675,10 @@
         "actions": "Actions"
       },
       "status": {
-        "active": "Active",
+        "active": "Completed",
+        "completed": "Completed",
         "pending": "Pending",
+        "in_progress": "In Progress",
         "failed": "Failed"
       },
       "empty": "No exports found"

@@ -228,6 +228,11 @@ const truncateHtml = (html, length = 150) => {
 
   return textOnly.substring(0, length) + '...'
 }
+const previewMockup = async (mockup) => {
+  const { data } = await mockupStore.fetchMockupById(mockup.id)
+  selectedMockup.value = data || mockup
+  previewDialogVisible.value = true
+}
 </script>
 
 <template>
@@ -522,7 +527,7 @@ const truncateHtml = (html, length = 150) => {
                 >
                   <VCard
                     class="mockup-card h-100"
-                    @click="selectedMockup = mockup; previewDialogVisible = true"
+                    @click="previewMockup(mockup)"
                     border
                     hover
                   >

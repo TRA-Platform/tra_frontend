@@ -100,7 +100,6 @@ const updateUserInfo = async () => {
             {{ $t ('user_info.tabs.main_info') }}
           </VCardTitle>
           <VCol cols="12">
-            <!-- 👉 Change password -->
             <VCard :title="$t('user_info.main_info.base_info.title')">
               <VCardText>
                 <VForm @submit.prevent="() => {}">
@@ -137,7 +136,6 @@ const updateUserInfo = async () => {
             </VCard>
           </VCol>
           <VCol cols="12">
-            <!-- 👉 Change password -->
             <VCard :title="$t('user_info.main_info.change_password.title')">
               <VCardText>
                 <VAlert

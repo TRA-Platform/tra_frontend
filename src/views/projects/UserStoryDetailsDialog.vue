@@ -225,6 +225,12 @@ const truncateHtml = (html, length = 150) => {
 watch(() => props.userStory, (newVal) => {
   editedUserStory.value = {...newVal}
 }, {deep: true})
+
+const previewMockup = async (mockup) => {
+  const { data } = await mockupStore.fetchMockupById(mockup.id)
+  selectedMockup.value = data || mockup
+  previewDialogVisible.value = true
+}
 </script>
 
 <template>
@@ -572,6 +578,7 @@ watch(() => props.userStory, (newVal) => {
                               size="small"
                               prepend-icon="tabler-eye"
                               :disabled="mockup.generation_status === 'in_progress' || mockup.generation_status === 'pending'"
+                              @click="previewMockup(mockup)"
                             >
                               {{ t('projects.mockups.actions.preview') }}
                             </VBtn>
