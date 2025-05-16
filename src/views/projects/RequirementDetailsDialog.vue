@@ -122,7 +122,7 @@ const toggleEditMode = () => {
 }
 
 const checkRequirementStatus = () => {
-  if (dialog.value) {
+  if (dialog.value && !isEditMode.value) {
     requirementStore.fetchRequirementById(props.requirement.id)
       .then(({ data }) => {
         if (data) {
