@@ -41,8 +41,13 @@ const snackbar = ref({
 })
 
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
-const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
+const hasManagerPermission = ref(false)
+const hasModeratorPermission = ref(false)
+
+const updatePermissions = async () => {
+  hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
+  hasModeratorPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'ADMIN')
+}
 
 const pendingMockups = computed(() => {
   return props.mockups.filter(mockup => 
@@ -126,6 +131,7 @@ const anyMockupInProgress = computed(() =>
 )
 
 onMounted(() => {
+  updatePermissions()
   eventBus.on('project-refresh', () => {
     mockupStore.fetchProjectMockups(props.projectId)
       .then(({ data }) => {
@@ -145,6 +151,10 @@ watch(previewDialogVisible, (val) => {
   } else {
     eventBus.off('project-refresh')
   }
+})
+
+watch(() => props.projectId, () => {
+  updatePermissions()
 })
 </script>
 

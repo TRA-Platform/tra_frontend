@@ -556,8 +556,11 @@ watch(() => props.userStory, (newVal) => {
                               <div class="text-caption">{{ t('projects.mockups.status.generating') }}</div>
                             </div>
                           </div>
-                          <div v-else-if="mockup.html_content" class="html-preview">
-                            <div v-html="truncateHtml(mockup.html_content)"></div>
+                          <div v-else-if="mockup.image" class="html-preview">
+                            <VImg
+                              :src="mockup.image"
+                              :alt="mockup.name"
+                            />
                           </div>
                           <div v-else class="d-flex justify-center align-center h-100">
                             <VIcon icon="tabler-file-code" size="48" color="secondary"/>

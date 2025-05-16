@@ -19,7 +19,8 @@ const sortBy = ref('created_at')
 const sortOrder = ref('desc')
 
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
+const isManager = computed(() => authStore.is_manager())
+const canCreateProject = computed(() => authStore.is_authenticated())
 
 const sortOptions = [
   { title: t('projects.filters.sort_by_name'), value: 'name' },
@@ -97,6 +98,7 @@ onMounted(() => {
           <VCardTitle class="d-flex align-center justify-space-between">
             <h5 class="text-h5">{{ t('projects.title') }}</h5>
             <VBtn
+              v-if="canCreateProject"
               color="primary"
               @click="isCreateDialogOpen = true"
               prepend-icon="tabler-plus"

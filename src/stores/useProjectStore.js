@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import instance from "@/services/api"
+import { useProjectRoleStore } from './useProjectRoleStore'
+import { useAuthStore } from './useAuthStore'
 
 export const useProjectStore = defineStore({
   id: 'ProjectStore',
@@ -28,11 +30,13 @@ export const useProjectStore = defineStore({
     },
 
     async fetchProjectById(id) {
-      // this.loading = true
       try {
         const response = await instance.get(`/service/projects/${id}/`)
         if (response.status === 200) {
           this.currentProject = response.data
+          const authStore = useAuthStore()
+          authStore.clearProjectRoleCache(id)
+          
           return { data: response.data, error: null }
         }
         return { data: null, error: response.data }
@@ -99,6 +103,13 @@ export const useProjectStore = defineStore({
           if (this.currentProject && this.currentProject.id === id) {
             this.currentProject = null
           }
+          
+          const authStore = useAuthStore()
+          authStore.clearProjectRoleCache(id)
+          
+          const projectRoleStore = useProjectRoleStore()
+          projectRoleStore.clearProjectRoles(id)
+          
           return { success: true, error: null }
         }
         return { success: false, error: response.data }

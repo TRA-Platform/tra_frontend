@@ -644,17 +644,17 @@ watch(dialog, (val) => {
                   />
                 </VCol>
 
-                <VCol cols="12">
-                  <VSelect
-                    v-model="project.srs_template"
-                    :label="t('projects.create_dialog.fields.srs_template')"
-                    :items="templates"
-                    item-title="name"
-                    item-value="id"
-                    :loading="loadingTemplates"
-                    clearable
-                  />
-                </VCol>
+<!--                <VCol cols="12">-->
+<!--                  <VSelect-->
+<!--                    v-model="project.srs_template"-->
+<!--                    :label="t('projects.create_dialog.fields.srs_template')"-->
+<!--                    :items="templates"-->
+<!--                    item-title="name"-->
+<!--                    item-value="id"-->
+<!--                    :loading="loadingTemplates"-->
+<!--                    clearable-->
+<!--                  />-->
+<!--                </VCol>-->
               </VRow>
             </VWindowItem>
 

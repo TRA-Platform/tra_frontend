@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDevelopmentPlanStore } from '@/stores/useDevelopmentPlanStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import PlanVersionDialog from '@/views/projects/PlanVersionDialog.vue'
@@ -20,6 +20,10 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  preliminaryBudget: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -38,8 +42,14 @@ const snackbar = ref({
   color: 'success'
 })
 
+// Updated permission computed properties
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
+const hasManagerPermission = ref(false)
+
+// Function to update permissions
+const updatePermissions = async () => {
+  hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
+}
 
 const hasPlan = computed(() => {
   return props.developmentPlan && props.developmentPlan.id
@@ -143,6 +153,14 @@ const parseRolesAndHours = (rolesAndHours) => {
     return []
   }
 }
+
+// Initialize permissions on component creation
+updatePermissions()
+
+// Watch for project ID changes to update permissions
+watch(() => props.projectId, () => {
+  updatePermissions()
+})
 </script>
 
 <template>
@@ -351,6 +369,8 @@ const parseRolesAndHours = (rolesAndHours) => {
       :is-admin="isAdmin"
       :has-manager-permission="hasManagerPermission"
       :plan-id="developmentPlan ? developmentPlan.id : null"
+      :preliminary-budget="preliminaryBudget"
+      :project-id="developmentPlan ? developmentPlan.project: null"
       @refresh="emit('refresh')"
     />
 
@@ -358,6 +378,8 @@ const parseRolesAndHours = (rolesAndHours) => {
       v-model="createVersionDialogVisible"
       :plan-id="developmentPlan ? developmentPlan.id : null"
       :current-version-number="developmentPlan ? developmentPlan.current_version_number : 0"
+      :preliminary-budget="preliminaryBudget"
+      :project-id="developmentPlan ? developmentPlan.project: null"
       @submit="handleCreateVersion"
     />
 

@@ -15,24 +15,27 @@ const { t } = useI18n()
 const snackbar = ref({
   enabled: false,
   type: 'error',
-  message: t('auth.login.messages.error'),
+  message: '',
 })
 
 const form = ref({
   username: '',
+  email: '',
   password: '',
-  stay_signed: false,
-  code: '',
+  password_confirmation: '',
+  first_name: '',
+  last_name: '',
 })
 
 const isLoading = ref(false)
 const isPasswordVisible = ref(false)
+const isPasswordConfirmationVisible = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
 const refForm = ref()
 
-const login = async () => {
+const register = async () => {
   let validation = await refForm?.value?.validate()
   if (!validation.valid) {
     snackbar.value = {
@@ -42,60 +45,52 @@ const login = async () => {
     }
     return
   }
-  let response
+
+  if (form.value.password !== form.value.password_confirmation) {
+    snackbar.value = {
+      enabled: true,
+      type: 'error',
+      message: t('validation.password_mismatch'),
+    }
+    return
+  }
+
   isLoading.value = true
   try {
-    response = await authStore.login(form.value)
+    const response = await authStore.register({
+      username: form.value.username,
+      email: form.value.email,
+      password: form.value.password,
+      password2: form.value.password_confirmation,
+      first_name: form.value.first_name,
+      last_name: form.value.last_name,
+    })
 
-    if (!response.data.access) {
+    if (response.status === 201) {
+      snackbar.value = {
+        enabled: true,
+        type: 'success',
+        message: t('auth.register.messages.success'),
+      }
+      setTimeout(() => {
+        router.push({ name: 'auth-login' })
+      }, 1000)
+    } else {
       snackbar.value = {
         enabled: true,
         type: 'error',
-        message: response.data,
+        message: response.data?.detail || t('auth.register.messages.error'),
       }
-      isLoading.value = false
-      return
     }
   } catch (e) {
     snackbar.value = {
       enabled: true,
       type: 'error',
-      message: e.data,
+      message: e.data?.detail || t('auth.register.messages.error'),
     }
+  } finally {
     isLoading.value = false
-    return
   }
-  authStore.authData = {
-    ...authStore.authData,
-    access: `${response.data.access}`,
-    refresh: `${response.data.refresh}`,
-  }
-  response = await authStore.me({})
-  if (response.data.error) {
-    snackbar.value = {
-      enabled: true,
-      type: 'error',
-      message: response.data.error,
-    }
-    isLoading.value = false
-    return
-  }
-  authStore.userData = response.data
-  snackbar.value = {
-    enabled: true,
-    type: 'success',
-    message: t('auth.login.messages.success'),
-  }
-  isLoading.value = false
-  setTimeout(
-    () => {
-      router.push({
-        "name": authStore.authData.nextUrl,
-        "params": authStore.authData.nextParams,
-      })
-    },
-    1000,
-  )
 }
 </script>
 
@@ -130,10 +125,10 @@ const login = async () => {
 
         <VCardText class="pt-1">
           <h5 class="text-h5 font-weight-semibold mb-1">
-            {{ t('auth.login.welcome') }}
+            {{ t('auth.register.welcome') }}
           </h5>
           <p class="mb-0">
-            {{ t('auth.login.slogan') }}
+            {{ t('auth.register.slogan') }}
           </p>
         </VCardText>
 
@@ -146,7 +141,34 @@ const login = async () => {
               <VCol cols="12">
                 <VTextField
                   v-model="form.username"
-                  :label="t('auth.login.username')"
+                  :label="t('auth.register.username')"
+                  type="text"
+                  :rules="[requiredValidator]"
+                />
+              </VCol>
+
+              <VCol cols="12">
+                <VTextField
+                  v-model="form.email"
+                  :label="t('auth.register.email')"
+                  type="email"
+                  :rules="[requiredValidator, emailValidator]"
+                />
+              </VCol>
+
+              <VCol cols="12">
+                <VTextField
+                  v-model="form.first_name"
+                  :label="t('auth.register.first_name')"
+                  type="text"
+                  :rules="[requiredValidator]"
+                />
+              </VCol>
+
+              <VCol cols="12">
+                <VTextField
+                  v-model="form.last_name"
+                  :label="t('auth.register.last_name')"
                   type="text"
                   :rules="[requiredValidator]"
                 />
@@ -155,38 +177,45 @@ const login = async () => {
               <VCol cols="12">
                 <VTextField
                   v-model="form.password"
-                  :label="t('auth.login.password')"
+                  :label="t('auth.register.password')"
                   :type="isPasswordVisible ? 'text' : 'password'"
-                  :rules="[requiredValidator]"
-                  autocomplete="on"
+                  :rules="[requiredValidator, passwordValidator]"
+                  autocomplete="new-password"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
               </VCol>
-              <VCol cols="12">
-                <div class="d-flex align-center justify-space-between flex-wrap mt-2 mb-4">
-                  <VCheckbox
-                    v-model="form.stay_signed"
-                    :label="t('auth.login.remember_me')"
-                  />
-                </div>
 
+              <VCol cols="12">
+                <VTextField
+                  v-model="form.password_confirmation"
+                  :label="t('auth.register.password_confirmation')"
+                  :type="isPasswordConfirmationVisible ? 'text' : 'password'"
+                  :rules="[requiredValidator, confirmedValidator(form.password_confirmation, form.password)]"
+                  autocomplete="new-password"
+                  :append-inner-icon="isPasswordConfirmationVisible ? 'tabler-eye-off' : 'tabler-eye'"
+                  @click:append-inner="isPasswordConfirmationVisible = !isPasswordConfirmationVisible"
+                />
+              </VCol>
+
+              <VCol cols="12">
                 <VBtn
                   :loading="isLoading"
                   :disabled="isLoading"
                   block
                   type="submit"
-                  @click="login"
+                  @click="register"
                 >
-                  {{ t('auth.login.login_btn') }}
+                  {{ t('auth.register.register_btn') }}
                 </VBtn>
               </VCol>
+
               <VCol cols="12" class="text-center">
                 <RouterLink
-                  :to="{ name: 'auth-register' }"
+                  :to="{ name: 'auth-login' }"
                   class="text-decoration-none"
                 >
-                  {{ t('auth.login.no_account') }}
+                  {{ t('auth.register.already_have_account') }}
                 </RouterLink>
               </VCol>
             </VRow>
@@ -203,5 +232,5 @@ const login = async () => {
 
 <route lang="yaml">
 meta:
-  title: Login
-</route>
+  title: Register
+</route> 

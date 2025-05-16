@@ -49,8 +49,9 @@ const snackbar = ref({
 const eventBus = mitt()
 
 const isAdmin = computed(() => authStore.is_admin())
-const hasManagerPermission = computed(() => authStore.userData.role >= 2)
-const hasModeratorPermission = computed(() => authStore.userData.role >= 3)
+const hasManagerPermission = ref(false)
+const hasModeratorPermission = ref(false)
+const hasWritePermission = ref(false)
 
 const statusOptions = [
   {title: t('projects.status.draft'), value: 'draft'},
@@ -203,7 +204,14 @@ const formatDate = (dateString) => {
   })
 }
 
+const updatePermissions = async () => {
+  hasManagerPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'MANAGER')
+  hasModeratorPermission.value = await authStore.hasProjectRoleAtLeast(props.projectId, 'ADMIN')
+  hasWritePermission.value = await authStore.hasProjectWriteAccess(props.projectId)
+}
+
 onMounted(() => {
+  updatePermissions()
   if (props.requirementId && !props.userStories.length && !props.loading) {
     userStoryStore.fetchUserStories(props.requirementId)
       .then(({data}) => {
@@ -229,6 +237,10 @@ watch(detailsDialogVisible, (val) => {
   } else {
     eventBus.off('project-refresh')
   }
+})
+
+watch(() => props.projectId, () => {
+  updatePermissions()
 })
 </script>
 
