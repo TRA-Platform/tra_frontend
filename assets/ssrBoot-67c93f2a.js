@@ -1,0 +1,1 @@
+import{k as t,H as i,E as n,ci as s}from"./index-e9072ce0.js";function e(){const o=t(!1);return i(()=>{window.requestAnimationFrame(()=>{o.value=!0})}),{ssrBootStyles:n(()=>o.value?void 0:{transition:"none !important"}),isBooted:s(o)}}export{e as u};
